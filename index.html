@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1.0, user-scalable=yes, maximum-scale=3.0, minimum-scale=1.0" />
+  <title>ระบบขอสั่งอะไหล่คลังสินค้านวนคร</title>
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#1877f2">
+  <meta name="mobile-web-app-capable" content="yes"> <!-- Fixed: Deprecated tag replaced -->
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="ระบบขอสั่งอะไหล่คลังสินค้านวนคร">
+  <link rel="apple-touch-icon" href="/icon-192.png">
+  <link rel="stylesheet" href="style.css">
+  <!-- Enhanced Content Security Policy to reduce phishing risks -->
+  <meta http-equiv="Content-Security-Policy"
+    content="default-src 'self' https:; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://unpkg.com https://code.jquery.com https://docs.google.com https://script.google.com https://script.googleusercontent.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: https: blob: https://drive.google.com https://lh3.googleusercontent.com; connect-src 'self' https://docs.google.com https://script.google.com https://script.googleusercontent.com; frame-src https://docs.google.com https://drive.google.com; object-src 'none'; base-uri 'self'; form-action 'self' https://docs.google.com;">
+  <!-- Additional security headers via meta -->
+  <meta http-equiv="X-Content-Type-Options" content="nosniff">
+  <!-- Removed invalid X-Frame-Options meta; set via server if needed -->
+  <meta http-equiv="X-XSS-Protection" content="1; mode=block">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <!-- Verification meta to help with Safe Browsing (add your site verification if available) -->
+  <meta name="google-site-verification" content="your-verification-token-if-any">
+  <!-- Clear description to indicate legitimacy -->
+  <meta name="description"
+    content="ระบบภายในสำหรับขอสั่งอะไหล่คลังสินค้านวนคร - เครื่องมือสำหรับพนักงานเท่านั้น ไม่ใช่เว็บไซต์ภายนอก">
+  <link href="https://fonts.googleapis.com/css2?family=Itim&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+</head>
+
+<body class="light-mode">
+  <!-- Login Modal -->
+  <div id="loginModal" class="login-modal active">
+    <div class="login-content">
+      <h2>เข้าสู่ระบบ</h2>
+      <form onsubmit="event.preventDefault(); handleLogin();">
+        <input type="text" id="username" placeholder="รหัสพนักงาน" autocomplete="username" />
+        <div class="password-container">
+          <input type="password" id="password" placeholder="รหัสผ่าน (ให้นึกก่อน)" autocomplete="current-password" />
+          <i class="fas fa-eye-slash" id="togglePassword" onclick="togglePasswordVisibility()"></i>
+        </div>
+        <div class="remember-me">
+          <input type="checkbox" id="rememberMe" />
+          <label for="rememberMe">Remember me</label>
+        </div>
+        <button type="submit">เข้าสู่ระบบ</button>
+      </form>
+      <div id="loginError" class="error">ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง!</div>
+    </div>
+  </div>
+  <!-- App Content -->
+  <div id="appContent" class="app-content">
+    <!-- Compact Top Header with Logo and Setting Button -->
+    <div class="header">
+      <div class="header-title">
+        <img src="/icon-192.png" alt="PartsGo" class="header-logo">
+        <span>สั่งอะไหล่คลังนวนคร</span>
+      </div>
+      <button id="install-btn" title="ติดตั้ง PartsGo บนหน้าจอหลัก" style="display:none;">
+        <i class="fas fa-download"></i> ติดตั้ง
+      </button>
+      <button class="header-notification-btn" onclick="openAnnouncementDeck()" title="ข้อความแจ้งเตือน">
+        <i class="fas fa-bell"></i>
+        <span id="notificationBadge" class="notification-badge" style="display:none;">!</span>
+      </button>
+      <span id="userNameSmall" class="user-name-small" style="display: none;"></span>
+      <span id="backgroundSyncIcon" class="sync-icon" style="display:none; margin-right: 10px; color: #1877f2;"
+        title="กำลังอัปเดตข้อมูล..."><i class="fas fa-sync fa-spin"></i></span>
+      <button class="header-setting-btn" onclick="showSettings()" title="ตั้งค่า"><i class="fas fa-bars"></i></button>
+    </div>
+    <div class="loading" id="loading">
+      <div class="spinner"></div>
+      <span>กำลังโหลดข้อมูล...</span>
+    </div>
+    <div class="container">
+      <!-- Original tabs hidden -->
+      <div class="tabs" style="display: none;">
+        <button class="tab-button active" id="tab-parts" onclick="showTab('parts')">
+          ค้นหาอะไหล่เพื่อเบิก
+        </button>
+        <button class="tab-button" id="tab-images" onclick="showTab('images')">
+          ค้นหารูป
+        </button>
+        <button class="tab-button" id="tab-today" onclick="showTab('today')">
+          รายการเบิกประจำวันนี้
+        </button>
+        <button class="tab-button" id="tab-pending-calls" onclick="showTab('pending-calls')">
+          อะไหล่จ่ายตาม Call
+        </button>
+      </div>
+      <div id="parts" class="tab-content active">
+        <div id="searchContainer">
+          <input type="text" id="searchInput1" placeholder="ค้นหา ตัวกรองหลัก" />
+          <input type="text" id="searchInput2" placeholder="ค้นหา ตัวกรองย่อย" />
+          <button id="searchButton" class="canva-button">
+            <i class="fas fa-redo"></i> <span>Clear</span>
+          </button>
+        </div>
+        <div id="error-container">
+          <p id="error-message">เกิดข้อผิดพลาดในการโหลดข้อมูล กรุณาตรวจสอบการเชื่อมต่อหรือลองใหม่</p>
+          <button id="retry-button">ลองใหม่</button>
+        </div>
+        <div class="table-container">
+          <table id="data-table">
+            <thead>
+              <tr>
+                <th>เบิก</th>
+                <th>image</th>
+                <th>Material</th>
+                <th>Description</th>
+                <th>Storage bin</th>
+                <th>คงเหลือ</th>
+                <th>นวนคร</th>
+                <th>ค้างยืม</th>
+                <th>Rebuilt</th>
+                <th>หมายเหตุ</th>
+                <th>Product</th>
+                <th>Spec</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+
+        <div id="pagination" class="pagination">
+          <button id="firstPage">
+            <i class="fas fa-chevron-left"></i><i class="fas fa-chevron-left"></i>
+          </button>
+          <button id="prevPage"><i class="fas fa-chevron-left"></i></button>
+          <div id="pageNumbers"></div>
+          <button id="nextPage"><i class="fas fa-chevron-right"></i></button>
+          <button id="lastPage">
+            <i class="fas fa-chevron-right"></i><i class="fas fa-chevron-right"></i>
+          </button>
+          <div class="items-per-page">
+            <label for="itemsPerPage">Show</label>
+            <select id="itemsPerPage">
+              <option value="10">10</option>
+              <option value="20" selected>20</option>
+              <option value="30">30</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div id="images" class="tab-content">
+        <div id="searchContainerImages">
+          <input type="text" id="searchInputImages1" placeholder="ค้นหา ตัวกรองหลัก" />
+          <input type="text" id="searchInputImages2" placeholder="ค้นหา ตัวกรองย่อย" />
+          <button id="searchButtonImages" class="canva-button">
+            <i class="fas fa-redo"></i> <span>Clear</span>
+          </button>
+        </div>
+        <div id="error-container-images">
+          <p id="error-message-images">เกิดข้อผิดพลาดในการโหลดข้อมูล กรุณาตรวจสอบการเชื่อมต่อหรือลองใหม่</p>
+          <button id="retry-button-images">ลองใหม่</button>
+        </div>
+        <div class="gallery-container-images" id="gallery-container-images">
+          <!-- Gallery items will be rendered here -->
+        </div>
+
+        <div id="paginationImages" class="pagination-images">
+          <button id="firstPageImages">
+            <i class="fas fa-chevron-left"></i><i class="fas fa-chevron-left"></i>
+          </button>
+          <button id="prevPageImages"><i class="fas fa-chevron-left"></i></button>
+          <div id="pageNumbersImages"></div>
+          <button id="nextPageImages"><i class="fas fa-chevron-right"></i></button>
+          <button id="lastPageImages">
+            <i class="fas fa-chevron-right"></i><i class="fas fa-chevron-right"></i>
+          </button>
+          <div class="items-per-page-images">
+            <label for="itemsPerPageImages">Show</label>
+            <select id="itemsPerPageImages">
+              <option value="10">10</option>
+              <option value="20" selected>20</option>
+              <option value="30">30</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div id="today" class="tab-content">
+        <!-- ข้อความเตือนใหม่ -->
+        <div class="today-warning-row">
+          <div class="today-warning">
+            ระบบจะตัดรอบการเบิกในเวลา 14.50น.
+          </div>
+          <div class="today-admin-actions" id="todayAdminActions" style="display: none;">
+            <button id="exportTodayBtn" class="today-icon-btn" title="Export รายการวันนี้">
+              <i class="fas fa-file-export"></i>
+            </button>
+            <button id="saveTodayBtn" class="today-icon-btn" title="บันทึกข้อมูล">
+              <i class="fas fa-save"></i>
+            </button>
+          </div>
+        </div>
+        <div id="searchContainer">
+          <input type="text" id="searchInputToday" placeholder="ค้นหา Code, Material, ชื่อช่าง หรือ ทีม..." />
+          <!-- Toggle button for all data -->
+          <button id="toggleAllDataBtn" class="canva-button" title="กำลังแสดงเฉพาะรายการที่รอเบิก">
+            <i class="fas fa-clock"></i>
+            <span>ทั้งหมด</span>
+          </button>
+        </div>
+        <div id="error-container-today" class="error-container" style="display: none;">
+          <p id="error-message-today">เกิดข้อผิดพลาดในการโหลดข้อมูล กรุณาตรวจสอบการเชื่อมต่อหรือลองใหม่</p>
+          <button id="retry-button-today">ลองใหม่</button>
+        </div>
+        <div id="loadingToday" class="spinner-container">
+          <div class="spinner"></div>
+          <p>กำลังโหลดข้อมูล...</p>
+        </div>
+        <div id="todayEmptyMessage"
+          style="display:none; text-align:center; padding:12px; color:#4caf50; font-weight:bold; font-size:32px !important;">
+          ทำเบิกทั้งหมดแล้ว
+        </div>
+        <div class="table-container">
+          <table id="data-table-today">
+            <thead>
+              <tr>
+                <th id="th-select-today">เลือก</th>
+                <th id="th-print-today">Print</th>
+                <th>Status</th>
+                <th class="sortable" data-column="IDRow">ลำดับ <span class="today-arrow">↓</span></th>
+                <th>รูป</th>
+                <th class="sortable" data-column="Timestamp">วันเวลา <span class="today-arrow">↓</span></th>
+                <th>Material</th>
+                <th>Description</th>
+                <th>Storage bin</th>
+                <th>จำนวน</th>
+                <th>คงเหลือ</th>
+                <th>นวนคร</th>
+                <th>ชื่อช่าง</th>
+                <th>หน่วยงาน</th>
+                <th>Call</th>
+                <th>CallType</th>
+                <th>หมายเหตุ</th>
+                <th>Plant</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <!-- Pagination for Today Tab -->
+        <div id="paginationToday" class="pagination-today">
+          <button id="firstPageToday">
+            <i class="fas fa-chevron-left"></i><i class="fas fa-chevron-left"></i>
+          </button>
+          <button id="prevPageToday"><i class="fas fa-chevron-left"></i></button>
+          <div id="pageNumbersToday"></div>
+          <button id="nextPageToday"><i class="fas fa-chevron-right"></i></button>
+          <button id="lastPageToday">
+            <i class="fas fa-chevron-right"></i><i class="fas fa-chevron-right"></i>
+          </button>
+          <div class="items-per-page-today">
+            <label for="itemsPerPageToday">Show</label>
+            <select id="itemsPerPageToday">
+              <option value="10">10</option>
+              <option value="20" selected>20</option>
+              <option value="30">30</option>
+            </select>
+          </div>
+        </div>
+        <div id="detailModal" class="modal">
+          <div class="modal-content" style="max-width:600px; width:90%;">
+            <span id="closeModal" class="close">&times;</span>
+            <div id="modalContent"></div>
+          </div>
+        </div>
+      </div>
+      <div id="all" class="tab-content">
+        <div id="searchContainerAll">
+          <input type="text" id="searchInputAll" placeholder="ค้นหา Code,Description, ชื่อช่าง หรือ ทีม..." />
+        </div>
+        <div class="all-table-container">
+          <table id="data-table-all">
+            <thead>
+              <tr>
+                <th>Status</th>
+                <th class="sortable" data-column="Timestamp">วันเวลา <span class="arrow"></span></th>
+                <th class="sortable" data-column="Code">Material <span class="arrow"></span></th>
+                <th class="sortable" data-column="Material Description">Description <span class="arrow"></span></th>
+                <th>จำนวน</th>
+                <th class="sortable" data-column="ชื่อช่าง">ชื่อช่าง <span class="arrow"></span></th>
+                <th>หน่วยงาน</th>
+                <th>เลขที่Call</th>
+                <th>CallType</th>
+                <th class="sortable" data-column="หมายเหตุ">หมายเหตุ <span class="arrow"></span></th>
+                <th>ดูรายละเอียด</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <div id="detailModalAll" class="all-modal">
+          <div class="all-modal-content">
+            <span class="all-close" id="closeModalAll">&times;</span>
+            <h2>รายละเอียด</h2>
+            <div id="modalContentAll"></div>
+          </div>
+        </div>
+        <div class="all-pagination">
+          <button id="firstPageAll"><i class="fas fa-chevron-left"></i><i class="fas fa-chevron-left"></i></button>
+          <button id="prevPageAll"><i class="fas fa-chevron-left"></i></button>
+          <div id="pageNumbersAll"></div>
+          <button id="nextPageAll"><i class="fas fa-chevron-right"></i></button>
+          <button id="lastPageAll">
+            <i class="fas fa-chevron-right"></i><i class="fas fa-chevron-right"></i>
+          </button>
+          <div class="all-items-per-page">
+            <label for="itemsPerPageAll">:</label>
+            <select id="itemsPerPageAll">
+              <option value="10">10 รายการ</option>
+              <option value="20">20 รายการ</option>
+              <option value="30">30 รายการ</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div id="pending-calls" class="tab-content">
+        <div id="searchContainerPending">
+          <div class="pending-filter-row">
+            <label id="teamFilterLabelPending" for="teamFilterPending" class="pending-modern-label">เลือกทีม</label>
+            <select id="teamFilterPending">
+              <option value="">ทั้งหมด</option>
+            </select>
+            <div id="callCountInfoPending" class="pending-call-count-box">
+              จำนวน Ticket ค้าง <span id="callCountValuePending">0</span> Call
+            </div>
+          </div>
+          <div class="pending-search-row">
+            <input type="text" id="searchInputPending"
+              placeholder="ค้นหา Ticket, Team, สาขา, ค้างหน่วยงาน, Material, Description..." />
+            <button id="searchButtonPending"><i class="fas fa-search"></i></button>
+          </div>
+        </div>
+        <div class="pending-table-container">
+          <table id="data-table-pending">
+            <thead>
+              <tr>
+                <th class="sortable" data-column="DateTime">วันที่แจ้ง <span class="pending-arrow"></span></th>
+                <th class="sortable" data-column="Ticket Number">Ticket <span class="pending-arrow"></span></th>
+                <th class="sortable" data-column="Team">Team <span class="pending-arrow"></span></th>
+                <th class="sortable" data-column="Brand">สาขา <span class="pending-arrow"></span></th>
+                <th class="sortable" data-column="TeamPlant">TeamPlant <span class="pending-arrow"></span></th>
+                <th class="sortable" data-column="Plant">Plant <span class="pending-arrow"></span></th>
+                <th class="sortable" data-column="ค้างหน่วยงาน">ค้างหน่วยงาน <span class="pending-arrow"></span></th>
+                <th class="sortable" data-column="Material">Material <span class="pending-arrow"></span></th>
+                <th class="sortable" data-column="Description">Description <span class="pending-arrow"></span></th>
+                <th class="sortable" data-column="Vipa">คงเหลือ <span class="pending-arrow"></span></th>
+                <th class="sortable" data-column="DayRepair">ค้าง(วัน) <span class="pending-arrow"></span></th>
+                <th>ดูรายละเอียด</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <div id="detailModalPending" class="pending-modal">
+          <div class="pending-modal-content">
+            <span class="pending-close" id="closeModalPending">×</span>
+            <h2>รายละเอียด</h2>
+            <div id="modalContentPending"></div>
+          </div>
+        </div>
+        <div class="pending-pagination">
+          <button id="firstPagePending"><i class="fas fa-chevron-left"></i><i class="fas fa-chevron-left"></i></button>
+          <button id="prevPagePending"><i class="fas fa-chevron-left"></i></button>
+          <div id="pageNumbersPending"></div>
+          <button id="nextPagePending"><i class="fas fa-chevron-right"></i></button>
+          <button id="lastPagePending">
+            <i class="fas fa-chevron-right"></i><i class="fas fa-chevron-right"></i>
+          </button>
+          <div class="pending-items-per-page">
+            <label for="itemsPerPagePending">รายการต่อหน้า:</label>
+            <select id="itemsPerPagePending">
+              <option value="10">10 รายการ</option>
+              <option value="20" selected>20 รายการ</option>
+              <option value="30">30 รายการ</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modals moved to root for global access -->
+    <div id="imageModal" class="image-modal">
+      <div class="image-modal-content">
+        <span class="image-close" id="closeImageModal">&times;</span>
+        <div id="imageModalContent"></div>
+      </div>
+    </div>
+    <div id="imageModalImages" class="image-modal-images">
+      <div class="image-modal-content-images">
+        <span class="image-close-images" id="closeImageModalImages">×</span>
+        <div id="imageModalContentImages"></div>
+      </div>
+    </div>
+    <!-- Settings Modal -->
+    <div id="settingsModal" class="settings-modal" style="display: none;">
+      <div class="settings-modal-content settings-mobile">
+        <div class="settings-topbar">
+          <span class="close-settings" id="closeSettings">&times;</span>
+          <h2>การตั้งค่า</h2>
+        </div>
+
+        <div class="settings-hero">
+          <div class="settings-hero-left">
+            <div class="settings-hero-icon"><i class="fas fa-cog"></i></div>
+            <div>
+              <div class="settings-hero-title">ตั้งค่า</div>
+              <div class="settings-hero-sub">จัดการบัญชีและปรับแต่งการใช้งาน</div>
+            </div>
+          </div>
+          <div class="settings-hero-badge">
+            <i class="fas fa-shield-alt"></i> Secure
+          </div>
+        </div>
+
+        <div class="settings-user-card">
+          <div class="user-main">
+            <div class="user-main-left">
+              <div class="settings-avatar">
+                <i class="fas fa-user"></i>
+              </div>
+              <div class="user-text">
+                <div class="user-name" id="modalUserName">ชื่อผู้ใช้</div>
+                <div class="user-meta">
+                  <span class="user-id">รหัสพนักงาน: <span id="modalUserID">-</span></span>
+                  <span class="user-team" id="modalUserTeam">กำลังโหลด...</span>
+                </div>
+              </div>
+            </div>
+            <div class="user-chip" id="modalUserAuth">กำลังโหลด...</div>
+          </div>
+          <div class="user-subtext">
+            <span class="user-sub-pill"><i class="fas fa-user-shield"></i> สถานะบัญชี</span>
+            <span class="user-sub-pill"><i class="fas fa-map-marker-alt"></i> <span id="modalUserPlant">Spare part
+                วิภาวดี 62</span></span>
+          </div>
+        </div>
+
+        <div class="settings-card list-card">
+          <div class="setting-item">
+            <div class="setting-left">
+              <span class="setting-icon bg-blue"><i class="fas fa-palette"></i></span>
+              <div class="setting-text">
+                <div class="setting-title">ธีม</div>
+                <div class="setting-sub"></div>
+              </div>
+            </div>
+            <select id="themeSelect" class="theme-select">
+              <option value="light">สว่าง</option>
+              <option value="dark">มืด</option>
+            </select>
+          </div>
+
+          <div class="setting-item" id="adminAnnouncementSection" style="display: none;">
+            <button id="notificationBtn" onclick="openAnnouncementEditor()" class="setting-button">
+              <span class="setting-icon bg-orange"><i class="fas fa-bullhorn"></i></span>
+              <div class="setting-text">
+                <div class="setting-title">ประกาศใหม่</div>
+                <div class="setting-sub">สร้าง/แก้ไขประกาศ</div>
+              </div>
+              <span id="notificationBadge" class="notification-badge"></span>
+            </button>
+          </div>
+
+          <div class="setting-item">
+            <button class="setting-button" onclick="showQRCode()">
+              <span class="setting-icon bg-green"><i class="fas fa-qrcode"></i></span>
+              <div class="setting-text">
+                <div class="setting-title">QR Code</div>
+                <div class="setting-sub">เปิดหน้าสแกนเข้าใช้งาน</div>
+              </div>
+            </button>
+          </div>
+
+          <div class="setting-item">
+            <button class="setting-button" onclick="showHelp()">
+              <span class="setting-icon bg-purple"><i class="fas fa-question-circle"></i></span>
+              <div class="setting-text">
+                <div class="setting-title">วิธีใช้งาน</div>
+                <div class="setting-sub">คู่มือใช้งานฉบับย่อ</div>
+              </div>
+            </button>
+          </div>
+
+          <div class="setting-item">
+            <button class="setting-button" onclick="handleClearCacheAndReload()">
+              <span class="setting-icon bg-yellow"><i class="fas fa-broom"></i></span>
+              <div class="setting-text">
+                <div class="setting-title">รีเฟรชข้อมูล</div>
+                <div class="setting-sub">ล้างแคชและโหลดใหม่</div>
+              </div>
+            </button>
+          </div>
+
+          <div class="setting-item">
+            <button class="setting-button danger" onclick="handleLogout()">
+              <span class="setting-icon bg-red"><i class="fas fa-sign-out-alt"></i></span>
+              <div class="setting-text">
+                <div class="setting-title">ออกจากระบบ</div>
+                <div class="setting-sub">ปิดเซสชันผู้ใช้</div>
+              </div>
+            </button>
+          </div>
+        </div>
+
+        <div class="settings-footer-card">
+          <div class="settings-footer-stack">
+            <div class="settings-footer-tile">
+              <p class="footer-title">PartsGo Ver. <span id="appVersion">v18.10.39</span></p>
+              <p class="footer-sub">© 2025 คลังสินค้า SparePart วิภาวดี 62</p>
+              <p class="footer-sub">ระบบภายในสำหรับพนักงานเท่านั้น</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Bottom Navigation (Removed Setting Button) -->
+    <div class="bottom-nav">
+      <button class="nav-btn active" id="nav-parts" data-tab="parts" onclick="showTab('parts')"
+        data-label="ค้นหาอะไหล่"><i class="fas fa-search"></i></button>
+      <button class="nav-btn" id="nav-images" data-tab="images" onclick="showTab('images')" data-label="รูปภาพ"><i
+          class="fas fa-images"></i></button>
+      <button class="nav-btn" id="nav-today" data-tab="today" onclick="showTab('today')" data-label="เบิกวันนี้"><i
+          class="fas fa-calendar-day"></i></button>
+      <button class="nav-btn" id="nav-pending" data-tab="pending-calls" onclick="showTab('pending-calls')"
+        data-label="Call"><i class="fas fa-phone"></i></button>
+    </div>
+  </div>
+  <!-- Sticker Preview Modal (Moved to root for print isolation) -->
+  <div id="stickerPreviewModal" class="sticker-preview-modal" style="display: none;">
+      <div class="sticker-preview-content">
+          <div id="sticker-printable-area">
+              <!-- Sticker content will be injected here -->
+          </div>
+          <div class="sticker-modal-footer">
+              <button class="sticker-print-btn" onclick="window.print()">
+                  <i class="fas fa-print"></i> พิมพ์สติ๊กเกอร์
+              </button>
+              <button class="sticker-close-btn" onclick="document.getElementById('stickerPreviewModal').style.display='none'">
+                  ปิด
+              </button>
+          </div>
+      </div>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script type="module" src="js/app.js?v=40"></script>
+</body>
+
+</html>
