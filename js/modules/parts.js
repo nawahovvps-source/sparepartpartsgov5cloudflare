@@ -902,7 +902,12 @@ async function submitRequisition(row, formValues) {
                 }
             }
 
-            if (res.ok && (!result || result.status !== 'error')) {
+            const explicitlyFailed = result && (
+                result.status === 'error' ||
+                result.success === false ||
+                result.ok === false
+            );
+            if (!explicitlyFailed) {
                 // Success
                 Toast.fire({
                     icon: 'success',
