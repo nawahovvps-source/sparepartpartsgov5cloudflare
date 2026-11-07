@@ -54,7 +54,8 @@ module.exports = async (req, res) => {
       const material = normalizeMaterial(row.Material);
       if (material && !stockByMaterial.has(material)) {
         stockByMaterial.set(material, {
-          description: row['Material description'] || row.Description || ''
+          description: row['Material description'] || row.Description || '',
+          unrestricted: parseQuantity(row.Unrestricted)
         });
       }
     });
@@ -71,8 +72,7 @@ module.exports = async (req, res) => {
         'ค้างหน่วยงาน': row['ค้างหน่วยงาน'] || '',
         Material: row.Material || '',
         Description: stockItem ? stockItem.description : '',
-        '326': parseQuantity(row['326']),
-        Unrestricted: parseQuantity(row['326'])
+        Unrestricted: stockItem ? stockItem.unrestricted : ''
       };
     });
 
