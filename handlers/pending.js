@@ -31,6 +31,9 @@ const parseQuantity = value => {
 };
 
 module.exports = async (req, res) => {
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
+  res.setHeader('Pragma', 'no-cache');
+
   if (!requireAuth(req, res)) {
     return;
   }
@@ -73,7 +76,6 @@ module.exports = async (req, res) => {
       };
     });
 
-    res.setHeader('Cache-Control', 'no-store');
     res.status(200).json(pendingCalls);
   } catch (error) {
     console.error('Failed to load CallMaterial or 0326 stock data:', error);

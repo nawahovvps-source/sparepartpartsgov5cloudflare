@@ -45,8 +45,6 @@ export async function loadPendingCallsData() {
 
             // Update State & Render
             state.allPendingData = freshData;
-            state.allPendingData = freshData;
-            state.allPendingData = freshData;
             filterAndRenderTablePending();
 
             // Trigger the background stock data load
