@@ -3052,6 +3052,21 @@ iframe {
   align-items: center;
 }
 
+#pending-calls .pending-status-button {
+  padding: 8px 14px;
+  margin-right: 8px;
+  border: 1px solid #2980b9;
+  border-radius: 8px;
+  background: #fff;
+  color: #2980b9;
+  cursor: pointer;
+}
+
+#pending-calls .pending-status-button.active {
+  background: #2980b9;
+  color: #fff;
+}
+
 #pending-calls .pending-search-row {
   display: flex;
   align-items: center;

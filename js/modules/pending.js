@@ -5,6 +5,8 @@ import { hideLoading, showDetailModal, renderPagination } from '../ui.js';
 import { parseSafeFloat } from '../utils.js';
 import { loadData } from './parts.js?v=39';
 
+let pendingAvailabilityFilter = 'available';
+
 // Helper for Pending Tab Date Formatting
 function formatDateTimePending(dateTime) {
     if (!dateTime) return "";
@@ -24,8 +26,7 @@ function normalizePlantCode(code) {
 // Global filter logic for Pending rows
 function isValidPendingRow(row) {
     const pendingDept = String(row["ค้างหน่วยงาน"] || "").toLowerCase();
-    return parseSafeFloat(row["Unrestricted"]) > 0 &&
-        !pendingDept.includes("stock วิภาวดี 62") &&
+    return !pendingDept.includes("stock วิภาวดี 62") &&
         !pendingDept.includes("nec_ยกเลิกผลิต");
 }
 
@@ -139,17 +140,11 @@ export function filterAndRenderTablePending() {
 
     console.log('Call Filter Debug - End. Total Context Data:', contextData.length);
 
-    // 2. Update Faceted Filter (Team) based on Context
-    populateTeamFilter(contextData);
-
-    // 3. Second Pass: Filter by Selected Team
-    const teamFilter = document.getElementById("teamFilterPending");
-    const selectedTeam = teamFilter ? teamFilter.value : "";
-
-    let filtered = contextData.filter(row => {
-        if (selectedTeam === "") return true;
-        const rowTeam = (row["Team"] || "").toString().trim();
-        return rowTeam === selectedTeam;
+    const filtered = contextData.filter(row => {
+        const unrestricted = parseSafeFloat(row["Unrestricted"]);
+        return pendingAvailabilityFilter === 'available'
+            ? unrestricted > 0
+            : unrestricted <= 0;
     });
 
     // 4. Update State & Sorting/Grouping
@@ -270,47 +265,6 @@ export function filterAndRenderTablePending() {
     }
 }
 
-// Populate Team Filter Dropdown (Faceted)
-function populateTeamFilter(data) {
-    const teamSelect = document.getElementById("teamFilterPending");
-    if (!teamSelect) return;
-
-    // Data passed here is already filtered by Validity & Search
-    if (!data) data = [];
-
-    // Get unique teams
-    const teams = new Set();
-    data.forEach(row => {
-        const team = (row["Team"] || "").toString().trim();
-        if (team) teams.add(team);
-    });
-
-    const sortedTeams = Array.from(teams).sort();
-
-    // Check current selection to preserve it if possible
-    const currentVal = teamSelect.value;
-
-    // Reset options
-    teamSelect.innerHTML = '<option value="">ทั้งหมด</option>';
-
-    sortedTeams.forEach(team => {
-        const option = document.createElement("option");
-        option.value = team;
-        option.textContent = team;
-        teamSelect.appendChild(option);
-    });
-
-    // Restore selection if valid, otherwise it defaults to "" (ทั้งหมด)
-    if (currentVal && teams.has(currentVal)) {
-        teamSelect.value = currentVal;
-    } else if (currentVal && !teams.has(currentVal)) {
-        // If selected team is no longer available in the filtered context, 
-        // we essentially "reset" the filter visually by falling back to "All".
-        // This is standard faceted search behavior.
-        teamSelect.value = "";
-    }
-}
-
 // Pagination helper
 function changePagePending(page) {
     state.currentPagePending = page;
@@ -321,11 +275,27 @@ function changePagePending(page) {
 export function initPendingListeners() {
     console.log("Initializing Pending Listeners...");
 
-    const teamFilter = document.getElementById("teamFilterPending");
-    if (teamFilter) {
-        teamFilter.addEventListener("change", () => {
+    const availableButton = document.getElementById("pendingAvailableButton");
+    const waitingButton = document.getElementById("pendingWaitingButton");
+
+    const setAvailabilityFilter = (filter) => {
+        pendingAvailabilityFilter = filter;
+        if (availableButton) availableButton.classList.toggle("active", filter === "available");
+        if (waitingButton) waitingButton.classList.toggle("active", filter === "waiting");
+        state.currentPagePending = 1;
+        filterAndRenderTablePending();
+    };
+
+    if (availableButton) {
+        availableButton.addEventListener("click", () => {
             state.currentPagePending = 1;
-            filterAndRenderTablePending();
+            setAvailabilityFilter('available');
+        });
+    }
+    if (waitingButton) {
+        waitingButton.addEventListener("click", () => {
+            state.currentPagePending = 1;
+            setAvailabilityFilter('waiting');
         });
     }
 
