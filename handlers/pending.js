@@ -25,6 +25,10 @@ const fetchSheetRows = async (sheetIdEnv, sheetNameEnv) => {
 };
 
 const normalizeMaterial = value => String(value || '').trim().replace(/\.0$/, '');
+const normalizePlant = value => {
+  const plant = String(value || '').trim().replace(/\.0$/, '');
+  return /^\d+$/.test(plant) ? plant.padStart(4, '0') : plant;
+};
 const parseQuantity = value => {
   const quantity = Number(String(value || '').replace(/,/g, '').trim());
   return Number.isFinite(quantity) ? quantity : 0;
@@ -44,24 +48,37 @@ module.exports = async (req, res) => {
   }
 
   try {
-    const [calls, stock] = await Promise.all([
+    const userPlant = normalizePlant(req.user.plant);
+    const stockSheet = {
+      '0304': ['SHEET_ID_0304_STOCK', 'SHEET_NAME_0304_STOCK'],
+      '0326': ['SHEET_ID_0326_STOCK', 'SHEET_NAME_0326_STOCK'],
+      '0330': ['SHEET_ID_0330_STOCK', 'SHEET_NAME_0330_STOCK']
+    }[userPlant] || ['SHEET_ID_NAWANAKORN_STOCK', 'SHEET_NAME_NAWANAKORN_STOCK'];
+
+    const [calls, descriptionStock, remainingStock] = await Promise.all([
       fetchSheetRows('SHEET_ID_PENDING', 'SHEET_NAME_PENDING'),
-      fetchSheetRows('SHEET_ID_NAWANAKORN_STOCK', 'SHEET_NAME_NAWANAKORN_STOCK')
+      fetchSheetRows('SHEET_ID_NAWANAKORN_STOCK', 'SHEET_NAME_NAWANAKORN_STOCK'),
+      fetchSheetRows(...stockSheet)
     ]);
 
-    const stockByMaterial = new Map();
-    stock.forEach(row => {
+    const descriptionByMaterial = new Map();
+    descriptionStock.forEach(row => {
       const material = normalizeMaterial(row.Material);
-      if (material && !stockByMaterial.has(material)) {
-        stockByMaterial.set(material, {
-          description: row['Material description'] || row.Description || '',
-          unrestricted: parseQuantity(row.Unrestricted)
-        });
+      if (material && !descriptionByMaterial.has(material)) {
+        descriptionByMaterial.set(material, row['Material description'] || row.Description || '');
+      }
+    });
+
+    const remainingByMaterial = new Map();
+    remainingStock.forEach(row => {
+      const material = normalizeMaterial(row.Material);
+      if (material && !remainingByMaterial.has(material)) {
+        remainingByMaterial.set(material, parseQuantity(row.Unrestricted || row['คงเหลือ'] || row['วิภาวดี']));
       }
     });
 
     const pendingCalls = calls.map(row => {
-      const stockItem = stockByMaterial.get(normalizeMaterial(row.Material));
+      const material = normalizeMaterial(row.Material);
       return {
         'Create Date': row['Create Date'] || '',
         'Ticket Number': row['Ticket Number'] || '',
@@ -71,14 +88,14 @@ module.exports = async (req, res) => {
         Plant: row.Plant || '',
         'ค้างหน่วยงาน': row['ค้างหน่วยงาน'] || '',
         Material: row.Material || '',
-        Description: stockItem ? stockItem.description : '',
-        Unrestricted: stockItem ? stockItem.unrestricted : ''
+        Description: descriptionByMaterial.get(material) || '',
+        Unrestricted: remainingByMaterial.get(material) ?? 0
       };
     });
 
     res.status(200).json(pendingCalls);
   } catch (error) {
-    console.error('Failed to load CallMaterial or Nawanakorn stock data:', error);
-    res.status(502).json({ error: 'Failed to load CallMaterial or Nawanakorn stock data' });
+    console.error('Failed to load CallMaterial or user stock data:', error);
+    res.status(502).json({ error: 'Failed to load CallMaterial or user stock data' });
   }
 };
