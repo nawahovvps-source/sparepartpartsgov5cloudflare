@@ -33,23 +33,15 @@ function isValidPendingRow(row) {
 export async function loadPendingCallsData() {
     const loading = document.getElementById("loading");
     const syncIcon = document.getElementById("backgroundSyncIcon");
-    const LOCAL_STORAGE_KEY = 'local_pending_calls_data_v2';
-
     // Helper to fetch and update
     const performUpdate = async () => {
         if (syncIcon) syncIcon.style.display = 'inline-block';
         try {
             console.log('Fetching fresh pending calls data...');
-            const res = await apiFetch(CONFIG.ENDPOINTS.PENDING_CALLS, { cache: 'no-store' });
+            const pendingUrl = `${CONFIG.ENDPOINTS.PENDING_CALLS}?v=${Date.now()}`;
+            const res = await apiFetch(pendingUrl, { cache: 'no-store' });
             if (!res.ok) throw new Error('Failed');
             const freshData = await res.json();
-
-            // Save to LocalStorage
-            try {
-                localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(freshData));
-            } catch (storageErr) {
-                console.warn('LocalStorage quota exceeded for pending calls:', storageErr);
-            }
 
             // Update State & Render
             state.allPendingData = freshData;
@@ -69,35 +61,6 @@ export async function loadPendingCallsData() {
         }
     };
 
-    const localDataStr = localStorage.getItem(LOCAL_STORAGE_KEY);
-
-    // 1. Check LocalStorage (Stale-While-Revalidate)
-    if (localDataStr) {
-        try {
-            const parsedData = JSON.parse(localDataStr);
-            if (Array.isArray(parsedData) && parsedData.length > 0) {
-                console.log('Found pending calls in localStorage, rendering immediately...');
-                state.allPendingData = parsedData;
-                filterAndRenderTablePending();
-
-                if (loading) loading.style.display = "none"; // Hide main loader immediately
-
-                if (loading) loading.style.display = "none"; // Hide main loader immediately
-
-                // Trigger Background Update
-                performUpdate().catch(err => console.error("Background update failed", err));
-                return; // Return immediately
-
-                // Trigger Background Update
-                performUpdate().catch(err => console.error("Background update failed", err));
-                return; // Return immediately
-            }
-        } catch (err) {
-            console.warn('Error parsing pending calls localStorage:', err);
-        }
-    }
-
-    // 2. If no cache, show full loader and await fetch
     if (loading) loading.style.display = "flex";
     await performUpdate();
 }
