@@ -79,14 +79,18 @@ export function filterAndRenderTablePending() {
         const valid = isValidPendingRow(row);
         if (!valid) return false;
 
-        // Admin sees all teams. Regular users see only their matching Team/unit.
-        if (!isAdmin && userTeam) {
-            const rowTeam = String(row["Team"] || '').trim();
-            if (rowTeam !== userTeam) return false;
-        } else if (!isAdmin && userPlant) {
+        if (userPlant) {
             const normalizedRowPlant = normalizePlantCode(row["Plant"]);
             const normalizedUserPlant = normalizePlantCode(userPlant);
             if (normalizedRowPlant !== normalizedUserPlant) return false;
+
+            if (!isAdmin && userTeam) {
+                const rowTeam = String(row["Team"] || '').trim();
+                if (rowTeam !== userTeam) return false;
+            }
+        } else if (!isAdmin && userTeam) {
+            const rowTeam = String(row["Team"] || '').trim();
+            if (rowTeam !== userTeam) return false;
         }
 
         // Search Logic
