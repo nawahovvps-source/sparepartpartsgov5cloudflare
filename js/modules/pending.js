@@ -4,6 +4,7 @@ import { CONFIG } from '../config.js';
 import { hideLoading, showDetailModal, renderPagination } from '../ui.js';
 import { parseSafeFloat } from '../utils.js';
 import { loadData } from './parts.js?v=39';
+import { getBorrowTotal, loadBorrowData, showBorrowPopup } from '../loans.js';
 
 let pendingAvailabilityFilter = 'available';
 
@@ -49,6 +50,9 @@ export async function loadPendingCallsData() {
 
             // Trigger the background stock data load
             loadData({ render: false }).catch(e => console.warn("Background parts load failed", e));
+            loadBorrowData()
+                .then(() => filterAndRenderTablePending())
+                .catch(e => console.warn("Background borrow data load failed", e));
 
             return freshData;
         } catch (e) {
@@ -147,7 +151,7 @@ export function filterAndRenderTablePending() {
     tbody.innerHTML = '';
 
     if (slice.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="11" style="text-align:center">ไม่พบข้อมูลที่ตรงกับเงื่อนไข</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="12" style="text-align:center">ไม่พบข้อมูลที่ตรงกับเงื่อนไข</td></tr>';
         return;
     }
 
@@ -160,7 +164,7 @@ export function filterAndRenderTablePending() {
         tr.className = colorMap[ticket] || "";
 
         // Strict Columns from main.js
-        const columns = ["Create Date", "Ticket Number", "Team", "Store Name", "TeamPlant", "Plant", "ค้างหน่วยงาน", "Material", "Description", "Unrestricted"];
+        const columns = ["Create Date", "Ticket Number", "Team", "Store Name", "TeamPlant", "Plant", "ค้างหน่วยงาน", "Material", "Description", "Unrestricted", "ค้างยืม"];
 
         columns.forEach(col => {
             const td = document.createElement("td");
@@ -173,6 +177,32 @@ export function filterAndRenderTablePending() {
                 const numValue = parseSafeFloat(cellValue);
                 cellValue = isNaN(numValue) ? "" : numValue.toString();
                 td.style.textAlign = "center"; // main.js uses class pending-text-center
+            }
+            else if (col === "ค้างยืม") {
+                const { borrowDataLoaded, borrowDataError } = state;
+                const total = getBorrowTotal(row.Material);
+                td.style.textAlign = "center";
+                if (total > 0) {
+                    const button = document.createElement("button");
+                    button.type = "button";
+                    button.className = "borrow-total-button";
+                    button.textContent = total.toLocaleString("en-US");
+                    button.title = "คลิกเพื่อดูรายการค้างยืม";
+                    button.onclick = event => {
+                        event.stopPropagation();
+                        showBorrowPopup(row.Material);
+                    };
+                    td.appendChild(button);
+                } else if (borrowDataLoaded) {
+                    td.innerHTML = '<span class="stock-zero-chip">0</span>';
+                } else if (borrowDataError) {
+                    td.textContent = "!";
+                    td.title = "โหลดข้อมูลค้างยืมไม่สำเร็จ";
+                } else {
+                    td.textContent = "...";
+                }
+                tr.appendChild(td);
+                return;
             }
 
             if (col === "Description") {
