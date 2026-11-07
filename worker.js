@@ -92,12 +92,21 @@ export default {
         method: request.method,
         headers: Object.fromEntries(request.headers.entries()),
         body,
+        query: Object.fromEntries(url.searchParams.entries()),
         url: url.pathname + url.search
       };
       req.headers['x-forwarded-proto'] = url.protocol.replace(':', '');
 
       const res = createResponseAdapter();
-      await handler(req, res);
+      try {
+        await handler(req, res);
+      } catch (error) {
+        console.error(`API handler failed: ${apiMatch[1]}`, error);
+        if (!res.isFinished()) {
+          res.status(500);
+          res.json({ error: 'Internal worker error' });
+        }
+      }
       return res.toResponse();
     }
 
