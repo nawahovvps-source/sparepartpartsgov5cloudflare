@@ -102,10 +102,10 @@ export function filterAndRenderTablePending() {
     console.log('Call Filter Debug - End. Total Context Data:', contextData.length);
 
     const filtered = contextData.filter(row => {
-        const unrestricted = parseSafeFloat(row["Unrestricted"]);
+        const remaining = parseSafeFloat(row["326"] ?? row["Unrestricted"]);
         return pendingAvailabilityFilter === 'available'
-            ? unrestricted > 0
-            : unrestricted <= 0;
+            ? remaining > 0
+            : remaining <= 0;
     });
 
     // 4. Update State & Sorting/Grouping
@@ -156,7 +156,7 @@ export function filterAndRenderTablePending() {
         tr.className = colorMap[ticket] || "";
 
         // Strict Columns from main.js
-        const columns = ["Create Date", "Ticket Number", "Team", "Store Name", "TeamPlant", "Plant", "ค้างหน่วยงาน", "Material", "Description", "Unrestricted"];
+        const columns = ["Create Date", "Ticket Number", "Team", "Store Name", "TeamPlant", "Plant", "ค้างหน่วยงาน", "Material", "Description", "326"];
 
         columns.forEach(col => {
             const td = document.createElement("td");
@@ -165,7 +165,7 @@ export function filterAndRenderTablePending() {
             if (col === "Create Date") {
                 cellValue = formatDateTimePending(cellValue);
             }
-            else if (col === "Unrestricted") {
+            else if (col === "326") {
                 const numValue = parseSafeFloat(cellValue);
                 cellValue = isNaN(numValue) ? "" : numValue.toString();
                 td.style.textAlign = "center"; // main.js uses class pending-text-center
