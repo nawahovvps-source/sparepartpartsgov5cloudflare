@@ -43,6 +43,16 @@ export function checkLoginStatus() {
             auth: localStorage.getItem('userAuth')
         };
         window.dispatchEvent(new CustomEvent('auth-changed', { detail: { isLoggedIn: true, user } }));
+        loadEmployeeData()
+            .then(employees => {
+                const username = localStorage.getItem('username');
+                const employee = employees.find(item => String(item.IDRec || '').trim() === String(username || '').trim());
+                if (employee) {
+                    localStorage.setItem('userTeam', employee.หน่วยงาน || '');
+                    localStorage.setItem('userPlant', employee.Plant || '');
+                }
+            })
+            .catch(() => {});
         // Log when user opens app and is already logged in
         logUserAction('APP_OPEN', `User ${user.name || localStorage.getItem('username')} opened the app.`);
     } else {
@@ -106,6 +116,7 @@ export async function handleLogin() {
         localStorage.setItem('userName', user.name || username);
         localStorage.setItem('userAuth', user.auth || 'None');
         localStorage.setItem('userPlant', user.plant || '');
+        localStorage.setItem('userTeam', user.team || '');
 
         console.log('LocalStorage set:', {
             username: localStorage.getItem('username'),
@@ -160,6 +171,7 @@ export function handleLogout() {
     localStorage.removeItem('userName');
     localStorage.removeItem('userAuth');
     localStorage.removeItem('userPlant');
+    localStorage.removeItem('userTeam');
     localStorage.removeItem('savedUsername');
     localStorage.removeItem('savedPassword');
     localStorage.removeItem('rememberMe');

@@ -107,17 +107,21 @@ export function filterAndRenderTablePending() {
 
     const userAuth = localStorage.getItem('userAuth') || 'None';
     const userPlant = (localStorage.getItem('userPlant') || '').toString().trim();
+    const userTeam = (localStorage.getItem('userTeam') || '').toString().trim();
     const isAdmin = userAuth === 'Admin';
 
-    console.log('Call Filter Debug - Start', { userAuth, userPlant, isAdmin });
+    console.log('Call Filter Debug - Start', { userAuth, userPlant, userTeam, isAdmin });
 
     // 1. First Pass: Filter by Search, Validity, and User Plant (Global Filters)
     let contextData = state.allPendingData.filter(row => {
         const valid = isValidPendingRow(row);
         if (!valid) return false;
 
-        // User Plant Filter - Applies to everyone if they have a plant assigned
-        if (userPlant) {
+        // Admin sees all teams. Regular users see only their matching Team/unit.
+        if (!isAdmin && userTeam) {
+            const rowTeam = String(row["Team"] || '').trim();
+            if (rowTeam !== userTeam) return false;
+        } else if (!isAdmin && userPlant) {
             const normalizedRowPlant = normalizePlantCode(row["Plant"]);
             const normalizedUserPlant = normalizePlantCode(userPlant);
             if (normalizedRowPlant !== normalizedUserPlant) return false;
