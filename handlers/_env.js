@@ -11,6 +11,8 @@ setDefault('SHEET_ID_MAIN_SAP', '1nbhLKxs7NldWo_y0s4qZ8rlpIfyyGkR_Dqq8INmhYlw');
 setDefault('SHEET_NAME_MAIN_SAP', 'MainSap');
 setDefault('SHEET_ID_PENDING', '1dzE4Xjc7H0OtNUmne62u0jFQT-CiGsG2eBo-1v6mrZk');
 setDefault('SHEET_NAME_PENDING', 'Call_Report');
+setDefault('SHEET_ID_CALL_MATERIAL', '112KOJI227dvyHy4w_gD8wuANrVPmFK_ezzZyV_uWVrE');
+setDefault('SHEET_NAME_CALL_MATERIAL', 'CallMaterial');
 setDefault('SHEET_ID_EMPLOYEE', '1eqVoLsZxGguEbRCC5rdI4iMVtQ7CK4T3uXRdx8zE3uw');
 setDefault('SHEET_NAME_EMPLOYEE', 'Employee_Auth');
 setDefault('SHEET_ID_IMAGE_DB', '1nbhLKxs7NldWo_y0s4qZ8rlpIfyyGkR_Dqq8INmhYlw');

@@ -23,7 +23,7 @@ import { loadTheme } from './theme.js';
 import { loadData, applyFilters, showRequisitionDialog } from './modules/parts.js?v=39';
 import { applyFiltersImages } from './modules/images.js?v=39';
 import { loadTodayData, updateTableToday, exportTodayData, saveTodayDataSnapshot, initTodayListeners } from './modules/today.js?v=39';
-import { loadPendingCallsData, initPendingListeners } from './modules/pending.js?v=40';
+import { loadPendingCallsData, initPendingListeners } from './modules/pending.js?v=41';
 import { loadAllData } from './modules/all.js?v=39';
 
 // Open Announcement Deck Stub (Not found in original main.js)

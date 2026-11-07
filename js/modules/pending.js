@@ -8,41 +8,13 @@ import { loadData } from './parts.js?v=39';
 // Helper for Pending Tab Date Formatting
 function formatDateTimePending(dateTime) {
     if (!dateTime) return "";
-    const datePart = dateTime.split(" ")[0];
+    const datePart = String(dateTime).split(" ")[0];
     return datePart;
-}
-
-const PLANT_MAPPING = {
-    "Stock กทม": "0301",
-    "Stock คลังระยอง": "0369",
-    "Stock วิภาวดี 62": "0326",
-    "Stock ขอนแก่น": "0319",
-    "Stock โคราช": "0309",
-    "Stock เชียงใหม่": "0366",
-    "Stock พระราม 3": "0304",
-    "Stock พิษณุโลก": "0312",
-    "Stock ภูเก็ต": "0313",
-    "Stock ราชบุรี": "0305",
-    "Stock ลำปาง": "0320",
-    "Stock ศรีราชา": "0311",
-    "Stock สุราษฎร์": "0307",
-    "Stock ประเวศ": "0330"
-};
-
-function getPlantByTeamPlant(teamPlant) {
-    if (!teamPlant) return "";
-    const cleaned = teamPlant.toString().trim();
-    const mapped = PLANT_MAPPING[cleaned] || "";
-    // Normalize to 4 digits if it's a number-like string (e.g. 326 -> 0326)
-    if (mapped && mapped.length < 4 && /^\d+$/.test(mapped)) {
-        return mapped.padStart(4, '0');
-    }
-    return mapped;
 }
 
 function normalizePlantCode(code) {
     if (!code) return "";
-    const cleaned = code.toString().trim();
+    const cleaned = code.toString().trim().replace(/\.0$/, "");
     if (cleaned.length < 4 && /^\d+$/.test(cleaned)) {
         return cleaned.padStart(4, '0');
     }
@@ -51,9 +23,8 @@ function normalizePlantCode(code) {
 
 // Global filter logic for Pending rows
 function isValidPendingRow(row) {
-    const pendingDept = (row["ค้างหน่วยงาน"] || "").toLowerCase();
-    // Logic must match what is desired: Vipa > 0 AND not ignored depts
-    return parseSafeFloat(row["Vipa"]) > 0 &&
+    const pendingDept = String(row["ค้างหน่วยงาน"] || "").toLowerCase();
+    return parseSafeFloat(row["Unrestricted"]) > 0 &&
         !pendingDept.includes("stock วิภาวดี 62") &&
         !pendingDept.includes("nec_ยกเลิกผลิต");
 }
@@ -61,7 +32,7 @@ function isValidPendingRow(row) {
 export async function loadPendingCallsData() {
     const loading = document.getElementById("loading");
     const syncIcon = document.getElementById("backgroundSyncIcon");
-    const LOCAL_STORAGE_KEY = 'local_pending_calls_data';
+    const LOCAL_STORAGE_KEY = 'local_pending_calls_data_v2';
 
     // Helper to fetch and update
     const performUpdate = async () => {
@@ -85,7 +56,7 @@ export async function loadPendingCallsData() {
             state.allPendingData = freshData;
             filterAndRenderTablePending();
 
-            // Trigger Parts Load for Vipa Stock
+            // Trigger the background stock data load
             loadData({ render: false }).catch(e => console.warn("Background parts load failed", e));
 
             return freshData;
@@ -141,24 +112,15 @@ export function filterAndRenderTablePending() {
     console.log('Call Filter Debug - Start', { userAuth, userPlant, isAdmin });
 
     // 1. First Pass: Filter by Search, Validity, and User Plant (Global Filters)
-    let contextData = state.allPendingData.filter((row, idx) => {
+    let contextData = state.allPendingData.filter(row => {
         const valid = isValidPendingRow(row);
         if (!valid) return false;
 
         // User Plant Filter - Applies to everyone if they have a plant assigned
         if (userPlant) {
-            const rawRowPlantVal = row["TeamPlant"];
-            const rowPlantMapped = getPlantByTeamPlant(rawRowPlantVal);
-            const normalizedRowPlant = normalizePlantCode(rowPlantMapped);
+            const normalizedRowPlant = normalizePlantCode(row["Plant"]);
             const normalizedUserPlant = normalizePlantCode(userPlant);
-            
-            const matches = normalizedRowPlant === normalizedUserPlant;
-            
-            if (idx < 5) { // Log first 5 rows to see what's happening
-                console.log(`Row #${idx} | Raw: "${rawRowPlantVal}" | Mapped: "${rowPlantMapped}" | Norm: "${normalizedRowPlant}" | UserPlant: "${normalizedUserPlant}" | Match: ${matches}`);
-            }
-            
-            if (!matches) return false;
+            if (normalizedRowPlant !== normalizedUserPlant) return false;
         }
 
         // Search Logic
@@ -221,7 +183,7 @@ export function filterAndRenderTablePending() {
     tbody.innerHTML = '';
 
     if (slice.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="10" style="text-align:center">ไม่พบข้อมูลที่ตรงกับเงื่อนไข</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="11" style="text-align:center">ไม่พบข้อมูลที่ตรงกับเงื่อนไข</td></tr>';
         return;
     }
 
@@ -234,23 +196,18 @@ export function filterAndRenderTablePending() {
         tr.className = colorMap[ticket] || "";
 
         // Strict Columns from main.js
-        const columns = ["DateTime", "Ticket Number", "Team", "Brand", "TeamPlant", "Plant", "ค้างหน่วยงาน", "Material", "Description", "Vipa", "DayRepair"];
+        const columns = ["Create Date", "Ticket Number", "Team", "Store Name", "TeamPlant", "Plant", "ค้างหน่วยงาน", "Material", "Description", "Unrestricted"];
 
         columns.forEach(col => {
             const td = document.createElement("td");
             let cellValue = row[col] || "";
 
-            // Calculate Plant value dynamically
-            if (col === "Plant") {
-                cellValue = getPlantByTeamPlant(row["TeamPlant"]);
-            }
-
-            if (col === "DateTime") {
+            if (col === "Create Date") {
                 cellValue = formatDateTimePending(cellValue);
             }
-            else if (col === "DayRepair" || col === "Vipa") {
+            else if (col === "Unrestricted") {
                 const numValue = parseSafeFloat(cellValue);
-                cellValue = isNaN(numValue) ? "" : numValue.toString(); // No commas in main.js for these? Or maybe yes? main.js said toString().
+                cellValue = isNaN(numValue) ? "" : numValue.toString();
                 td.style.textAlign = "center"; // main.js uses class pending-text-center
             }
 
@@ -280,7 +237,7 @@ export function filterAndRenderTablePending() {
             if (modal && content) {
                 const html = columns.map(col => {
                     let val = row[col] || "";
-                    if (col === "DateTime") val = formatDateTimePending(val);
+                    if (col === "Create Date") val = formatDateTimePending(val);
                     if (col === "Material" || col === "Description") {
                         if (row["Description"] === "Code ผิด") val = `<span style='color:red;font-weight:bold'>${val}</span>`;
                     }
