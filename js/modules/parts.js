@@ -892,8 +892,17 @@ async function submitRequisition(row, formValues) {
                 body: `action=insertRequest&payload=${encodeURIComponent(JSON.stringify(payload))}`
             });
 
-            const result = await res.json().catch(() => null);
-            if (res.ok && result && result.status === 'success') {
+            const responseText = await res.text().catch(() => '');
+            let result = null;
+            if (responseText) {
+                try {
+                    result = JSON.parse(responseText);
+                } catch (_) {
+                    result = null;
+                }
+            }
+
+            if (res.ok && (!result || result.status !== 'error')) {
                 // Success
                 Toast.fire({
                     icon: 'success',
@@ -908,7 +917,7 @@ async function submitRequisition(row, formValues) {
                     window.showTab('today');
                 }
             } else {
-                throw new Error(result && result.data ? String(result.data) : 'API Error');
+                throw new Error(result && result.data ? String(result.data) : 'ไม่สามารถส่งข้อมูลไปยังระบบได้');
             }
         } catch (e) {
             console.error(e);
