@@ -675,9 +675,9 @@ export async function showRequisitionDialog(row) {
       </div>
       <span id="swal-contact-error" class="error-message"></span>
 
-      <label class="swal2-label">📄 เลขที่ Call</label>
+      <label class="swal2-label">📄 เลขที่ใบงาน</label>
       <div style="position:relative;">
-        <input id="swal-call-number" class="swal2-input" placeholder="2... (11 หลัก)" list="call-list">
+        <input id="swal-call-number" class="swal2-input" type="text" inputmode="numeric" maxlength="7" placeholder="กรอกเลขที่ใบงาน 7 หลัก" list="call-list">
         <datalist id="call-list">
              ${history.callNumber.map(c => `<option value="${c}">`).join('')}
         </datalist>
@@ -719,11 +719,51 @@ export async function showRequisitionDialog(row) {
                 btns.forEach(x => x.classList.remove('selected'));
                 b.classList.add('selected');
                 selectedCallType = b.dataset.value;
+                updateConfirmState();
             });
 
             if (history.contact.length > 0) {
                 document.getElementById('swal-contact').value = history.contact[0];
             }
+
+            const updateConfirmState = () => {
+                const quantity = document.getElementById('swal-quantity').value;
+                const contact = document.getElementById('swal-contact').value.trim();
+                const callNumber = document.getElementById('swal-call-number').value.trim();
+                const remark = document.getElementById('swal-remark').value.trim();
+                const selectedBtn = document.querySelector('.call-type-btn.selected');
+                const hasValidJobNumber = /^\d{7}$/.test(callNumber);
+
+                const callError = document.getElementById('swal-call-number-error');
+                if (!remark && callNumber && !hasValidJobNumber) {
+                    callError.textContent = 'เลขที่ใบงานต้องครบ 7 หลัก';
+                } else if (!remark && !callNumber) {
+                    callError.textContent = 'กรุณากรอกเลขที่ใบงาน 7 หลัก หรือระบุหมายเหตุ';
+                } else {
+                    callError.textContent = '';
+                }
+
+                const canSubmit = parseInt(quantity, 10) >= 1 &&
+                    contact.length >= 9 &&
+                    (!!remark || (hasValidJobNumber && !!selectedBtn));
+
+                const confirmBtn = Swal.getConfirmButton();
+                if (confirmBtn) {
+                    confirmBtn.disabled = !canSubmit;
+                    confirmBtn.style.opacity = canSubmit ? '1' : '0.55';
+                    confirmBtn.style.cursor = canSubmit ? 'pointer' : 'not-allowed';
+                }
+            };
+
+            ['swal-quantity', 'swal-contact', 'swal-call-number', 'swal-remark'].forEach(id => {
+                document.getElementById(id).addEventListener('input', event => {
+                    if (id === 'swal-call-number') {
+                        event.target.value = event.target.value.replace(/\D/g, '').slice(0, 7);
+                    }
+                    updateConfirmState();
+                });
+            });
+            updateConfirmState();
         },
         preConfirm: () => {
             const quantity = document.getElementById('swal-quantity').value;
@@ -738,12 +778,13 @@ export async function showRequisitionDialog(row) {
             let isValid = true;
             if (!quantity || quantity < 1) { document.getElementById('swal-quantity-error').textContent = 'ระบุจำนวน'; isValid = false; }
             if (!contact || contact.length < 9) { document.getElementById('swal-contact-error').textContent = 'ระบุเบอร์ติดต่อ'; isValid = false; }
-            if (!remark.trim()) {
-                if (!callNumber || !currentCallType) {
-                    if (!callNumber) document.getElementById('swal-call-number-error').textContent = 'ระบุเลข Call';
-                    if (!currentCallType) document.getElementById('swal-call-type-error').textContent = 'เลือก Call Type';
-                    isValid = false;
-                }
+            if (!remark.trim() && !/^\d{7}$/.test(callNumber.trim())) {
+                document.getElementById('swal-call-number-error').textContent = 'กรุณากรอกเลขที่ใบงานครบ 7 หลัก หรือระบุหมายเหตุ';
+                isValid = false;
+            }
+            if (!remark.trim() && !currentCallType) {
+                document.getElementById('swal-call-type-error').textContent = 'เลือก Call Type';
+                isValid = false;
             }
             if (!isValid) return false;
             return { quantity, contact, callNumber, callType: currentCallType, remark, employeeCode: savedUsername };
@@ -851,7 +892,8 @@ async function submitRequisition(row, formValues) {
                 body: `action=insertRequest&payload=${encodeURIComponent(JSON.stringify(payload))}`
             });
 
-            if (res.ok) {
+            const result = await res.json().catch(() => null);
+            if (res.ok && result && result.status === 'success') {
                 // Success
                 Toast.fire({
                     icon: 'success',
@@ -866,7 +908,7 @@ async function submitRequisition(row, formValues) {
                     window.showTab('today');
                 }
             } else {
-                throw new Error('API Error');
+                throw new Error(result && result.data ? String(result.data) : 'API Error');
             }
         } catch (e) {
             console.error(e);
@@ -879,7 +921,7 @@ async function submitRequisition(row, formValues) {
             Swal.fire({
                 icon: 'error',
                 title: 'บันทึกไม่สำเร็จ',
-                text: 'กรุณาลองใหม่อีกครั้ง'
+                text: e.message || 'กรุณาลองใหม่อีกครั้ง'
             });
         }
     })();
