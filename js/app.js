@@ -209,18 +209,11 @@ window.showTab = function (tabId) {
             });
             break;
         case "today":
-            // Check if we have data loaded already
             if (state.todayDataLoaded) {
-                // Optimistic render: Show existing data immediately
                 updateTableToday();
                 hideLoading();
-
-                // Background fetch (silent) - Skip if saved recently (<15s) to avoid Google Sheets lag
-                if (!state.lastSaveTime || (Date.now() - state.lastSaveTime > 15000)) {
-                    loadTodayData({ silent: true }).then(() => hideLoading());
-                }
+                loadTodayData({ silent: true }).then(() => hideLoading());
             } else {
-                // First time load: show full spinner
                 loadTodayData({ silent: false }).then(() => hideLoading());
             }
 
