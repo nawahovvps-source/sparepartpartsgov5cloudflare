@@ -46,7 +46,7 @@ module.exports = async (req, res) => {
   try {
     const [calls, stock] = await Promise.all([
       fetchSheetRows('SHEET_ID_PENDING', 'SHEET_NAME_PENDING'),
-      fetchSheetRows('SHEET_ID_0326_STOCK', 'SHEET_NAME_0326_STOCK')
+      fetchSheetRows('SHEET_ID_NAWANAKORN_STOCK', 'SHEET_NAME_NAWANAKORN_STOCK')
     ]);
 
     const stockByMaterial = new Map();
@@ -54,7 +54,7 @@ module.exports = async (req, res) => {
       const material = normalizeMaterial(row.Material);
       if (material && !stockByMaterial.has(material)) {
         stockByMaterial.set(material, {
-          description: row.Description || ''
+          description: row['Material description'] || row.Description || ''
         });
       }
     });
@@ -78,7 +78,7 @@ module.exports = async (req, res) => {
 
     res.status(200).json(pendingCalls);
   } catch (error) {
-    console.error('Failed to load CallMaterial or 0326 stock data:', error);
-    res.status(502).json({ error: 'Failed to load CallMaterial or stock data' });
+    console.error('Failed to load CallMaterial or Nawanakorn stock data:', error);
+    res.status(502).json({ error: 'Failed to load CallMaterial or Nawanakorn stock data' });
   }
 };
