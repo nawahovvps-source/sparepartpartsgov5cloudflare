@@ -34,6 +34,10 @@ function isValidPendingRow(row) {
 export async function loadPendingCallsData() {
     const loading = document.getElementById("loading");
     const syncIcon = document.getElementById("backgroundSyncIcon");
+    const plantCode = (localStorage.getItem('userPlant') || '').trim().replace(/\.0$/, '');
+    const normalizedPlant = /^\d+$/.test(plantCode) ? plantCode.padStart(4, '0') : plantCode;
+    const LOCAL_STORAGE_KEY = `local_pending_calls_${normalizedPlant || 'default'}`;
+
     // Helper to fetch and update
     const performUpdate = async () => {
         if (syncIcon) syncIcon.style.display = 'inline-block';
@@ -46,6 +50,11 @@ export async function loadPendingCallsData() {
 
             // Update State & Render
             state.allPendingData = freshData;
+            try {
+                localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(freshData));
+            } catch (storageErr) {
+                console.warn('LocalStorage quota exceeded or error:', storageErr);
+            }
             filterAndRenderTablePending();
 
             // Trigger the background stock data load
@@ -64,7 +73,27 @@ export async function loadPendingCallsData() {
     };
 
     if (loading) loading.style.display = "flex";
-    await performUpdate();
+    const localDataStr = localStorage.getItem(LOCAL_STORAGE_KEY);
+
+    if (localDataStr) {
+        try {
+            const cachedData = JSON.parse(localDataStr);
+            if (Array.isArray(cachedData)) {
+                console.log('Found pending calls in localStorage, rendering immediately...');
+                state.allPendingData = cachedData;
+                filterAndRenderTablePending();
+                if (loading) loading.style.display = "none";
+
+                performUpdate().catch(err => console.error("Background pending calls update failed", err));
+                return cachedData;
+            }
+        } catch (err) {
+            console.warn('Error parsing pending calls cache:', err);
+            localStorage.removeItem(LOCAL_STORAGE_KEY);
+        }
+    }
+
+    return await performUpdate();
 }
 
 export function filterAndRenderTablePending() {
