@@ -711,6 +711,11 @@ export async function showRequisitionDialog(row) {
             // Re-apply style to buttons (since we didn't inject all CSS in style block, we rely on inline or global)
             const confirmBtn = Swal.getConfirmButton();
             const cancelBtn = Swal.getCancelButton();
+            if (confirmBtn) {
+                confirmBtn.disabled = true;
+                confirmBtn.setAttribute('aria-disabled', 'true');
+                confirmBtn.style.pointerEvents = 'none';
+            }
             if (confirmBtn) confirmBtn.style.cssText = `background: linear-gradient(135deg, #4caf50, #2e7d32); color: white; padding: 10px 24px; border-radius: 99px; border: none; font-weight: bold; margin-right: 8px;`;
             if (cancelBtn) cancelBtn.style.cssText = `background: #f5f5f5; color: #666; padding: 10px 24px; border-radius: 99px; border: 1px solid #ddd; font-weight: bold;`;
 
@@ -735,6 +740,11 @@ export async function showRequisitionDialog(row) {
                 const hasValidJobNumber = /^\d{7}$/.test(callNumber);
 
                 const callError = document.getElementById('swal-call-number-error');
+                const callTypeError = document.getElementById('swal-call-type-error');
+                const quantityError = document.getElementById('swal-quantity-error');
+                const contactError = document.getElementById('swal-contact-error');
+                quantityError.textContent = parseInt(quantity, 10) >= 1 ? '' : 'ระบุจำนวน';
+                contactError.textContent = contact.length >= 9 ? '' : 'ระบุเบอร์ติดต่อ';
                 if (!remark && callNumber && !hasValidJobNumber) {
                     callError.textContent = 'เลขที่ใบงานต้องครบ 7 หลัก';
                 } else if (!remark && !callNumber) {
@@ -742,16 +752,20 @@ export async function showRequisitionDialog(row) {
                 } else {
                     callError.textContent = '';
                 }
+                callTypeError.textContent = selectedBtn ? '' : 'เลือก Call Type';
 
                 const canSubmit = parseInt(quantity, 10) >= 1 &&
                     contact.length >= 9 &&
-                    (!!remark || (hasValidJobNumber && !!selectedBtn));
+                    !!selectedBtn &&
+                    (!!remark || hasValidJobNumber);
 
                 const confirmBtn = Swal.getConfirmButton();
                 if (confirmBtn) {
                     confirmBtn.disabled = !canSubmit;
+                    confirmBtn.setAttribute('aria-disabled', String(!canSubmit));
                     confirmBtn.style.opacity = canSubmit ? '1' : '0.55';
                     confirmBtn.style.cursor = canSubmit ? 'pointer' : 'not-allowed';
+                    confirmBtn.style.pointerEvents = canSubmit ? 'auto' : 'none';
                 }
             };
 
@@ -767,7 +781,7 @@ export async function showRequisitionDialog(row) {
         },
         preConfirm: () => {
             const quantity = document.getElementById('swal-quantity').value;
-            const contact = document.getElementById('swal-contact').value;
+            const contact = document.getElementById('swal-contact').value.trim();
             const callNumber = document.getElementById('swal-call-number').value;
             const remark = document.getElementById('swal-remark').value;
 
@@ -782,7 +796,7 @@ export async function showRequisitionDialog(row) {
                 document.getElementById('swal-call-number-error').textContent = 'กรุณากรอกเลขที่ใบงานครบ 7 หลัก หรือระบุหมายเหตุ';
                 isValid = false;
             }
-            if (!remark.trim() && !currentCallType) {
+            if (!currentCallType) {
                 document.getElementById('swal-call-type-error').textContent = 'เลือก Call Type';
                 isValid = false;
             }
