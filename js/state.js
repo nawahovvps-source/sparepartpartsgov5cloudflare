@@ -32,6 +32,7 @@ export const state = {
 
     // Pending Calls Tab State
     allPendingData: [],
+    pendingDataLoaded: false,
     filteredPendingData: [],
     currentPagePending: 1,
     uniqueTeams: new Set()

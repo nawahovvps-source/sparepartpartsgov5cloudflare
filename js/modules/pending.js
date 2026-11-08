@@ -32,6 +32,11 @@ function isValidPendingRow(row) {
 }
 
 export async function loadPendingCallsData() {
+    if (state.pendingDataLoaded) {
+        filterAndRenderTablePending();
+        return state.allPendingData;
+    }
+
     const loading = document.getElementById("loading");
     const syncIcon = document.getElementById("backgroundSyncIcon");
     const plantCode = (localStorage.getItem('userPlant') || '').trim().replace(/\.0$/, '');
@@ -50,6 +55,7 @@ export async function loadPendingCallsData() {
 
             // Update State & Render
             state.allPendingData = freshData;
+            state.pendingDataLoaded = true;
             try {
                 localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(freshData));
             } catch (storageErr) {
@@ -81,6 +87,7 @@ export async function loadPendingCallsData() {
             if (Array.isArray(cachedData)) {
                 console.log('Found pending calls in localStorage, rendering immediately...');
                 state.allPendingData = cachedData;
+                state.pendingDataLoaded = true;
                 filterAndRenderTablePending();
                 if (loading) loading.style.display = "none";
 

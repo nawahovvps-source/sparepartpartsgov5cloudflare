@@ -223,7 +223,8 @@ window.showTab = function (tabId) {
             }
             break;
         case "pending-calls":
-            loadPendingCallsData().then(() => hideLoading());
+            (!state.pendingDataLoaded ? loadPendingCallsData() : Promise.resolve())
+                .then(() => hideLoading());
             break;
         case "all":
             loadAllData().then(() => hideLoading());
@@ -398,6 +399,7 @@ window.addEventListener('auth-changed', (e) => {
         const normalizedPlant = /^\d+$/.test(currentPlant) ? currentPlant.padStart(4, '0') : currentPlant;
         if (previousPlant !== null && previousPlant !== normalizedPlant) {
             state.partsDataLoaded = false;
+            state.pendingDataLoaded = false;
         }
         window.showTab('parts');
     } else {
