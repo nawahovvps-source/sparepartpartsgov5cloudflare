@@ -12,7 +12,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="ระบบขอสั่งอะไหล่คลังสินค้านวนคร">
   <link rel="apple-touch-icon" href="/icon-192.png">
-  <link rel="stylesheet" href="style.css?v=15">
+  <link rel="stylesheet" href="style.css?v=16">
   <!-- Enhanced Content Security Policy to reduce phishing risks -->
   <meta http-equiv="Content-Security-Policy"
     content="default-src 'self' https:; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://unpkg.com https://code.jquery.com https://docs.google.com https://script.google.com https://script.googleusercontent.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: https: blob: https://drive.google.com https://lh3.googleusercontent.com; connect-src 'self' https://docs.google.com https://script.google.com https://script.googleusercontent.com; frame-src https://docs.google.com https://drive.google.com; object-src 'none'; base-uri 'self'; form-action 'self' https://docs.google.com;">
@@ -89,7 +89,7 @@
           รายการเบิกประจำวันนี้
         </button>
         <button class="tab-button" id="tab-pending-calls" onclick="showTab('pending-calls')">
-          อะไหล่จ่ายตาม Call
+          งานค้าง
         </button>
       </div>
       <div id="parts" class="tab-content active">
@@ -349,18 +349,10 @@
                 <th class="sortable" data-column="Description">Description <span class="pending-arrow"></span></th>
                 <th class="sortable" data-column="Unrestricted">คงเหลือ <span class="pending-arrow"></span></th>
                 <th class="sortable" data-column="ค้างยืม">ค้างยืม <span class="pending-arrow"></span></th>
-                <th>ดูรายละเอียด</th>
               </tr>
             </thead>
             <tbody></tbody>
           </table>
-        </div>
-        <div id="detailModalPending" class="pending-modal">
-          <div class="pending-modal-content">
-            <span class="pending-close" id="closeModalPending">×</span>
-            <h2>รายละเอียด</h2>
-            <div id="modalContentPending"></div>
-          </div>
         </div>
         <div class="pending-pagination">
           <button id="firstPagePending"><i class="fas fa-chevron-left"></i><i class="fas fa-chevron-left"></i></button>
@@ -371,11 +363,11 @@
             <i class="fas fa-chevron-right"></i><i class="fas fa-chevron-right"></i>
           </button>
           <div class="pending-items-per-page">
-            <label for="itemsPerPagePending">รายการต่อหน้า:</label>
+            <label for="itemsPerPagePending">Show</label>
             <select id="itemsPerPagePending">
-              <option value="10">10 รายการ</option>
-              <option value="20" selected>20 รายการ</option>
-              <option value="30">30 รายการ</option>
+              <option value="10">10</option>
+              <option value="20" selected>20</option>
+              <option value="30">30</option>
             </select>
           </div>
         </div>
@@ -526,7 +518,7 @@
       <button class="nav-btn" id="nav-today" data-tab="today" onclick="showTab('today')" data-label="เบิกวันนี้"><i
           class="fas fa-calendar-day"></i></button>
       <button class="nav-btn" id="nav-pending" data-tab="pending-calls" onclick="showTab('pending-calls')"
-        data-label="Call"><i class="fas fa-phone"></i></button>
+        data-label="งานค้าง"><i class="fas fa-user-tie"></i></button>
     </div>
   </div>
   <!-- Sticker Preview Modal (Moved to root for print isolation) -->

@@ -1323,6 +1323,48 @@ body.dark-mode #toggleAllDataBtn.active {
   font-size: 16px;
 }
 
+#nav-today,
+#nav-pending {
+  min-width: 64px;
+  border-radius: 12px;
+  transition: color 0.2s ease, background-color 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+}
+
+#nav-today.active,
+#nav-pending.active {
+  background-color: #e8f2ff;
+  color: #1877f2;
+  box-shadow: inset 0 0 0 1px rgba(24, 119, 242, 0.12);
+}
+
+#nav-today:hover,
+#nav-pending:hover {
+  background-color: #f2f7ff;
+}
+
+#nav-today:active,
+#nav-pending:active {
+  transform: scale(0.94);
+}
+
+#nav-today:focus-visible,
+#nav-pending:focus-visible {
+  outline: 2px solid #1877f2;
+  outline-offset: 2px;
+}
+
+body.dark-mode #nav-today.active,
+body.dark-mode #nav-pending.active {
+  background-color: #34495e;
+  color: #1abc9c;
+  box-shadow: inset 0 0 0 1px rgba(26, 188, 156, 0.2);
+}
+
+body.dark-mode #nav-today:hover,
+body.dark-mode #nav-pending:hover {
+  background-color: #34495e;
+}
+
 /* Settings Modal */
 .settings-modal {
   display: none;
@@ -3145,6 +3187,21 @@ iframe {
   transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
 }
 
+#pending-calls #data-table-pending tbody td:nth-child(8) {
+  color: #1565c0;
+  font-weight: 700;
+}
+
+#pending-calls #data-table-pending tbody td:nth-child(9) {
+  color: #455a64;
+  font-weight: 600;
+}
+
+#pending-calls #data-table-pending tbody td:nth-child(10) {
+  color: #16803c;
+  font-weight: 700;
+}
+
 #pending-calls th {
   background-color: #007bff;
   color: white;
@@ -3236,32 +3293,34 @@ iframe {
   flex-wrap: wrap;
   justify-content: center;
   align-items: center;
-  margin-top: 15px;
+  margin-top: 8px;
 }
 
 #pending-calls .pending-pagination button,
 #pending-calls .pending-pagination select {
-  padding: 6px 10px;
-  background-color: #3498db;
+  padding: 6px;
+  background: linear-gradient(135deg, #42a5f5, #2196f3);
   color: white;
   border: none;
-  border-radius: 6px;
+  border-radius: 50%;
   cursor: pointer;
-  font-size: 14px;
+  font-size: 11px;
   margin: 0 3px;
+  width: 32px;
+  height: 32px;
   transition: all 0.3s ease;
 }
 
-#pending-calls .pending-pagination button:hover,
-#pending-calls .pending-pagination select:hover {
-  background-color: #2980b9;
+#pending-calls .pending-pagination button:hover {
+  background: linear-gradient(135deg, #1976d2, #1565c0);
+  transform: translateY(-2px);
 }
 
 #pending-calls .pending-pagination .pending-page-number {
+  background: linear-gradient(135deg, #42a5f5, #2196f3);
+  color: white;
   width: 32px;
   height: 32px;
-  background-color: #3498db;
-  color: white;
   border-radius: 50%;
   display: inline-flex;
   justify-content: center;
@@ -3274,19 +3333,42 @@ iframe {
 }
 
 #pending-calls .pending-pagination .pending-page-number:hover {
-  background-color: #2980b9;
-  transform: scale(1.1);
+  background: linear-gradient(135deg, #1976d2, #1565c0);
+  transform: translateY(-2px);
 }
 
-#pending-calls .pending-pagination .pending-page-number.active {
+#pending-calls .pending-pagination #pageNumbersPending button.active {
   background: linear-gradient(135deg, #ff9800, #f57c00) !important;
   color: white !important;
   border: none !important;
 }
 
+#pending-calls .pending-pagination #pageNumbersPending button.active:disabled {
+  background: linear-gradient(135deg, #ff9800, #f57c00) !important;
+  cursor: default;
+}
+
+#pending-calls .pending-pagination button:disabled {
+  background: #b0bec5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+#pending-calls .pending-pagination select {
+  width: auto;
+  height: auto;
+  background: white;
+  color: #333;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  padding: 6px;
+  margin: 0 8px;
+  font-size: 12px;
+}
+
 #pending-calls .pending-items-per-page {
   margin-left: 8px;
-  font-size: 14px;
+  font-size: 12px;
   transition: color 0.3s ease;
 }
 
@@ -5890,6 +5972,272 @@ body.dark-mode #parts #data-table tbody.parts-deck > tr > td:nth-child(2) img {
   }
 
   body.dark-mode #today #data-table-today tbody.today-deck > tr > td::before {
+    color: #a9bacb;
+  }
+}
+
+@media (max-width: 899.98px) {
+  #pending-calls {
+    padding: 8px;
+  }
+
+  #pending-calls .pending-filter-row {
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  #pending-calls .pending-status-button {
+    margin: 0;
+    padding: 7px 11px;
+    border-radius: 10px;
+    font-size: 12px;
+  }
+
+  #pending-calls .pending-search-row {
+    width: 100%;
+  }
+
+  #pending-calls #searchInputPending {
+    flex: 1;
+    width: 0;
+    min-width: 0;
+  }
+
+  #pending-calls .pending-table-container {
+    overflow: visible;
+  }
+
+  #pending-calls #data-table-pending {
+    display: block;
+    width: 100%;
+    min-width: 0;
+    overflow: visible;
+    border-collapse: separate;
+    border-spacing: 0;
+    background: transparent;
+    box-shadow: none;
+  }
+
+  #pending-calls #data-table-pending thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  #pending-calls #data-table-pending tbody {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 380px), 1fr));
+    align-items: start;
+    gap: 6px;
+    width: 100%;
+  }
+
+  #pending-calls #data-table-pending tbody > tr {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    grid-template-areas:
+      "ticket ticket ticket ticket ticket ticket date date date date date date"
+      "pending pending pending team team team store store store store store store"
+      "material material material description description description description description description description description description"
+      "teamplant teamplant teamplant plant plant stock stock stock borrow borrow borrow borrow";
+    align-content: start;
+    gap: 3px;
+    min-width: 0;
+    padding: 5px;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  }
+
+  #pending-calls #data-table-pending tbody > tr:hover {
+    border-color: #9dc8ee;
+    box-shadow: 0 3px 10px rgba(34, 105, 166, 0.12);
+  }
+
+  #pending-calls #data-table-pending tbody > tr > td {
+    display: block;
+    box-sizing: border-box;
+    width: auto;
+    min-width: 0;
+    max-width: none;
+    padding: 3px 4px;
+    overflow-wrap: anywhere;
+    border: 0;
+    border-radius: 5px;
+    background: #f1f6fa;
+    font-size: 10px;
+    line-height: 1.25;
+    text-align: left;
+    white-space: normal;
+  }
+
+  #pending-calls #data-table-pending tbody > tr > td::before {
+    display: block;
+    margin-bottom: 1px;
+    color: #748396;
+    font-size: 8px;
+    font-weight: 500;
+    line-height: 1.2;
+  }
+
+  #pending-calls #data-table-pending tbody > tr > td:nth-child(1) {
+    grid-area: date;
+  }
+
+  #pending-calls #data-table-pending tbody > tr > td:nth-child(1)::before {
+    content: "วันที่แจ้ง";
+  }
+
+  #pending-calls #data-table-pending tbody > tr > td:nth-child(2) {
+    grid-area: ticket;
+    color: #174f84;
+    font-size: 12px;
+    font-weight: 700;
+  }
+
+  #pending-calls #data-table-pending tbody > tr > td:nth-child(2)::before {
+    content: "Ticket";
+  }
+
+  #pending-calls #data-table-pending tbody > tr > td:nth-child(3) {
+    grid-area: team;
+  }
+
+  #pending-calls #data-table-pending tbody > tr > td:nth-child(3)::before {
+    content: "Team";
+  }
+
+  #pending-calls #data-table-pending tbody > tr > td:nth-child(4) {
+    grid-area: store;
+  }
+
+  #pending-calls #data-table-pending tbody > tr > td:nth-child(4)::before {
+    content: "สาขา";
+  }
+
+  #pending-calls #data-table-pending tbody > tr > td:nth-child(5) {
+    grid-area: teamplant;
+  }
+
+  #pending-calls #data-table-pending tbody > tr > td:nth-child(5)::before {
+    content: "TeamPlant";
+  }
+
+  #pending-calls #data-table-pending tbody > tr > td:nth-child(6) {
+    grid-area: plant;
+  }
+
+  #pending-calls #data-table-pending tbody > tr > td:nth-child(6)::before {
+    content: "Plant";
+  }
+
+  #pending-calls #data-table-pending tbody > tr > td:nth-child(7) {
+    grid-area: pending;
+  }
+
+  #pending-calls #data-table-pending tbody > tr > td:nth-child(7)::before {
+    content: "ค้างหน่วยงาน";
+  }
+
+  #pending-calls #data-table-pending tbody > tr > td:nth-child(8) {
+    grid-area: material;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #e8f2ff;
+    color: #0d47a1;
+    font-weight: 700;
+    text-align: center;
+  }
+
+  #pending-calls #data-table-pending tbody > tr > td:nth-child(8)::before {
+    display: none;
+    content: none;
+  }
+
+  #pending-calls #data-table-pending tbody > tr > td:nth-child(9) {
+    grid-area: description;
+    align-self: center;
+    background: #f3edfb;
+    color: #6a1b9a;
+    font-weight: 700;
+    text-align: left;
+  }
+
+  #pending-calls #data-table-pending tbody > tr > td:nth-child(9)::before {
+    display: none;
+    content: none;
+  }
+
+  #pending-calls #data-table-pending tbody > tr > td:nth-child(10) {
+    grid-area: stock;
+    text-align: center;
+  }
+
+  #pending-calls #data-table-pending tbody > tr > td:nth-child(10)::before {
+    content: "คงเหลือ";
+  }
+
+  #pending-calls #data-table-pending tbody > tr > td:nth-child(11) {
+    grid-area: borrow;
+    text-align: center;
+  }
+
+  #pending-calls #data-table-pending tbody > tr > td:nth-child(11)::before {
+    content: "ค้างยืม";
+  }
+
+  #pending-calls #data-table-pending tbody > tr > td[colspan] {
+    display: block;
+    grid-column: 1 / -1;
+    background: transparent;
+    text-align: center !important;
+  }
+
+  #pending-calls #data-table-pending tbody > tr > td[colspan]::before {
+    display: none;
+  }
+
+  body.dark-mode #pending-calls #data-table-pending tbody > tr {
+    border-color: #46596c;
+    background: linear-gradient(180deg, #2c3e50 0%, #273747 100%);
+    box-shadow: 0 2px 7px rgba(0, 0, 0, 0.15);
+  }
+
+  body.dark-mode #pending-calls #data-table-pending tbody > tr > td {
+    background: #354b60;
+    color: #e0e8f0;
+  }
+
+  body.dark-mode #pending-calls #data-table-pending tbody > tr > td:nth-child(2),
+  body.dark-mode #pending-calls #data-table-pending tbody > tr > td:nth-child(8) {
+    color: #90caf9;
+  }
+
+  body.dark-mode #pending-calls #data-table-pending tbody > tr > td:nth-child(8) {
+    background: #29415b;
+  }
+
+  body.dark-mode #pending-calls #data-table-pending tbody > tr > td:nth-child(9) {
+    background: #403553;
+    color: #e1bee7;
+    font-weight: 700;
+  }
+
+  body.dark-mode #pending-calls #data-table-pending tbody > tr > td:nth-child(10) {
+    color: #8fe0a7;
+    font-weight: 700;
+  }
+
+  body.dark-mode #pending-calls #data-table-pending tbody > tr > td::before {
     color: #a9bacb;
   }
 }

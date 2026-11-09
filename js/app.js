@@ -23,7 +23,7 @@ import { loadTheme } from './theme.js';
 import { loadData, applyFilters, showRequisitionDialog } from './modules/parts.js?v=40';
 import { applyFiltersImages } from './modules/images.js?v=39';
 import { loadTodayData, updateTableToday, exportTodayData, saveTodayDataSnapshot, initTodayListeners } from './modules/today.js?v=42';
-import { loadPendingCallsData, initPendingListeners } from './modules/pending.js?v=50';
+import { loadPendingCallsData, initPendingListeners } from './modules/pending.js?v=51';
 import { loadAllData } from './modules/all.js?v=39';
 
 // Open Announcement Deck Stub (Not found in original main.js)
@@ -463,7 +463,6 @@ function setupModalCloseHandlers() {
     bindClose('closeSettings', 'settingsModal');
     bindClose('closeModal', 'detailModal');
     bindClose('closeModalAll', 'detailModalAll');
-    bindClose('closeModalPending', 'detailModalPending');
     bindClose('closeImageModal', 'imageModal');
     bindClose('closeImageModalImages', 'imageModalImages');
 }

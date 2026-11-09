@@ -1,7 +1,7 @@
 import { apiFetch } from '../api.js';
 import { state } from '../state.js';
 import { CONFIG } from '../config.js';
-import { hideLoading, showDetailModal, renderPagination } from '../ui.js';
+import { renderPagination } from '../ui.js';
 import { parseSafeFloat } from '../utils.js';
 import { loadData } from './parts.js?v=40';
 import { getBorrowTotal, loadBorrowData, showBorrowPopup } from '../loans.js';
@@ -180,19 +180,27 @@ export function filterAndRenderTablePending() {
     });
 
     // Pagination Logic
-    const itemsPerPage = 20;
+    const itemsPerPageSelect = document.getElementById("itemsPerPagePending");
+    const requestedItemsPerPage = Number.parseInt(itemsPerPageSelect?.value || "20", 10);
+    const itemsPerPage = Number.isFinite(requestedItemsPerPage) && requestedItemsPerPage > 0
+        ? requestedItemsPerPage
+        : 20;
+    const totalPages = Math.ceil(filtered.length / itemsPerPage);
+    state.currentPagePending = Math.min(Math.max(1, state.currentPagePending), Math.max(1, totalPages));
     const start = (state.currentPagePending - 1) * itemsPerPage;
     const slice = filtered.slice(start, start + itemsPerPage);
 
     tbody.innerHTML = '';
+    renderPagination(filtered.length, state.currentPagePending, "pageNumbersPending", itemsPerPage, "Pending");
+
+    const firstPageButton = document.getElementById("firstPagePending");
+    const lastPageButton = document.getElementById("lastPagePending");
+    if (firstPageButton) firstPageButton.disabled = state.currentPagePending === 1;
+    if (lastPageButton) lastPageButton.disabled = totalPages === 0 || state.currentPagePending >= totalPages;
 
     if (slice.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="12" style="text-align:center">ไม่พบข้อมูลที่ตรงกับเงื่อนไข</td></tr>';
-        return;
-    }
-
-    // Render loop
-    slice.forEach((row, i) => {
+        tbody.innerHTML = '<tr><td colspan="11" style="text-align:center">ไม่พบข้อมูลที่ตรงกับเงื่อนไข</td></tr>';
+    } else slice.forEach(row => {
         const tr = document.createElement("tr");
         const ticket = row["Ticket Number"];
 
@@ -254,40 +262,8 @@ export function filterAndRenderTablePending() {
             tr.appendChild(td);
         });
 
-        // Detail Button
-        const detailTd = document.createElement("td");
-        const btn = document.createElement("button");
-        btn.textContent = "ดูรายละเอียด";
-        btn.className = "detail-button"; // pending-detail-button
-        btn.onclick = () => {
-            // Show Modal logic
-            const modal = document.getElementById('detailModalPending'); // Assuming ID exists in index.html or we reuse generic
-            const content = document.getElementById('modalContentPending');
-
-            if (modal && content) {
-                const html = columns.map(col => {
-                    let val = row[col] || "";
-                    if (col === "Create Date") val = formatDateTimePending(val);
-                    if (col === "Material" || col === "Description") {
-                        if (row["Description"] === "Code ผิด") val = `<span style='color:red;font-weight:bold'>${val}</span>`;
-                    }
-                    return `<div><span class='label'>${col}:</span> <span class='value'>${val}</span></div>`;
-                }).join('');
-                content.innerHTML = html;
-                modal.style.display = "block";
-            }
-        };
-        detailTd.appendChild(btn);
-        tr.appendChild(detailTd);
-
         tbody.appendChild(tr);
     });
-
-    // Pagination controls rendering (Simple stub)
-    const pageContainer = document.getElementById("pageNumbersPending");
-    if (pageContainer) {
-        pageContainer.innerHTML = `<button class="active">${state.currentPagePending}</button>`;
-    }
 
     // Update Call Count
     const countVal = document.getElementById('callCountValuePending');
@@ -356,7 +332,16 @@ export function initPendingListeners() {
     if (next) next.onclick = () => changePagePending(state.currentPagePending + 1);
     if (first) first.onclick = () => changePagePending(1);
     if (last) last.onclick = () => {
-        const total = Math.ceil((state.filteredPendingData ? state.filteredPendingData.length : 0) / 20); // rough estimate logic update needed if real pagination
+        const itemsPerPage = Number.parseInt(document.getElementById("itemsPerPagePending")?.value || "20", 10) || 20;
+        const total = Math.ceil((state.filteredPendingData ? state.filteredPendingData.length : 0) / itemsPerPage);
         changePagePending(total);
     };
+
+    const itemsPerPageSelect = document.getElementById("itemsPerPagePending");
+    if (itemsPerPageSelect) {
+        itemsPerPageSelect.addEventListener("change", () => {
+            state.currentPagePending = 1;
+            filterAndRenderTablePending();
+        });
+    }
 }
