@@ -59,6 +59,9 @@ const createResponseAdapter = () => {
       finished = true;
       return this;
     },
+    send(value = '') {
+      return this.end(value);
+    },
     toResponse() {
       return new Response(sentBody ?? '', { status: statusCode, headers });
     }
