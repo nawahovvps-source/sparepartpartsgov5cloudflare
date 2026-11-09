@@ -285,14 +285,21 @@ export function updateTableToday() {
     if (thPrint) thPrint.style.display = (userAuth === 'Admin') ? '' : 'none';
 
     if (slice.length === 0) {
-        tableBody.innerHTML = '<tr><td colspan="17" style="text-align:center">ไม่พบข้อมูล</td></tr>';
+        tableBody.innerHTML = '<tr class="today-empty-row"><td colspan="18" style="text-align:center">ไม่พบข้อมูล</td></tr>';
         const pageContainer = document.getElementById("pageNumbersToday");
         if (pageContainer) pageContainer.innerHTML = '';
         return;
     }
 
+    const columnLabels = [
+        'เลือก', 'Print', 'Status', 'ลำดับ', 'รูป', 'วันเวลา', 'Material', 'Description',
+        'Storage bin', 'จำนวนสั่ง', 'คงเหลือ', 'นวนคร', 'ชื่อช่าง', 'หน่วยงาน', 'Call',
+        'CallType', 'หมายเหตุ', 'Plant'
+    ];
+
     slice.forEach(row => {
         const tr = document.createElement("tr");
+        tr.classList.add(userAuth === 'Admin' ? 'today-admin-row' : 'today-user-row');
 
         // 1. Checkbox (Admin Only)
         const selectTd = document.createElement("td");
@@ -503,6 +510,9 @@ export function updateTableToday() {
         plantTd.textContent = row.plant || row.Plant || '-';
         tr.appendChild(plantTd);
 
+        tr.querySelectorAll('td').forEach((cell, index) => {
+            cell.dataset.label = columnLabels[index];
+        });
 
         tableBody.appendChild(tr);
     });
