@@ -204,13 +204,13 @@ export function applyFilters() {
     renderPagination(state.currentFilteredData.length, state.currentPage, 'pageNumbers', itemsPerPage);
 }
 
-// Update renderTableData to match main.js renderTable EXACTLY
+// Render each page of part search results as labeled deck cards.
 export function renderTableData() {
     const tableBody = document.querySelector("#data-table tbody");
     if (!tableBody) return;
 
     // Clear existing content
-    tableBody.innerHTML = "";
+    tableBody.replaceChildren();
 
     const itemsPerPageSelect = document.getElementById("itemsPerPage");
     const itemsPerPage = itemsPerPageSelect ? parseInt(itemsPerPageSelect.value, 10) : 20;
@@ -220,6 +220,29 @@ export function renderTableData() {
     const pageData = state.currentFilteredData.slice(start, end);
 
     const fragment = document.createDocumentFragment();
+    if (pageData.length === 0) {
+        const emptyRow = document.createElement('tr');
+        emptyRow.className = 'parts-empty-row';
+        const emptyCell = document.createElement('td');
+        emptyCell.colSpan = 11;
+        emptyCell.textContent = 'ไม่พบอะไหล่ที่ตรงกับคำค้นหา';
+        emptyRow.appendChild(emptyCell);
+        tableBody.appendChild(emptyRow);
+        return;
+    }
+
+    const columnLabels = {
+        ImageDb: 'รูป',
+        Material: 'Material',
+        Description: 'รายละเอียด',
+        'Storage bin': 'Storage bin',
+        'วิภาวดี': 'คงเหลือ',
+        Unrestricted: 'นวนคร',
+        'ค้างยืม': 'ค้างยืม',
+        Rebuilt: 'Rebuilt',
+        'หมายเหตุ': 'หมายเหตุ',
+        Product: 'Product'
+    };
 
     // Validating Auth logic from main.js
     const userAuth = localStorage.getItem('userAuth') || 'None';
@@ -232,6 +255,8 @@ export function renderTableData() {
 
         // 1. Withdraw Button
         const tdReq = document.createElement("td");
+        tdReq.dataset.label = 'เบิก';
+        tdReq.className = 'part-card-action';
         const btn = document.createElement("button");
         btn.textContent = "เบิก";
         if (hasPermission) {
@@ -257,7 +282,7 @@ export function renderTableData() {
         // Columns definition from main.js
         const columns = [
             "ImageDb", "Material", "Description", "Storage bin", "วิภาวดี", "Unrestricted", "ค้างยืม",
-            "Rebuilt", "หมายเหตุ", "Product", "OCRTAXT"
+            "Rebuilt", "หมายเหตุ", "Product"
         ];
 
         // Pre-calculate styling conditions
@@ -275,7 +300,8 @@ export function renderTableData() {
 
         columns.forEach(col => {
             const td = document.createElement("td");
-            let value = col === "Storage bin" ? getStorageBinValue(row) : (row[col] || "");
+            td.dataset.label = columnLabels[col];
+            let value = col === "Storage bin" ? getStorageBinValue(row) : (row[col] ?? "");
 
             if (col === "ค้างยืม") {
                 const total = getBorrowTotal(row.Material);
@@ -386,7 +412,7 @@ export function renderTableData() {
                 return;
             }
 
-            td.textContent = value;
+            td.textContent = value || "–";
             tr.appendChild(td);
         });
 

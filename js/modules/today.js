@@ -3,7 +3,7 @@ import { state } from '../state.js';
 import { CONFIG } from '../config.js';
 import { hideLoading, showDetailModal, renderPagination } from '../ui.js';
 import { sortByColumn, parseSafeFloat, getStorageBinValue } from '../utils.js';
-import { loadImageDatabase, loadData } from './parts.js?v=39';
+import { loadImageDatabase, loadData } from './parts.js?v=40';
 
 let todayFetchController = null;
 

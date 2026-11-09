@@ -5125,3 +5125,282 @@ body.dark-mode .borrow-detail-table th {
         white-space: normal;
     }
 }
+
+/* Compact card deck for part search results */
+#parts #data-table {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  overflow: visible;
+  border-collapse: separate;
+  border-spacing: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+#parts #data-table thead {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+#parts #data-table tbody.parts-deck {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr));
+  align-items: start;
+  gap: 6px;
+  width: 100%;
+}
+
+#parts #data-table tbody.parts-deck > tr {
+  display: grid;
+  grid-template-columns: 72px minmax(36px, 1fr) minmax(47px, .9fr) minmax(42px, .75fr) minmax(58px, .9fr);
+  grid-template-areas:
+    "image material material material action"
+    "image description description description description"
+    "storage storage vibhavadi unrestricted borrow"
+    "remark remark remark product product"
+    "rebuilt rebuilt rebuilt rebuilt rebuilt";
+  align-content: start;
+  gap: 2px 4px;
+  min-width: 0;
+  padding: 6px;
+  border: 1px solid #dfe6ee;
+  border-radius: 9px;
+  background: #fff;
+  box-shadow: 0 2px 6px rgba(34, 54, 74, 0.07);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+#parts #data-table tbody.parts-deck > tr:hover {
+  border-color: #9dc8ee;
+  box-shadow: 0 3px 10px rgba(34, 105, 166, 0.12);
+}
+
+#parts #data-table tbody.parts-deck > tr > td {
+  display: block;
+  box-sizing: border-box;
+  width: auto;
+  min-width: 0;
+  max-width: none;
+  height: auto;
+  padding: 0;
+  overflow: visible;
+  border: 0;
+  background: transparent;
+  color: #27394b;
+  font-size: 12px;
+  line-height: 1.3;
+  text-align: left;
+  text-overflow: clip;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+#parts #data-table tbody.parts-deck > tr > td::before {
+  display: inline-block;
+  margin-right: 5px;
+  color: #748396;
+  font-size: 10px;
+  font-weight: 500;
+  line-height: 1.2;
+  vertical-align: baseline;
+}
+
+#parts #data-table tbody.parts-deck > tr > td:nth-child(1) {
+  grid-area: action;
+  align-self: start;
+  justify-self: end;
+}
+
+#parts #data-table tbody.parts-deck > tr > td:nth-child(1)::before,
+#parts #data-table tbody.parts-deck > tr > td:nth-child(2)::before {
+  display: none;
+}
+
+#parts #data-table tbody.parts-deck > tr > td:nth-child(1) .requisition-button,
+#parts #data-table tbody.parts-deck > tr > td:nth-child(1) .requisition-button-disabled {
+  min-width: 58px;
+  min-height: 32px;
+  padding: 5px 10px !important;
+}
+
+#parts #data-table tbody.parts-deck > tr > td:nth-child(2) {
+  grid-area: image;
+  align-self: start;
+  text-align: center;
+}
+
+#parts #data-table tbody.parts-deck > tr > td:nth-child(2) img {
+  box-sizing: border-box;
+  width: 68px !important;
+  height: 68px !important;
+  border: 1px solid #e3eaf1;
+  border-radius: 7px;
+  background: #f7f9fb;
+}
+
+#parts #data-table tbody.parts-deck > tr > td:nth-child(3) {
+  grid-area: material;
+  align-self: center;
+  color: #174f84;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+#parts #data-table tbody.parts-deck > tr > td:nth-child(3)::before {
+  content: attr(data-label) ": ";
+}
+
+#parts #data-table tbody.parts-deck > tr > td:nth-child(4) {
+  grid-area: description;
+  align-self: start;
+  color: #394b5e;
+}
+
+#parts #data-table tbody.parts-deck > tr > td:nth-child(4)::before {
+  content: attr(data-label) ": ";
+}
+
+#parts #data-table tbody.parts-deck > tr > td:nth-child(5) {
+  grid-area: storage;
+  align-self: center;
+  padding: 2px 0;
+}
+
+#parts #data-table tbody.parts-deck > tr > td:nth-child(5)::before,
+#parts #data-table tbody.parts-deck > tr > td:nth-child(9)::before,
+#parts #data-table tbody.parts-deck > tr > td:nth-child(10)::before,
+#parts #data-table tbody.parts-deck > tr > td:nth-child(11)::before {
+  content: attr(data-label) ": ";
+}
+
+#parts #data-table tbody.parts-deck > tr > td:nth-child(5)::before {
+  margin-right: 3px;
+  font-size: 9px;
+  white-space: nowrap;
+}
+
+#parts #data-table tbody.parts-deck > tr > td:nth-child(6),
+#parts #data-table tbody.parts-deck > tr > td:nth-child(7),
+#parts #data-table tbody.parts-deck > tr > td:nth-child(8) {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  justify-content: center;
+  padding: 3px 3px;
+  border-radius: 5px;
+  background: #f1f6fa;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+}
+
+#parts #data-table tbody.parts-deck > tr > td:nth-child(6)::before,
+#parts #data-table tbody.parts-deck > tr > td:nth-child(7)::before,
+#parts #data-table tbody.parts-deck > tr > td:nth-child(8)::before {
+  content: attr(data-label);
+  margin: 0 0 1px;
+  font-size: 8px;
+  white-space: nowrap;
+}
+
+#parts #data-table tbody.parts-deck > tr > td:nth-child(6) {
+  grid-area: vibhavadi;
+}
+
+#parts #data-table tbody.parts-deck > tr > td:nth-child(7) {
+  grid-area: unrestricted;
+}
+
+#parts #data-table tbody.parts-deck > tr > td:nth-child(8) {
+  grid-area: borrow;
+}
+
+#parts #data-table tbody.parts-deck > tr > td:nth-child(9) {
+  grid-area: rebuilt;
+}
+
+#parts #data-table tbody.parts-deck > tr > td:nth-child(10) {
+  grid-area: remark;
+}
+
+#parts #data-table tbody.parts-deck > tr > td:nth-child(11) {
+  grid-area: product;
+}
+
+#parts #data-table tbody.parts-deck > tr.parts-empty-row {
+  display: block;
+  grid-column: 1 / -1;
+  padding: 24px;
+  color: #68798b;
+  text-align: center;
+}
+
+body.dark-mode #parts #data-table tbody.parts-deck > tr {
+  border-color: #46596c;
+  background: #2c3e50;
+  box-shadow: 0 2px 7px rgba(0, 0, 0, 0.15);
+}
+
+body.dark-mode #parts #data-table tbody.parts-deck > tr:hover {
+  border-color: #5e8fb8;
+}
+
+body.dark-mode #parts #data-table tbody.parts-deck > tr > td {
+  color: #e0e8f0;
+}
+
+body.dark-mode #parts #data-table tbody.parts-deck > tr > td::before {
+  color: #a9bacb;
+}
+
+body.dark-mode #parts #data-table tbody.parts-deck > tr > td:nth-child(3) {
+  color: #9dccf5;
+}
+
+body.dark-mode #parts #data-table tbody.parts-deck > tr > td:nth-child(4) {
+  color: #d3deea;
+}
+
+body.dark-mode #parts #data-table tbody.parts-deck > tr > td:nth-child(5) {
+  color: #e0e8f0;
+}
+
+body.dark-mode #parts #data-table tbody.parts-deck > tr > td:nth-child(6),
+body.dark-mode #parts #data-table tbody.parts-deck > tr > td:nth-child(7),
+body.dark-mode #parts #data-table tbody.parts-deck > tr > td:nth-child(8) {
+  background: #354b60;
+}
+
+body.dark-mode #parts #data-table tbody.parts-deck > tr > td:nth-child(2) img {
+  border-color: #53687d;
+  background: #34495e;
+}
+
+@media (max-width: 420px) {
+  #parts #data-table tbody.parts-deck {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 6px;
+  }
+
+  #parts #data-table tbody.parts-deck > tr {
+    grid-template-columns: 58px minmax(36px, 1fr) minmax(47px, .9fr) minmax(42px, .75fr) minmax(58px, .9fr);
+    gap: 2px 3px;
+    padding: 5px;
+  }
+
+  #parts #data-table tbody.parts-deck > tr > td:nth-child(2) img {
+    width: 58px !important;
+    height: 58px !important;
+  }
+
+  #parts #data-table tbody.parts-deck > tr > td {
+    font-size: 11px;
+  }
+}
