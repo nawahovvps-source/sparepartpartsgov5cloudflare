@@ -250,6 +250,7 @@ export function updateTableToday() {
         });
     }
 
+
     // Search filter
     const searchInput = document.getElementById("searchInputToday");
     if (searchInput && searchInput.value.trim()) {
@@ -628,6 +629,42 @@ export function exportTodayData() {
 }
 
 // --- Save Data Snapshot ---
+async function verifyTodayStatusUpdates(payload) {
+    const response = await apiFetch(
+        `${CONFIG.ENDPOINTS.REQUEST_SHEET_BASE}?type=all&v=${Date.now()}`,
+        { cache: 'no-store' }
+    );
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+    const rows = await response.json();
+    if (!Array.isArray(rows)) throw new Error('ข้อมูลยืนยันผลการบันทึกไม่ถูกต้อง');
+
+    return payload.map(item => {
+        const rowId = Number(item.row_id);
+        const index = rows.findIndex((row, rowIndex) => {
+            const currentRowId = Number(row.row_id || row.id || rowIndex + 2);
+            if (rowId > 1) {
+                if (currentRowId !== rowId) return false;
+            } else if (item.timestamp) {
+                const timestamp = row.timestamp || row.Timestamp || row['Timestamp'] || '';
+                if (String(timestamp).trim() !== String(item.timestamp).trim()) return false;
+            } else if (item.IDRow) {
+                const currentIdRow = row.IDRow || row.idRow || row.IdRow || '';
+                if (String(currentIdRow).trim() !== String(item.IDRow).trim()) return false;
+            } else {
+                return false;
+            }
+
+            const material = row.material || row.Material || '';
+            return !item.material || String(material).trim() === String(item.material).trim();
+        });
+        if (index < 0) return false;
+
+        const status = rows[index].status || rows[index].Status || '';
+        return status === item.status;
+    });
+}
+
 export async function saveTodayDataSnapshot() {
     // Use selected rows if any, otherwise filtered/all
     let data = getSelectedTodayRows();
@@ -756,8 +793,26 @@ export async function saveTodayDataSnapshot() {
             } catch (err) {
                 console.error('Update failed:', err);
 
-                // Rollback UI
-                pendingRows.forEach(row => {
+                let verifiedUpdates = [];
+                try {
+                    verifiedUpdates = await verifyTodayStatusUpdates(payload);
+                } catch (verifyErr) {
+                    console.warn('Could not verify saved status updates:', verifyErr);
+                }
+
+                const verifiedCount = verifiedUpdates.filter(Boolean).length;
+                if (verifiedCount === payload.length) {
+                    toast.fire({
+                        icon: 'success',
+                        title: 'บันทึกข้อมูลเสร็จสิ้นเรียบร้อย'
+                    });
+                    return;
+                }
+
+                // Keep confirmed updates and roll back only rows not found in the sheet.
+                pendingRows.forEach((row, index) => {
+                    if (verifiedUpdates[index]) return;
+
                     const oldStatus = originalStatusMap.get(row.row_id);
                     if (oldStatus) {
                         row.status = oldStatus;
@@ -767,9 +822,11 @@ export async function saveTodayDataSnapshot() {
                 updateTableToday();
 
                 Swal.fire({
-                    icon: 'error',
-                    title: 'บันทึกไม่สำเร็จ',
-                    text: 'เกิดข้อผิดพลาดในการส่งข้อมูล กรุณาลองใหม่',
+                    icon: verifiedCount > 0 ? 'warning' : 'error',
+                    title: verifiedCount > 0 ? 'บันทึกบางรายการไม่สำเร็จ' : 'บันทึกไม่สำเร็จ',
+                    text: verifiedCount > 0
+                        ? `ยืนยันการบันทึกแล้ว ${verifiedCount} จาก ${payload.length} รายการ กรุณาตรวจสอบรายการที่เหลือ`
+                        : 'เกิดข้อผิดพลาดในการส่งข้อมูล กรุณาลองใหม่',
                     footer: `<small>${err.message}</small>`
                 });
             }
@@ -937,4 +994,3 @@ export function initTodayListeners() {
         }
     });
 }
-
