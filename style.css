@@ -2059,6 +2059,7 @@ iframe {
   color: #c62828;
   border-radius: 0;
   font-weight: 700;
+  font-size: 17px;
   box-shadow: none;
 }
 
@@ -5428,6 +5429,7 @@ body.dark-mode .borrow-detail-table th {
   border-radius: 5px;
   background: #f1f6fa;
   font-variant-numeric: tabular-nums;
+  font-size: 17px;
   line-height: 1.15;
   text-align: center;
   white-space: nowrap;
@@ -5512,10 +5514,13 @@ body.dark-mode #parts #data-table tbody.parts-deck > tr > td:nth-child(3) {
 @media (min-width: 899.99px) {
   #parts #data-table tbody.parts-deck > tr > td:nth-child(3) {
     padding: 6px;
-    border: 0;
+    border: 1px solid #e0e0e0;
     border-radius: 0;
     background: transparent;
     font-size: 19px;
+    box-shadow: none;
+    outline: 0;
+    text-align: center;
   }
 
   #parts #data-table tbody.parts-deck > tr > td:nth-child(4) {
@@ -5525,6 +5530,8 @@ body.dark-mode #parts #data-table tbody.parts-deck > tr > td:nth-child(3) {
     border-radius: 0;
     background: transparent;
     font-size: 16px;
+    box-shadow: none;
+    outline: 0;
   }
 
   body.dark-mode #parts #data-table tbody.parts-deck > tr > td:nth-child(3),
@@ -5583,7 +5590,6 @@ body.dark-mode #parts #data-table tbody.parts-deck > tr > td:nth-child(2) img {
   #parts #data-table tbody.parts-deck > tr > td:nth-child(8) {
     min-height: 38px;
     padding: 3px 2px;
-    font-size: 10px;
   }
 
   #parts #data-table tbody.parts-deck > tr > td:nth-child(6)::before,
@@ -5759,8 +5765,11 @@ body.dark-mode #parts #data-table tbody.parts-deck > tr > td:nth-child(2) img {
   }
 
   #parts #data-table tbody.parts-deck > tr > td:nth-child(2) img {
-    width: 40px !important;
-    height: 60px !important;
+    display: block;
+    width: 100% !important;
+    height: auto !important;
+    aspect-ratio: 1;
+    object-fit: cover;
   }
 
   body.dark-mode #parts #data-table {
@@ -6384,6 +6393,8 @@ body.dark-mode #parts #data-table tbody.parts-deck > tr > td:nth-child(2) img {
 
   #pending-calls #data-table-pending tbody > tr > td:nth-child(10) {
     grid-area: stock;
+    font-size: 14px;
+    font-weight: 700;
     text-align: center;
   }
 
