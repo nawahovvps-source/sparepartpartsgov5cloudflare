@@ -2049,6 +2049,25 @@ iframe {
   box-shadow: 0 2px 3px rgba(229, 57, 53, 0.25);
 }
 
+#parts #data-table tbody.parts-deck > tr > td:nth-child(6) .stock-zero-chip,
+#parts #data-table tbody.parts-deck > tr > td:nth-child(7) .stock-zero-chip,
+#parts #data-table tbody.parts-deck > tr > td:nth-child(8) .stock-zero-chip {
+  display: inline;
+  min-width: 0;
+  padding: 0;
+  background: none;
+  color: #c62828;
+  border-radius: 0;
+  font-weight: 700;
+  box-shadow: none;
+}
+
+body.dark-mode #parts #data-table tbody.parts-deck > tr > td:nth-child(6) .stock-zero-chip,
+body.dark-mode #parts #data-table tbody.parts-deck > tr > td:nth-child(7) .stock-zero-chip,
+body.dark-mode #parts #data-table tbody.parts-deck > tr > td:nth-child(8) .stock-zero-chip {
+  color: #ff6b6b;
+}
+
 #parts table th:nth-child(1),
 #parts table td:nth-child(1) {
   width: 64px;
@@ -5254,7 +5273,7 @@ body.dark-mode .borrow-detail-table th {
 
 #parts #data-table tbody.parts-deck > tr {
   display: grid;
-  grid-template-columns: 72px minmax(36px, 1fr) minmax(47px, .9fr) minmax(42px, .75fr) minmax(58px, .9fr);
+  grid-template-columns: 72px minmax(58px, 1fr) minmax(58px, 1fr) minmax(70px, 1fr) 58px;
   grid-template-areas:
     "image material material material action"
     "image description description description description"
@@ -5399,14 +5418,20 @@ body.dark-mode .borrow-detail-table th {
 #parts #data-table tbody.parts-deck > tr > td:nth-child(7),
 #parts #data-table tbody.parts-deck > tr > td:nth-child(8) {
   display: flex;
+  box-sizing: border-box;
   min-width: 0;
+  min-height: 40px;
   flex-direction: column;
   justify-content: center;
-  padding: 3px 3px;
+  gap: 1px;
+  padding: 4px 3px;
   border-radius: 5px;
   background: #f1f6fa;
   font-variant-numeric: tabular-nums;
+  line-height: 1.15;
   text-align: center;
+  white-space: nowrap;
+  overflow-wrap: normal;
 }
 
 #parts #data-table tbody.parts-deck > tr > td:nth-child(6)::before,
@@ -5414,7 +5439,8 @@ body.dark-mode .borrow-detail-table th {
 #parts #data-table tbody.parts-deck > tr > td:nth-child(8)::before {
   content: attr(data-label);
   margin: 0 0 1px;
-  font-size: 8px;
+  font-size: 9px;
+  line-height: 1.1;
   white-space: nowrap;
 }
 
@@ -5530,14 +5556,14 @@ body.dark-mode #parts #data-table tbody.parts-deck > tr > td:nth-child(2) img {
   }
 
   #parts #data-table tbody.parts-deck > tr {
-    grid-template-columns: 58px minmax(36px, 1fr) minmax(47px, .9fr) minmax(42px, .75fr) minmax(58px, .9fr);
-    gap: 2px 3px;
+    grid-template-columns: 50px repeat(3, minmax(50px, 1fr)) 50px;
+    gap: 2px;
     padding: 5px;
   }
 
   #parts #data-table tbody.parts-deck > tr > td:nth-child(2) img {
-    width: 58px !important;
-    height: 58px !important;
+    width: 50px !important;
+    height: 50px !important;
   }
 
   #parts #data-table tbody.parts-deck > tr > td:nth-child(1) .requisition-button,
@@ -5550,6 +5576,25 @@ body.dark-mode #parts #data-table tbody.parts-deck > tr > td:nth-child(2) img {
 
   #parts #data-table tbody.parts-deck > tr > td {
     font-size: 11px;
+  }
+
+  #parts #data-table tbody.parts-deck > tr > td:nth-child(6),
+  #parts #data-table tbody.parts-deck > tr > td:nth-child(7),
+  #parts #data-table tbody.parts-deck > tr > td:nth-child(8) {
+    min-height: 38px;
+    padding: 3px 2px;
+    font-size: 10px;
+  }
+
+  #parts #data-table tbody.parts-deck > tr > td:nth-child(6)::before,
+  #parts #data-table tbody.parts-deck > tr > td:nth-child(7)::before,
+  #parts #data-table tbody.parts-deck > tr > td:nth-child(8)::before {
+    font-size: 8px;
+  }
+
+  #parts #data-table tbody.parts-deck > tr > td:nth-child(8) .borrow-total-button {
+    padding: 2px 1px;
+    font-size: 10px;
   }
 }
 
@@ -5685,15 +5730,16 @@ body.dark-mode #parts #data-table tbody.parts-deck > tr > td:nth-child(2) img {
   #parts #data-table tbody.parts-deck > tr > td:nth-child(6),
   #parts #data-table th:nth-child(7),
   #parts #data-table tbody.parts-deck > tr > td:nth-child(7) {
-    width: 50px;
-    min-width: 50px;
-    max-width: 50px;
+    width: 80px;
+    min-width: 80px;
+    max-width: 80px;
     text-align: center;
   }
 
   #parts #data-table th:nth-child(8),
   #parts #data-table tbody.parts-deck > tr > td:nth-child(8) {
-    min-width: 70px;
+    min-width: 90px;
+    text-align: center;
   }
 
   #parts #data-table th:nth-child(9),
@@ -5812,9 +5858,9 @@ body.dark-mode #parts #data-table tbody.parts-deck > tr > td:nth-child(2) img {
     grid-template-columns: repeat(12, minmax(0, 1fr));
     grid-template-areas:
       "status status status id id timestamp timestamp timestamp timestamp timestamp timestamp timestamp"
-      "image image image material material material material material material material material material"
+      "image image image material material material material quantity quantity quantity quantity quantity"
       "image image image description description description description description description description description description"
-      "quantity quantity vibhavadi navanakorn call call calltype calltype plant plant plant plant"
+      "vibhavadi vibhavadi vibhavadi navanakorn call call calltype calltype plant plant plant plant"
       "storage storage storage employee employee employee employee employee team team team team"
       "remark remark remark remark remark remark remark remark remark remark remark remark";
     align-content: start;
@@ -5998,6 +6044,32 @@ body.dark-mode #parts #data-table tbody.parts-deck > tr > td:nth-child(2) img {
 
   #today #data-table-today tbody.today-deck > tr > td:nth-child(10) {
     grid-area: quantity;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    padding: 4px 5px;
+    border: 0;
+    border-radius: 6px;
+    background: #fff;
+    color: #0d47a1;
+    font-size: 16px;
+    font-weight: 800;
+    line-height: 1.35;
+    text-align: center;
+    white-space: nowrap;
+    overflow-wrap: normal;
+  }
+
+  #today #data-table-today tbody.today-deck > tr > td:nth-child(10)::before {
+    content: "จำนวนสั่ง :";
+    display: inline-block;
+    flex: 0 0 auto;
+    margin: 0;
+    color: #174f84;
+    font-size: 14px;
+    font-weight: 700;
+    white-space: nowrap;
   }
 
   #today #data-table-today tbody.today-deck > tr > td:nth-child(11) {
@@ -6033,7 +6105,6 @@ body.dark-mode #parts #data-table tbody.parts-deck > tr > td:nth-child(2) img {
     text-align: center;
   }
 
-  #today #data-table-today tbody.today-deck > tr > td:nth-child(10),
   #today #data-table-today tbody.today-deck > tr > td:nth-child(11),
   #today #data-table-today tbody.today-deck > tr > td:nth-child(12),
   #today #data-table-today tbody.today-deck > tr > td:nth-child(15),
@@ -6042,7 +6113,6 @@ body.dark-mode #parts #data-table tbody.parts-deck > tr > td:nth-child(2) img {
     text-align: center;
   }
 
-  #today #data-table-today tbody.today-deck > tr > td:nth-child(10)::before,
   #today #data-table-today tbody.today-deck > tr > td:nth-child(11)::before,
   #today #data-table-today tbody.today-deck > tr > td:nth-child(12)::before,
   #today #data-table-today tbody.today-deck > tr > td:nth-child(15)::before,
@@ -6089,6 +6159,15 @@ body.dark-mode #parts #data-table tbody.parts-deck > tr > td:nth-child(2) img {
   body.dark-mode #today #data-table-today tbody.today-deck > tr > td:nth-child(8) {
     border-color: #527b9c;
     background: #30475c;
+    color: #f0f5fa;
+  }
+
+  body.dark-mode #today #data-table-today tbody.today-deck > tr > td:nth-child(10) {
+    background: #30475c;
+    color: #a9d8fa;
+  }
+
+  body.dark-mode #today #data-table-today tbody.today-deck > tr > td:nth-child(10)::before {
     color: #f0f5fa;
   }
 
