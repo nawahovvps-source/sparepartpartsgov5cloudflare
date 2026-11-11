@@ -1,18 +1,17 @@
 require('./_env');
 const { requireAuth } = require('./_auth');
 
-const buildBody = (req) => {
-  if (typeof req.body === 'string') {
-    return req.body;
-  }
-  if (req.body && typeof req.body === 'object') {
-    return new URLSearchParams(req.body).toString();
-  }
-  return '';
-};
-
 module.exports = async (req, res) => {
   if (!requireAuth(req, res)) {
+    return;
+  }
+
+  const params = typeof req.body === 'string'
+    ? new URLSearchParams(req.body)
+    : new URLSearchParams(req.body || {});
+  const action = params.get('action') || req.query?.action || 'getAnnouncements';
+  if (action === 'createAnnouncement' && req.user.auth !== 'Admin') {
+    res.status(403).json({ error: 'Admin permission required' });
     return;
   }
 
@@ -33,15 +32,25 @@ module.exports = async (req, res) => {
       }
     });
   }
+  targetUrl.searchParams.set('employeeCode', String(req.user.sub || ''));
+  targetUrl.searchParams.set('plant', String(req.user.plant || ''));
 
   const headers = {};
   const contentType = req.headers['content-type'] || '';
   if (contentType) headers['Content-Type'] = contentType;
 
+  let body;
+  if (req.method !== 'GET') {
+    params.set('employeeCode', String(req.user.sub || ''));
+    params.set('plant', String(req.user.plant || ''));
+    params.set('createdBy', String(req.user.name || req.user.sub || ''));
+    body = params.toString();
+  }
+
   const upstream = await fetch(targetUrl.toString(), {
     method: req.method,
     headers,
-    body: req.method === 'GET' ? undefined : buildBody(req)
+    body
   });
 
   const text = await upstream.text();

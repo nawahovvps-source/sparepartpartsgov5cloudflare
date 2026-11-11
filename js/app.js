@@ -5,7 +5,7 @@ import {
     handleLogout,
     checkLoginStatus,
     checkAuthForRequisition
-} from './auth.js';
+} from './auth.js?v=2';
 // app.js - v18.10.39 - Force Reload
 import {
     hideLoading,
@@ -15,8 +15,12 @@ import {
     showSettings,
     handleSwiperPrev,
     handleSwiperNext,
-    closeAllImageModals
-} from './ui.js';
+    closeAllImageModals,
+    openAnnouncementDeck,
+    openAnnouncementEditor,
+    showUnreadAnnouncementPopup,
+    resetAnnouncementState
+} from './ui.js?v=10';
 import { handleClearCacheAndReload, ensureCacheFreshForVersion } from './cache.js';
 import { debounce } from './utils.js';
 import { loadTheme } from './theme.js';
@@ -25,14 +29,6 @@ import { applyFiltersImages } from './modules/images.js?v=39';
 import { loadTodayData, updateTableToday, exportTodayData, saveTodayDataSnapshot, initTodayListeners } from './modules/today.js?v=47';
 import { loadPendingCallsData, initPendingListeners } from './modules/pending.js?v=51';
 import { loadAllData } from './modules/all.js?v=39';
-
-// Open Announcement Deck Stub (Not found in original main.js)
-function openAnnouncementDeck() {
-    Swal.fire('Notification', 'Notification feature is coming soon.', 'info');
-}
-function openAnnouncementEditor() {
-    Swal.fire('Announcement', 'Editor feature is coming soon.', 'info');
-}
 
 // Service Worker Registration
 let newWorker;
@@ -378,8 +374,10 @@ window.addEventListener('auth-changed', (e) => {
     if (settingsModal) settingsModal.style.display = 'none';
 
     if (e.detail.isLoggedIn) {
+        if (e.detail.newLogin) resetAnnouncementState();
         document.getElementById('loginModal').classList.remove('active');
         document.getElementById('appContent').classList.add('logged-in');
+        showUnreadAnnouncementPopup();
 
         const userNameSmall = document.getElementById('userNameSmall');
         if (userNameSmall) userNameSmall.textContent = localStorage.getItem('userName') || '';
@@ -403,6 +401,7 @@ window.addEventListener('auth-changed', (e) => {
         }
         window.showTab('parts');
     } else {
+        resetAnnouncementState();
         const loginModal = document.getElementById('loginModal');
         loginModal.classList.add('active');
         document.getElementById('appContent').classList.remove('logged-in');

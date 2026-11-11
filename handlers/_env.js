@@ -20,7 +20,7 @@ setDefault('SHEET_NAME_IMAGE_DB', 'imageMIx');
 setDefault('SHEET_ID_ANNOUNCEMENT', '1aeGgka5ZQs3SLASOs6mOZdPJ2XotxxMbeb1-qotDZ2o');
 setDefault('SHEET_NAME_ANNOUNCEMENT', 'information');
 setDefault('GAS_URL', 'https://script.google.com/macros/s/AKfycbzLmeaYxEBwZl7hiET1itYOgpmVSkxYoRvcMw3bmMp2csgJnAgwv-0vOGXP_hkevd-n1A/exec');
-setDefault('GAS_ANNOUNCEMENT_URL', 'https://script.google.com/macros/s/AKfycbxnMuSOihH3dotoqP7w5ty6bghdbPEkJYbbUDNTSSfkLthY-YChHHD7_QW5-W-BA46K/exec');
+setDefault('GAS_ANNOUNCEMENT_URL', 'https://script.google.com/macros/s/AKfycbxQRLcQNNRkfbybnQ4hvTP9T1lOWZ7Fu6Jillt5ZmWRF-7BR-0fTTsiXGNBPtxgjmFP/exec');
 setDefault('SHEET_ID_0326_STOCK', process.env.SHEET_ID_VIBHAVADI_STOCK || '1gtZLR5Tm574o5xRbdrRm9yFzRukGx_UAzUnoah36cxQ');
 setDefault('SHEET_NAME_0326_STOCK', process.env.SHEET_NAME_VIBHAVADI_STOCK || 'Sheet1');
 setDefault('SHEET_ID_0330_STOCK', '1WYOikuoWE30WXsWglTXfxoj1gmjxlFMJgpN3eXp43Bk');

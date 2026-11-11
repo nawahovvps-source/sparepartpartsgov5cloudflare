@@ -42,7 +42,7 @@ export function checkLoginStatus() {
             name: localStorage.getItem('userName'),
             auth: localStorage.getItem('userAuth')
         };
-        window.dispatchEvent(new CustomEvent('auth-changed', { detail: { isLoggedIn: true, user } }));
+        window.dispatchEvent(new CustomEvent('auth-changed', { detail: { isLoggedIn: true, user, newLogin: true } }));
         loadEmployeeData()
             .then(employees => {
                 const username = localStorage.getItem('username');

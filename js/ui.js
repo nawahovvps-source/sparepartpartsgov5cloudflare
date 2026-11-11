@@ -1,6 +1,6 @@
 import { state } from './state.js';
 import { checkAuthForRequisition } from './auth.js';
-import { getStorageBinValue, extractIdFromUrlWeb, parseDateTimeToJSDate, parseSafeFloat } from './utils.js';
+import { getStorageBinValue, extractIdFromUrlWeb, parseSafeFloat } from './utils.js';
 import { apiFetch } from './api.js';
 import { getBorrowTotal, loadBorrowData, showBorrowPopup } from './loans.js';
 
@@ -370,57 +370,463 @@ export function closeAllImageModals() {
 }
 
 // Announcement Logic
-export async function openAnnouncementDeck() {
-    console.log('เปิดหน้าต่างประกาศ...');
-    Swal.fire({
-        title: 'กำลังโหลดประกาศ...',
-        text: 'กรุณารอสักครู่',
-        allowOutsideClick: false,
-        showConfirmButton: false,
-        didOpen: () => Swal.showLoading()
-    });
+let announcementsCache = [];
+let autoAnnouncementChecked = false;
+let announcementsCacheLoaded = false;
+let announcementsRequest = null;
+let announcementsCacheGeneration = 0;
+const ANNOUNCEMENTS_CACHE_KEY = 'announcementSessionCache';
+
+function readAnnouncementSessionCache() {
+    try {
+        const cached = sessionStorage.getItem(ANNOUNCEMENTS_CACHE_KEY);
+        if (!cached) return null;
+
+        const parsed = JSON.parse(cached);
+        const username = localStorage.getItem('username') || '';
+        if (parsed.username !== username || !Array.isArray(parsed.data)) {
+            sessionStorage.removeItem(ANNOUNCEMENTS_CACHE_KEY);
+            return null;
+        }
+        return parsed.data;
+    } catch (error) {
+        console.warn('Unable to read announcement session cache:', error);
+        return null;
+    }
+}
+
+function saveAnnouncementSessionCache() {
+    try {
+        sessionStorage.setItem(ANNOUNCEMENTS_CACHE_KEY, JSON.stringify({
+            username: localStorage.getItem('username') || '',
+            data: announcementsCache
+        }));
+    } catch (error) {
+        console.warn('Unable to save announcement session cache:', error);
+    }
+}
+
+async function loadAnnouncements() {
+    if (announcementsCacheLoaded) return announcementsCache;
+
+    const cachedData = readAnnouncementSessionCache();
+    if (cachedData) {
+        announcementsCache = cachedData;
+        announcementsCacheLoaded = true;
+        updateAnnouncementBadge();
+        return announcementsCache;
+    }
+    if (announcementsRequest) return announcementsRequest;
+
+    const requestUsername = localStorage.getItem('username') || '';
+    const requestGeneration = announcementsCacheGeneration;
+    const request = (async () => {
+        const response = await apiFetch('/api/gas-announcement?action=getAnnouncements', { cache: 'no-store' });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const result = await response.json();
+        if (result.status !== 'success' || !Array.isArray(result.data)) {
+            throw new Error(result.data || 'ข้อมูลประกาศไม่ถูกต้อง');
+        }
+        if (
+            requestGeneration !== announcementsCacheGeneration ||
+            requestUsername !== (localStorage.getItem('username') || '')
+        ) {
+            throw new Error('เซสชันผู้ใช้เปลี่ยนระหว่างโหลดประกาศ กรุณาลองใหม่');
+        }
+        announcementsCache = result.data;
+        announcementsCacheLoaded = true;
+        saveAnnouncementSessionCache();
+        updateAnnouncementBadge();
+        return announcementsCache;
+    })();
+    announcementsRequest = request;
 
     try {
-        const res = await apiFetch('/api/announcement', { cache: 'no-cache' });
-        if (!res.ok) throw new Error('Load failed');
-        const data = await res.json();
-        if (!data || data.length === 0) {
-            Swal.fire('ยังไม่มีประกาศ', 'คลังวิภาวดี 62 ยังไม่ได้ส่งประกาศล่าสุด', 'info');
-            return;
-        }
-        const sorted = data.filter(r => r.message).sort((a, b) => {
-            const dA = parseDateTimeToJSDate(a.updatedAt);
-            const dB = parseDateTimeToJSDate(b.updatedAt);
-            return (dB || 0) - (dA || 0);
-        });
-
-        let html = `
-       <div style="max-height:65vh;overflow-y:auto;padding:5px;">
-         <div style="margin-bottom:15px;padding:12px;background:#f8f9fa;border-radius:12px;text-align:center;">
-           <b>มี ${sorted.length} ประกาศ</b>
-         </div>
-         ${sorted.map(item => `
-            <div style="background:white;border:1px solid #eee;border-radius:10px;padding:15px;margin-bottom:10px;box-shadow:0 2px 5px rgba(0,0,0,0.05);text-align:left;">
-                <div style="font-size:12px;color:#999;margin-bottom:5px;">
-                    <i class="far fa-clock"></i> ${item.updatedAt}
-                </div>
-                <div style="font-size:15px;color:#333;line-height:1.5;">${item.message}</div>
-                ${item.sender ? `<div style="margin-top:8px;font-size:12px;color:#2980b9;">โดย: ${item.sender}</div>` : ''}
-            </div>
-         `).join('')}
-       </div>
-    `;
-
-        Swal.fire({
-            title: '📢 ประกาศจากคลัง',
-            html: html,
-            width: '600px',
-            confirmButtonText: 'ปิด'
-        });
-    } catch (e) {
-        console.error(e);
-        Swal.fire('Error', 'ไม่สามารถโหลดประกาศได้', 'error');
+        return await request;
+    } finally {
+        if (announcementsRequest === request) announcementsRequest = null;
     }
+}
+
+function updateAnnouncementBadge() {
+    const unreadCount = announcementsCache.filter(item => !item.IsRead).length;
+    document.querySelectorAll('#notificationBadge, #adminAnnouncementBadge').forEach(badge => {
+        badge.textContent = unreadCount > 99 ? '99+' : String(unreadCount);
+        badge.style.display = unreadCount ? 'flex' : 'none';
+    });
+}
+
+function createAnnouncementCard(item, { compact = false, showReadAction = true } = {}) {
+    const card = document.createElement('article');
+    const typeClass = compact
+        ? ''
+        : item.Type === 'แจ้งด่วน'
+            ? 'announcement-card-urgent'
+            : item.Type === 'ปิดปรับปรุง'
+                ? 'announcement-card-maintenance'
+                : 'announcement-card-general';
+    card.className = `announcement-card ${typeClass}${item.IsRead ? ' announcement-card-read' : ' announcement-card-unread'}`;
+
+    const header = document.createElement('div');
+    header.className = 'announcement-header';
+
+    const heading = document.createElement('div');
+    heading.className = 'announcement-heading';
+    const title = document.createElement('div');
+    title.className = 'announcement-title';
+    title.textContent = item.Title || 'ประกาศ';
+    heading.appendChild(title);
+
+    const meta = document.createElement('div');
+    meta.className = 'announcement-meta';
+    const createdAt = item.CreatedAt ? new Date(item.CreatedAt).toLocaleString('th-TH') : '';
+    meta.textContent = createdAt;
+    heading.appendChild(meta);
+    header.appendChild(heading);
+
+    if (compact) {
+        const readIndicator = document.createElement('span');
+        readIndicator.className = `announcement-read-indicator${item.IsRead ? ' is-read' : ' is-unread'}`;
+        readIndicator.setAttribute('role', 'img');
+        readIndicator.setAttribute('aria-label', item.IsRead ? 'อ่านแล้ว' : 'ยังไม่อ่าน');
+        readIndicator.title = item.IsRead ? 'อ่านแล้ว' : 'ยังไม่อ่าน';
+        readIndicator.innerHTML = item.IsRead
+            ? '<i class="fas fa-check" aria-hidden="true"></i>'
+            : '<i class="fas fa-circle" aria-hidden="true"></i>';
+        header.appendChild(readIndicator);
+    }
+
+    if (!compact) {
+        const headerIcon = document.createElement('span');
+        headerIcon.className = 'announcement-header-icon';
+        headerIcon.setAttribute('aria-hidden', 'true');
+        headerIcon.innerHTML = item.Type === 'แจ้งด่วน'
+            ? '<i class="fas fa-bullhorn"></i>'
+            : item.Type === 'ปิดปรับปรุง'
+                ? '<i class="fas fa-screwdriver-wrench"></i>'
+                : '<i class="fas fa-bell"></i>';
+        header.prepend(headerIcon);
+
+        const typeBadge = document.createElement('span');
+        typeBadge.className = 'announcement-type-badge';
+        typeBadge.textContent = item.Type || 'ทั่วไป';
+        header.appendChild(typeBadge);
+    }
+    card.appendChild(header);
+
+    if (!compact) {
+        const body = document.createElement('div');
+        body.className = 'announcement-body show';
+        body.textContent = item.Message || '';
+        card.appendChild(body);
+    }
+
+    if (compact) {
+        card.classList.add('announcement-card-summary');
+        card.dataset.announcementId = String(item.AnnouncementID || '');
+        card.setAttribute('role', 'button');
+        card.setAttribute('tabindex', '0');
+        card.setAttribute('aria-label', `เปิดประกาศ ${item.Title || ''}`);
+        return card;
+    }
+
+    const actions = document.createElement('div');
+    actions.className = 'announcement-actions';
+    if (item.IsRead) {
+        const readLabel = document.createElement('span');
+        readLabel.className = 'announcement-read-label';
+        readLabel.textContent = 'อ่านแล้ว';
+        actions.appendChild(readLabel);
+    } else if (showReadAction) {
+        const readButton = document.createElement('button');
+        readButton.type = 'button';
+        readButton.className = 'announcement-read-button';
+        readButton.textContent = 'อ่านแล้ว';
+        readButton.addEventListener('click', async () => {
+            readButton.disabled = true;
+            Swal.resetValidationMessage();
+            try {
+                await markAnnouncementRead(item);
+                item.IsRead = true;
+                saveAnnouncementSessionCache();
+                updateAnnouncementBadge();
+                const readLabel = document.createElement('span');
+                readLabel.className = 'announcement-read-label';
+                readLabel.textContent = 'อ่านแล้ว';
+                actions.replaceChildren(readLabel);
+            } catch (error) {
+                readButton.disabled = false;
+                Swal.showValidationMessage(error.message || 'บันทึกสถานะอ่านไม่สำเร็จ');
+            }
+        });
+        actions.appendChild(readButton);
+    }
+    card.appendChild(actions);
+    return card;
+}
+
+async function markAnnouncementRead(item) {
+    const body = new URLSearchParams({
+        action: 'markAnnouncementRead',
+        announcementId: String(item.AnnouncementID || '')
+    });
+    const response = await apiFetch('/api/gas-announcement', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: body.toString()
+    });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const result = await response.json();
+    if (result.status !== 'success') throw new Error(result.data || 'บันทึกสถานะอ่านไม่สำเร็จ');
+}
+
+function renderAnnouncementDeck() {
+    const root = document.createElement('div');
+    root.className = 'announcement-deck';
+    const sorted = [...announcementsCache].sort((a, b) => {
+        const dateA = Date.parse(a.CreatedAt || '') || 0;
+        const dateB = Date.parse(b.CreatedAt || '') || 0;
+        return dateB - dateA;
+    });
+    const heading = document.createElement('div');
+    heading.className = 'announcement-deck-heading';
+    const unreadCount = sorted.filter(item => !item.IsRead).length;
+    heading.textContent = unreadCount
+        ? `มี ${sorted.length} ประกาศ · ยังไม่อ่าน ${unreadCount} รายการ`
+        : `มี ${sorted.length} ประกาศ · อ่านครบแล้ว`;
+    root.appendChild(heading);
+
+    if (sorted.length === 0) {
+        const empty = document.createElement('div');
+        empty.className = 'announcement-empty-state';
+        empty.innerHTML = '<i class="fas fa-inbox" aria-hidden="true"></i>';
+        const message = document.createElement('p');
+        message.textContent = 'ยังไม่มีข่าวหรือประกาศในขณะนี้';
+        empty.appendChild(message);
+        root.appendChild(empty);
+        return root;
+    }
+    sorted.forEach(item => root.appendChild(createAnnouncementCard(item, { compact: true, showReadAction: false })));
+    return root;
+}
+
+async function openAnnouncementDetail(item) {
+    const result = await Swal.fire({
+        title: 'รายละเอียดประกาศ',
+        html: createAnnouncementCard(item),
+        width: '600px',
+        confirmButtonText: 'กลับไปยังรายการ',
+        showCloseButton: true,
+        customClass: { popup: 'announcement-popup announcement-detail-popup' }
+    });
+    if (result.isConfirmed) showAnnouncementDeck();
+}
+
+function showAnnouncementDeck() {
+    Swal.fire({
+        title: '📢 ข่าวและประกาศ',
+        html: renderAnnouncementDeck(),
+        width: '600px',
+        confirmButtonText: 'ปิด',
+        customClass: { popup: 'announcement-popup announcement-deck-popup' },
+        didOpen: popup => {
+            const deck = popup.querySelector('.announcement-deck');
+            if (!deck) return;
+
+            const openFromEvent = event => {
+                const card = event.target.closest('.announcement-card-summary');
+                if (!card || !deck.contains(card)) return;
+                const item = announcementsCache.find(
+                    announcement => String(announcement.AnnouncementID || '') === card.dataset.announcementId
+                );
+                if (item) openAnnouncementDetail(item);
+            };
+            deck.addEventListener('click', openFromEvent);
+            deck.addEventListener('keydown', event => {
+                if (event.key !== 'Enter' && event.key !== ' ') return;
+                event.preventDefault();
+                openFromEvent(event);
+            });
+        }
+    });
+}
+
+export async function openAnnouncementDeck() {
+    try {
+        await loadAnnouncements();
+        showAnnouncementDeck();
+    } catch (error) {
+        console.error('Failed to load announcements:', error);
+        Swal.fire('โหลดประกาศไม่สำเร็จ', error.message || 'กรุณาลองใหม่อีกครั้ง', 'error');
+    }
+}
+
+export async function openAnnouncementEditor() {
+    if (localStorage.getItem('userAuth') !== 'Admin') {
+        await Swal.fire('ไม่มีสิทธิ์', 'เฉพาะผู้ดูแลระบบเท่านั้นที่สร้างประกาศได้', 'warning');
+        return;
+    }
+
+    const now = new Date();
+    const localDateTime = new Date(now.getTime() - now.getTimezoneOffset() * 60000)
+        .toISOString()
+        .slice(0, 16);
+    const result = await Swal.fire({
+        title: 'สร้างประกาศใหม่',
+        html: `
+            <div class="announcement-form">
+                <div class="announcement-form-intro">กรอกข้อมูลด้านล่างเพื่อแจ้งข่าวให้ผู้ใช้งาน</div>
+                <label for="announcementTitle">หัวข้อประกาศ</label>
+                <input id="announcementTitle" class="swal2-input" maxlength="160" placeholder="ระบุหัวข้อ">
+                <label for="announcementMessage">รายละเอียด</label>
+                <textarea id="announcementMessage" class="swal2-textarea" maxlength="10000" placeholder="พิมพ์รายละเอียดประกาศ"></textarea>
+                <label for="announcementType">ประเภท</label>
+                <select id="announcementType" class="swal2-select">
+                    <option value="ทั่วไป">📣 ทั่วไป</option>
+                    <option value="แจ้งด่วน">🚨 แจ้งด่วน</option>
+                    <option value="ปิดปรับปรุง">🛠 ปิดปรับปรุง</option>
+                </select>
+                <div class="announcement-form-section-title">กำหนดเวลาแสดง</div>
+                <div class="announcement-form-grid">
+                    <div class="announcement-form-field">
+                        <label for="announcementStartAt">เริ่มแสดง</label>
+                        <input id="announcementStartAt" class="swal2-input" type="datetime-local" value="${localDateTime}">
+                    </div>
+                    <div class="announcement-form-field">
+                        <label for="announcementEndAt">สิ้นสุด (เว้นว่างได้)</label>
+                        <input id="announcementEndAt" class="swal2-input" type="datetime-local">
+                    </div>
+                </div>
+                <div class="announcement-form-section-title">กลุ่มผู้รับ</div>
+                <div class="announcement-form-field">
+                    <label for="announcementTargetTeam">หน่วยงาน</label>
+                    <input id="announcementTargetTeam" class="swal2-input" value="*" maxlength="500" placeholder="* ทุกหน่วยงาน หรือระบุชื่อหน่วยงาน">
+                    <small class="announcement-form-hint">ระบุหลายหน่วยงานได้ โดยคั่นด้วยเครื่องหมายจุลภาค (,)</small>
+                </div>
+                <div class="announcement-form-field">
+                    <label for="announcementTargetPlant">Plant (ตัวเลือก)</label>
+                    <input id="announcementTargetPlant" class="swal2-input" value="*" placeholder="* ทุก Plant หรือระบุ เช่น 0001,0002">
+                </div>
+            </div>
+        `,
+        width: '600px',
+        showCancelButton: true,
+        confirmButtonText: 'บันทึกประกาศ',
+        cancelButtonText: 'ยกเลิก',
+        focusConfirm: false,
+        customClass: {
+            popup: 'announcement-popup announcement-editor-popup',
+            htmlContainer: 'announcement-editor-content'
+        },
+        preConfirm: async () => {
+            const title = document.getElementById('announcementTitle').value.trim();
+            const message = document.getElementById('announcementMessage').value.trim();
+            const type = document.getElementById('announcementType').value;
+            const startAt = document.getElementById('announcementStartAt').value;
+            const endAt = document.getElementById('announcementEndAt').value;
+            const targetPlant = document.getElementById('announcementTargetPlant').value.trim() || '*';
+            const targetTeam = document.getElementById('announcementTargetTeam').value.trim() || '*';
+
+            if (!title || !message) {
+                Swal.showValidationMessage('กรุณากรอกหัวข้อและรายละเอียดประกาศ');
+                return false;
+            }
+            if (startAt && endAt && new Date(endAt) < new Date(startAt)) {
+                Swal.showValidationMessage('วันสิ้นสุดต้องอยู่หลังวันเริ่มแสดง');
+                return false;
+            }
+
+            const body = new URLSearchParams({
+                action: 'createAnnouncement',
+                title,
+                message,
+                type,
+                startAt,
+                endAt,
+                targetPlant,
+                targetTeam
+            });
+            try {
+                const response = await apiFetch('/api/gas-announcement', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: body.toString()
+                });
+                if (!response.ok) {
+                    const error = await response.json().catch(() => ({}));
+                    throw new Error(error.error || error.data || `HTTP ${response.status}`);
+                }
+                const apiResult = await response.json();
+                if (apiResult.status !== 'success') {
+                    throw new Error(apiResult.data || 'บันทึกประกาศไม่สำเร็จ');
+                }
+                return apiResult.data;
+            } catch (error) {
+                console.error('Failed to create announcement:', error);
+                Swal.showValidationMessage(error.message || 'บันทึกประกาศไม่สำเร็จ');
+                return false;
+            }
+        }
+    });
+
+    if (result.isConfirmed) {
+        resetAnnouncementState();
+        await Swal.fire({
+            icon: 'success',
+            title: 'บันทึกประกาศแล้ว',
+            text: 'ประกาศถูกบันทึกลงฐานข้อมูลเรียบร้อย',
+            confirmButtonText: 'ดูประกาศ'
+        });
+        await openAnnouncementDeck();
+    }
+}
+
+export async function showUnreadAnnouncementPopup() {
+    if (autoAnnouncementChecked) return;
+    autoAnnouncementChecked = true;
+    try {
+        await loadAnnouncements();
+        const unread = announcementsCache.find(item => !item.IsRead);
+        if (!unread) return;
+        Swal.fire({
+            title: '📢 ประกาศใหม่',
+            html: createAnnouncementCard(unread, { showReadAction: false }),
+            showCancelButton: true,
+            confirmButtonText: 'รับทราบ',
+            cancelButtonText: 'ปิดไว้ก่อน',
+            allowOutsideClick: false,
+            customClass: { popup: 'announcement-popup' },
+            preConfirm: async () => {
+                try {
+                    await markAnnouncementRead(unread);
+                    unread.IsRead = true;
+                    saveAnnouncementSessionCache();
+                    updateAnnouncementBadge();
+                    return true;
+                } catch (error) {
+                    Swal.showValidationMessage(error.message || 'บันทึกสถานะอ่านไม่สำเร็จ');
+                    return false;
+                }
+            }
+        });
+    } catch (error) {
+        console.error('Failed to check unread announcements:', error);
+        Swal.fire('โหลดประกาศไม่สำเร็จ', error.message || 'กรุณาลองใหม่อีกครั้ง', 'warning');
+    }
+}
+
+export function resetAnnouncementState() {
+    autoAnnouncementChecked = false;
+    announcementsCacheGeneration += 1;
+    announcementsCache = [];
+    announcementsCacheLoaded = false;
+    announcementsRequest = null;
+    try {
+        sessionStorage.removeItem(ANNOUNCEMENTS_CACHE_KEY);
+    } catch (error) {
+        console.warn('Unable to clear announcement session cache:', error);
+    }
+    updateAnnouncementBadge();
 }
 
 export function renderPagination(totalItems, currentPage, containerId, itemsPerPage, prefix = "") {
