@@ -663,92 +663,111 @@ export async function showRequisitionDialog(row) {
     const result = await Swal.fire({
         title: '📋 เบิกอะไหล่นวนคร',
         html: `
-      <style>
-        .custom-swal-popup { border-radius: 18px !important; padding: 18px 20px !important; }
-        .swal2-title { font-size: 20px !important; margin-bottom: 8px !important; }
-        .material-header { text-align: center; padding: 10px 12px; border-radius: 12px; background: linear-gradient(135deg, #e0f2ff, #f3e5ff); margin-bottom: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
-        .material-code { font-size: 18px; font-weight: 700; }
-        .material-desc { margin-top: 4px; font-size: 14px; }
-        .swal2-label { text-align: left !important; display: block !important; margin: 6px 0 4px !important; font-weight: 600 !important; width: 100% !important; font-size: 13px !important; }
-        .swal2-input, .swal2-select { width: 100% !important; margin: 4px 0 !important; padding: 8px 10px !important; font-size: 14px !important; height: 38px !important; border-radius: 8px !important; border: 1px solid #ddd !important; background-color: #fafafa !important; }
-        .swal2-input:focus { border-color: #667eea !important; box-shadow: 0 0 0 2px rgba(102,126,234,0.2) !important; background-color: #ffffff !important; outline: none !important; }
-        .error-message { color: red !important; font-size: 12px !important; margin-top: 2px !important; display: block !important; text-align: left !important; }
-        .call-type-container { display: flex; gap: 8px; flex-wrap: wrap; margin: 4px 0; justify-content: center; }
-        .call-type-btn { padding: 8px 16px; border: none; border-radius: 25px; font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.3s ease; color: white; min-width: 60px; text-align: center; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); background: linear-gradient(135deg, #e0e0e0, #f5f5f5); color: #666; }
-        .call-type-btn.selected { background: linear-gradient(135deg, #667eea, #764ba2); box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3); color: white; transform: translateY(-1px); }
-        .call-type-btn:hover:not(.selected) { background: linear-gradient(135deg, #d0d0d0, #e5e5e5); transform: translateY(-1px); }
-      </style>
+      <div class="requisition-form">
+        <div class="requisition-material-card">
+          <span class="requisition-material-label">อะไหล่ที่ต้องการเบิก</span>
+          <div class="requisition-material-code">${row.Material || ''}</div>
+          <div class="requisition-material-description">${row.Description || ''}</div>
+        </div>
 
-      <div class="material-header">
-        <div class="material-code">${row.Material || ''}</div>
-        <div class="material-desc">${row.Description || ''}</div>
+        <div class="requisition-field">
+          <label class="requisition-field-label" for="swal-quantity">จำนวนที่ต้องการ</label>
+          <div class="requisition-input-wrap requisition-quantity-wrap">
+            <i class="fas fa-boxes-stacked" aria-hidden="true"></i>
+            <input id="swal-quantity" type="number" value="1" min="1" inputmode="numeric" aria-describedby="swal-quantity-error">
+            <span>ชิ้น</span>
+          </div>
+          <span id="swal-quantity-error" class="requisition-error"></span>
+        </div>
+
+        <div class="requisition-field">
+          <label class="requisition-field-label" for="swal-employee-code">รหัสพนักงาน</label>
+          <div class="requisition-input-wrap requisition-readonly">
+            <i class="fas fa-id-badge" aria-hidden="true"></i>
+            <input id="swal-employee-code" value="${savedUsername}" readonly aria-describedby="swal-employee-code-error">
+          </div>
+          <span id="swal-employee-code-error" class="requisition-error"></span>
+        </div>
+
+        <div class="requisition-field">
+          <label class="requisition-field-label" for="swal-contact">เบอร์ติดต่อ</label>
+          <div class="requisition-input-wrap">
+            <i class="fas fa-phone" aria-hidden="true"></i>
+            <input id="swal-contact" type="tel" inputmode="tel" autocomplete="tel" placeholder="เช่น 08xxxxxxxx" list="contact-list" aria-describedby="swal-contact-error">
+            <datalist id="contact-list">
+              ${history.contact.map(c => `<option value="${c}">`).join('')}
+            </datalist>
+          </div>
+          <span id="swal-contact-error" class="requisition-error"></span>
+        </div>
+
+        <div class="requisition-field">
+          <label class="requisition-field-label" for="swal-call-number">เลขที่ใบงาน</label>
+          <div class="requisition-input-wrap">
+            <i class="fas fa-file-lines" aria-hidden="true"></i>
+            <input id="swal-call-number" type="text" inputmode="numeric" maxlength="7" placeholder="กรอกเลขที่ใบงาน 7 หลัก" list="call-list" aria-describedby="swal-call-number-error">
+            <datalist id="call-list">
+              ${history.callNumber.map(c => `<option value="${c}">`).join('')}
+            </datalist>
+          </div>
+          <span id="swal-call-number-error" class="requisition-error"></span>
+        </div>
+
+        <div class="requisition-field">
+          <span class="requisition-field-label">ประเภท Call</span>
+          <div id="call-type-container" class="requisition-call-types" role="group" aria-label="ประเภท Call">
+            <button class="call-type-btn" type="button" data-value="I" aria-pressed="false">I</button>
+            <button class="call-type-btn" type="button" data-value="P" aria-pressed="false">P</button>
+            <button class="call-type-btn" type="button" data-value="Q" aria-pressed="false">Q</button>
+            <button class="call-type-btn" type="button" data-value="R" aria-pressed="false">R</button>
+          </div>
+          <span id="swal-call-type-error" class="requisition-error"></span>
+        </div>
+
+        <div class="requisition-field">
+          <label class="requisition-field-label" for="swal-remark">หมายเหตุ <span>(ถ้ามี)</span></label>
+          <div class="requisition-input-wrap">
+            <i class="fas fa-note-sticky" aria-hidden="true"></i>
+            <input id="swal-remark" placeholder="ระบุเหตุผลเพิ่มเติม" aria-describedby="swal-remark-error">
+          </div>
+          <span id="swal-remark-error" class="requisition-error"></span>
+        </div>
       </div>
-
-      <label class="swal2-label">🔢 จำนวน</label>
-      <input id="swal-quantity" class="swal2-input" type="number" value="1" min="1">
-      <span id="swal-quantity-error" class="error-message"></span>
-
-      <label class="swal2-label">🆔 รหัสพนักงาน</label>
-      <input id="swal-employee-code" class="swal2-input" value="${savedUsername}" readonly style="background:#f0f0f0; cursor:not-allowed">
-      <span id="swal-employee-code-error" class="error-message"></span>
-
-      <label class="swal2-label">📞 เบอร์ติดต่อ</label>
-      <div style="position:relative;">
-        <input id="swal-contact" class="swal2-input" placeholder="เช่น 08xxxxxxxx" list="contact-list">
-        <datalist id="contact-list">
-             ${history.contact.map(c => `<option value="${c}">`).join('')}
-        </datalist>
-      </div>
-      <span id="swal-contact-error" class="error-message"></span>
-
-      <label class="swal2-label">📄 เลขที่ใบงาน</label>
-      <div style="position:relative;">
-        <input id="swal-call-number" class="swal2-input" type="text" inputmode="numeric" maxlength="7" placeholder="กรอกเลขที่ใบงาน 7 หลัก" list="call-list">
-        <datalist id="call-list">
-             ${history.callNumber.map(c => `<option value="${c}">`).join('')}
-        </datalist>
-      </div>
-      <span id="swal-call-number-error" class="error-message"></span>
-
-      <label class="swal2-label">🗳️ Call Type</label>
-      <div id="call-type-container" class="call-type-container">
-        <button class="call-type-btn" type="button" data-value="I">I</button>
-        <button class="call-type-btn" type="button" data-value="P">P</button>
-        <button class="call-type-btn" type="button" data-value="Q">Q</button>
-        <button class="call-type-btn" type="button" data-value="R">R</button>
-      </div>
-      <span id="swal-call-type-error" class="error-message"></span>
-
-      <label class="swal2-label">🗒️ หมายเหตุ</label>
-      <input id="swal-remark" class="swal2-input" placeholder="ระบุเหตุผล (ถ้ามี)">
-      <span id="swal-remark-error" class="error-message"></span>
     `,
+        width: window.innerWidth <= 600 ? '94vw' : '480px',
+        padding: 0,
+        heightAuto: false,
+        scrollbarPadding: false,
         showCancelButton: true,
-        confirmButtonText: '✅ ยืนยันเบิก',
-        cancelButtonText: '❌ ยกเลิก',
+        confirmButtonText: '<i class="fas fa-check"></i> ยืนยันเบิก',
+        cancelButtonText: '<i class="fas fa-xmark"></i> ยกเลิก',
         buttonsStyling: false,
         customClass: {
-            popup: 'custom-swal-popup',
-            confirmButton: 'swal2-confirm-btn', // Assumed global class
-            cancelButton: 'swal2-cancel-btn'
+            container: 'requisition-swal-container',
+            popup: 'requisition-swal-popup',
+            title: 'requisition-swal-title',
+            htmlContainer: 'requisition-swal-content',
+            actions: 'requisition-swal-actions',
+            confirmButton: 'requisition-confirm-button',
+            cancelButton: 'requisition-cancel-button'
         },
         focusConfirm: false,
         didOpen: () => {
-            // Re-apply style to buttons (since we didn't inject all CSS in style block, we rely on inline or global)
             const confirmBtn = Swal.getConfirmButton();
-            const cancelBtn = Swal.getCancelButton();
             if (confirmBtn) {
                 confirmBtn.disabled = true;
                 confirmBtn.setAttribute('aria-disabled', 'true');
                 confirmBtn.style.pointerEvents = 'none';
             }
-            if (confirmBtn) confirmBtn.style.cssText = `background: linear-gradient(135deg, #4caf50, #2e7d32); color: white; padding: 10px 24px; border-radius: 99px; border: none; font-weight: bold; margin-right: 8px;`;
-            if (cancelBtn) cancelBtn.style.cssText = `background: #f5f5f5; color: #666; padding: 10px 24px; border-radius: 99px; border: 1px solid #ddd; font-weight: bold;`;
 
-            const btns = document.querySelectorAll('.call-type-btn');
+            const btns = Swal.getPopup().querySelectorAll('.call-type-btn');
             btns.forEach(b => b.onclick = () => {
-                btns.forEach(x => x.classList.remove('selected'));
+                btns.forEach(x => {
+                    x.classList.remove('selected');
+                    x.setAttribute('aria-pressed', 'false');
+                });
                 b.classList.add('selected');
+                b.setAttribute('aria-pressed', 'true');
                 selectedCallType = b.dataset.value;
                 updateConfirmState();
             });
@@ -762,7 +781,7 @@ export async function showRequisitionDialog(row) {
                 const contact = document.getElementById('swal-contact').value.trim();
                 const callNumber = document.getElementById('swal-call-number').value.trim();
                 const remark = document.getElementById('swal-remark').value.trim();
-                const selectedBtn = document.querySelector('.call-type-btn.selected');
+                const selectedBtn = Swal.getPopup().querySelector('.call-type-btn.selected');
                 const hasValidJobNumber = /^\d{7}$/.test(callNumber);
 
                 const callError = document.getElementById('swal-call-number-error');
@@ -812,7 +831,7 @@ export async function showRequisitionDialog(row) {
             const remark = document.getElementById('swal-remark').value;
 
             // Robustly get valid call type from DOM
-            const selectedBtn = document.querySelector('.call-type-btn.selected');
+            const selectedBtn = Swal.getPopup().querySelector('.call-type-btn.selected');
             const currentCallType = selectedBtn ? selectedBtn.dataset.value : '';
 
             let isValid = true;

@@ -20,7 +20,7 @@ import {
 import { handleClearCacheAndReload, ensureCacheFreshForVersion } from './cache.js';
 import { debounce } from './utils.js';
 import { loadTheme } from './theme.js';
-import { loadData, applyFilters, showRequisitionDialog } from './modules/parts.js?v=40';
+import { loadData, applyFilters, showRequisitionDialog } from './modules/parts.js?v=41';
 import { applyFiltersImages } from './modules/images.js?v=39';
 import { loadTodayData, updateTableToday, exportTodayData, saveTodayDataSnapshot, initTodayListeners } from './modules/today.js?v=42';
 import { loadPendingCallsData, initPendingListeners } from './modules/pending.js?v=51';
