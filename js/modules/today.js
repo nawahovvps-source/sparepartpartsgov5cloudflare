@@ -279,6 +279,7 @@ export function updateTableToday() {
 
     // Manage Header Visibility for Admin Features
     const userAuth = localStorage.getItem('userAuth');
+    const currentUserName = (localStorage.getItem('userName') || '').trim().replace(/\s+/g, ' ').toLocaleLowerCase();
     const thSelect = document.getElementById('th-select-today');
     const thPrint = document.getElementById('th-print-today');
     if (thSelect) thSelect.style.display = (userAuth === 'Admin') ? '' : 'none';
@@ -358,8 +359,44 @@ export function updateTableToday() {
         // 2. Status
         const statusTd = document.createElement("td");
         const status = row.status || row.Status || '';
-        statusTd.textContent = status;
-        statusTd.className = status === 'สั่งเบิกแล้ว' ? 'status-green' : 'status-red';
+        const statusBadge = document.createElement('span');
+        statusBadge.className = 'today-status-badge';
+        if (status === 'รอเบิก') {
+            statusBadge.classList.add('today-status-pending');
+        } else if (status === 'สั่งเบิกแล้ว') {
+            statusBadge.classList.add('today-status-issued');
+        } else if (status === 'ยกเลิก') {
+            statusBadge.classList.add('today-status-cancelled');
+        } else {
+            statusBadge.classList.add('today-status-other');
+        }
+        statusBadge.textContent = status || '-';
+        statusTd.className = 'today-status-cell';
+        statusTd.appendChild(statusBadge);
+        const statusEmployeeName = (row.EmployeeName || row.employeeName || '')
+            .toString()
+            .trim()
+            .replace(/\s+/g, ' ')
+            .toLocaleLowerCase();
+        const statusRowId = row.row_id || row.id || row.IDRow || row.idRow || '';
+        if (
+            currentUserName &&
+            statusEmployeeName === currentUserName &&
+            status === 'รอเบิก' &&
+            !String(statusRowId).startsWith('temp_')
+        ) {
+            const cancelButton = document.createElement('button');
+            cancelButton.type = 'button';
+            cancelButton.className = 'today-cancel-button today-status-badge today-status-cancelled';
+            cancelButton.textContent = 'ยกเลิก';
+            cancelButton.title = 'ยกเลิกรายการเบิกนี้';
+            cancelButton.setAttribute('aria-label', 'ยกเลิกรายการเบิกนี้');
+            cancelButton.addEventListener('click', event => {
+                event.stopPropagation();
+                cancelTodayRequest(row);
+            });
+            statusTd.appendChild(cancelButton);
+        }
         tr.appendChild(statusTd);
 
         // 3. IDRow
@@ -501,6 +538,19 @@ export function updateTableToday() {
                 }
             }
 
+            if (col === "team") {
+                const teamContent = document.createElement('span');
+                teamContent.className = 'today-team-content';
+
+                const teamName = document.createElement('span');
+                teamName.textContent = val || '-';
+                teamContent.appendChild(teamName);
+
+                td.appendChild(teamContent);
+                tr.appendChild(td);
+                return;
+            }
+
             td.textContent = val;
             tr.appendChild(td);
         });
@@ -519,6 +569,74 @@ export function updateTableToday() {
 
     // Pagination
     renderPagination(state.currentFilteredDataToday.length, state.currentPageToday, "pageNumbersToday", itemsPerPage, "Today");
+}
+
+async function cancelTodayRequest(row) {
+    const confirmation = await Swal.fire({
+        icon: 'warning',
+        title: 'ยืนยันยกเลิกรายการ?',
+        text: `ยกเลิกรายการ ${row.Material || row.material || ''} ที่ส่งโดยคุณ`,
+        showCancelButton: true,
+        confirmButtonText: 'ยืนยันยกเลิก',
+        cancelButtonText: 'กลับ',
+        confirmButtonColor: '#d64545',
+        cancelButtonColor: '#718096',
+        reverseButtons: true
+    });
+    if (!confirmation.isConfirmed) return;
+
+    const rowIdRaw = row.row_id || row.id || row.IDRow || row.idRow || '';
+    const payload = [{
+        row_id: Number(rowIdRaw) || '',
+        IDRow: row.IDRow || row.idRow || row.IdRow || '',
+        material: row.material || row.Material || '',
+        timestamp: row.timestamp || row.Timestamp || row['Timestamp'] || '',
+        status: 'ยกเลิก'
+    }];
+
+    Swal.fire({
+        title: 'กำลังยกเลิกรายการ',
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+        didOpen: () => Swal.showLoading()
+    });
+
+    try {
+        const response = await apiFetch(CONFIG.ENDPOINTS.GAS, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: `action=bulkUpdateStatus&payload=${encodeURIComponent(JSON.stringify(payload))}`
+        });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+        const result = await response.json();
+        const updateResult = result.data;
+        if (result.status !== 'success' || Number(updateResult?.success) !== 1 || Number(updateResult?.fail) !== 0) {
+            throw new Error(typeof updateResult === 'string' ? updateResult : 'ไม่สามารถอัปเดตสถานะได้');
+        }
+
+        const verifiedUpdates = await verifyTodayStatusUpdates(payload);
+        if (!verifiedUpdates[0]) {
+            throw new Error('ส่งคำขอแล้ว แต่ยังยืนยันสถานะ "ยกเลิก" จากฐานข้อมูลไม่ได้ กรุณารีเฟรชและตรวจสอบ');
+        }
+
+        row.status = 'ยกเลิก';
+        if ('Status' in row) row.Status = 'ยกเลิก';
+        state.selectedTodayRows.delete(row.row_id);
+        updateTableToday();
+        await Swal.fire({
+            icon: 'success',
+            title: 'บันทึกการยกเลิกแล้ว',
+            text: `Material: ${row.Material || row.material || '-'}\nสถานะ: ยกเลิก\nบันทึกลงฐานข้อมูลเรียบร้อย`
+        });
+    } catch (error) {
+        console.error('Failed to cancel today request:', error);
+        await Swal.fire({
+            icon: 'error',
+            title: 'ยกเลิกรายการไม่สำเร็จ',
+            text: error.message || 'กรุณาลองใหม่อีกครั้ง'
+        });
+    }
 }
 
 
@@ -641,13 +759,16 @@ export function exportTodayData() {
 // --- Save Data Snapshot ---
 async function verifyTodayStatusUpdates(payload) {
     const response = await apiFetch(
-        `${CONFIG.ENDPOINTS.REQUEST_SHEET_BASE}?type=all&v=${Date.now()}`,
+        `${CONFIG.ENDPOINTS.GAS}?action=getRequests&v=${Date.now()}`,
         { cache: 'no-store' }
     );
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
-    const rows = await response.json();
-    if (!Array.isArray(rows)) throw new Error('ข้อมูลยืนยันผลการบันทึกไม่ถูกต้อง');
+    const result = await response.json();
+    const rows = result.data;
+    if (result.status !== 'success' || !Array.isArray(rows)) {
+        throw new Error('ข้อมูลยืนยันผลการบันทึกไม่ถูกต้อง');
+    }
 
     return payload.map(item => {
         const rowId = Number(item.row_id);

@@ -2484,6 +2484,73 @@ body.dark-mode #parts #data-table tbody.parts-deck > tr > td:nth-child(8) .stock
   font-weight: bold;
 }
 
+#today .today-status-cell {
+  text-align: center;
+  white-space: nowrap;
+}
+
+#today .today-status-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 28px;
+  padding: 5px 11px;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+#today .today-status-pending {
+  border-color: #e4a528;
+  background: #fff3cd;
+  color: #815500;
+}
+
+#today .today-status-issued {
+  border-color: #45a66b;
+  background: #d9f3e2;
+  color: #176638;
+}
+
+#today .today-status-cancelled {
+  border-color: #dc6670;
+  background: #fde2e4;
+  color: #9c2631;
+}
+
+#today .today-status-other {
+  border-color: #9aa8b5;
+  background: #edf1f4;
+  color: #465563;
+}
+
+body.dark-mode #today .today-status-pending {
+  border-color: #b98522;
+  background: #4a3b1e;
+  color: #ffda83;
+}
+
+body.dark-mode #today .today-status-issued {
+  border-color: #398454;
+  background: #1d4430;
+  color: #a5e5bb;
+}
+
+body.dark-mode #today .today-status-cancelled {
+  border-color: #ae4f58;
+  background: #4b292e;
+  color: #ffb6bd;
+}
+
+body.dark-mode #today .today-status-other {
+  border-color: #677b8e;
+  background: #354757;
+  color: #d4e0ea;
+}
+
 #today .modal {
   display: none;
   position: fixed;
@@ -5838,22 +5905,36 @@ body.dark-mode #parts #data-table tbody.parts-deck > tr > td:nth-child(2) img {
   }
 
   #today #data-table-today tbody > tr > td:nth-child(7) {
+    box-sizing: border-box;
     color: #174f84;
     font-size: 19px;
     font-weight: 700;
-    border: 0;
+    border: 1px solid #9db4ca;
+    border-radius: 6px;
+    background: #f7fbff;
     text-align: left;
   }
 
   #today #data-table-today tbody > tr > td:nth-child(8) {
+    box-sizing: border-box;
     font-size: 16px;
     font-weight: 600;
-    border: 0;
+    border: 1px solid #9db4ca;
+    border-radius: 6px;
+    background: #fbfdff;
     text-align: left;
   }
 
   body.dark-mode #today #data-table-today tbody > tr > td:nth-child(7) {
+    border-color: #527b9c;
+    background: #30475c;
     color: #8fc8f5;
+  }
+
+  body.dark-mode #today #data-table-today tbody > tr > td:nth-child(8) {
+    border-color: #527b9c;
+    background: #30475c;
+    color: #f0f5fa;
   }
 }
 
@@ -5898,7 +5979,7 @@ body.dark-mode #parts #data-table tbody.parts-deck > tr > td:nth-child(2) img {
     display: grid;
     grid-template-columns: repeat(12, minmax(0, 1fr));
     grid-template-areas:
-      "status status status id id timestamp timestamp timestamp timestamp timestamp timestamp timestamp"
+      "status status status status id id timestamp timestamp timestamp timestamp timestamp timestamp"
       "image image image material material material material quantity quantity quantity quantity quantity"
       "image image image description description description description description description description description description"
       "vibhavadi vibhavadi vibhavadi navanakorn call call calltype calltype plant plant plant plant"
@@ -5993,16 +6074,6 @@ body.dark-mode #parts #data-table tbody.parts-deck > tr > td:nth-child(2) img {
     display: inline;
     flex: 0 0 auto;
     margin: 0 3px 0 0;
-  }
-
-  #today #data-table-today tbody.today-deck > tr > td.status-green {
-    color: #4caf50;
-    font-weight: 700;
-  }
-
-  #today #data-table-today tbody.today-deck > tr > td.status-red {
-    color: #ef5350;
-    font-weight: 700;
   }
 
   #today #data-table-today tbody.today-deck > tr > td:nth-child(4) {
@@ -6214,6 +6285,55 @@ body.dark-mode #parts #data-table tbody.parts-deck > tr > td:nth-child(2) img {
 
   body.dark-mode #today #data-table-today tbody.today-deck > tr > td::before {
     color: #a9bacb;
+  }
+}
+
+.today-cancel-button {
+  display: none;
+}
+
+@media (max-width: 899.98px) {
+  #today #data-table-today tbody.today-deck > tr > td:nth-child(14) .today-team-content {
+    display: flex;
+    align-items: center;
+    min-width: 0;
+  }
+
+  #today #data-table-today tbody.today-deck > tr > td:nth-child(14) .today-team-content > span {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  #today #data-table-today tbody.today-deck > tr > td.today-status-cell .today-cancel-button {
+    display: inline-flex;
+    flex: 0 0 auto;
+    margin-left: auto;
+    appearance: none;
+    font-family: inherit;
+    cursor: pointer;
+    touch-action: manipulation;
+  }
+
+  #today #data-table-today tbody.today-deck > tr > td.today-status-cell .today-cancel-button:active {
+    transform: scale(0.97);
+  }
+
+  #today #data-table-today tbody.today-deck > tr > td.today-status-cell .today-status-badge {
+    padding: 4px 7px;
+    font-size: 10px;
+  }
+
+  #today #data-table-today tbody.today-deck > tr > td.today-status-cell {
+    grid-area: status;
+    justify-content: space-between;
+  }
+
+  #today #data-table-today tbody.today-deck > tr > td:nth-child(4) {
+    grid-area: id;
+  }
+
+  #today #data-table-today tbody.today-deck > tr > td:nth-child(6) {
+    grid-area: timestamp;
   }
 }
 

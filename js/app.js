@@ -22,7 +22,7 @@ import { debounce } from './utils.js';
 import { loadTheme } from './theme.js';
 import { loadData, applyFilters, showRequisitionDialog } from './modules/parts.js?v=41';
 import { applyFiltersImages } from './modules/images.js?v=39';
-import { loadTodayData, updateTableToday, exportTodayData, saveTodayDataSnapshot, initTodayListeners } from './modules/today.js?v=42';
+import { loadTodayData, updateTableToday, exportTodayData, saveTodayDataSnapshot, initTodayListeners } from './modules/today.js?v=47';
 import { loadPendingCallsData, initPendingListeners } from './modules/pending.js?v=51';
 import { loadAllData } from './modules/all.js?v=39';
 
