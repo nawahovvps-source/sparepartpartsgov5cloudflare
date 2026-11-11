@@ -1,5 +1,5 @@
 import { state } from './state.js';
-import { checkAuthForRequisition } from './auth.js';
+import { checkAuthForRequisition, loadEmployeeData } from './auth.js';
 import { getStorageBinValue, extractIdFromUrlWeb, parseSafeFloat } from './utils.js';
 import { apiFetch } from './api.js';
 import { getBorrowTotal, loadBorrowData, showBorrowPopup } from './loans.js';
@@ -120,7 +120,8 @@ export function showSettings() {
 
     document.getElementById('modalUserName').textContent = savedUserName;
     document.getElementById('modalUserID').textContent = savedUsername || '-';
-    document.getElementById('modalUserTeam').textContent = 'กำลังโหลด...';
+    const modalUserTeam = document.getElementById('modalUserTeam');
+    modalUserTeam.textContent = 'กำลังโหลด...';
     document.getElementById('modalUserAuth').textContent = isAdminAuth ? 'Admin' : isActiveAuth ? 'Active' : 'None';
     document.getElementById('themeSelect').value = currentTheme;
     const modalPlantEl = document.getElementById('modalUserPlant');
@@ -140,13 +141,35 @@ export function showSettings() {
         authElement.style.fontWeight = 'bold';
     }
 
-    try {
-        const user = state.employeeData.find(e => e.IDRec?.toString().trim() === savedUsername);
-        document.getElementById('modalUserTeam').textContent = user?.หน่วยงาน || 'ไม่พบข้อมูลหน่วยงาน';
-        document.getElementById('modalUserTeam').style.color = user?.หน่วยงาน ? '#1976d2' : '#e74c3c';
-    } catch (err) {
-        document.getElementById('modalUserTeam').textContent = 'โหลดข้อมูลไม่สำเร็จ';
-        document.getElementById('modalUserTeam').style.color = '#e74c3c';
+    const setUserTeam = team => {
+        modalUserTeam.textContent = team || 'ไม่พบข้อมูลหน่วยงาน';
+        modalUserTeam.style.color = team ? '#1976d2' : '#e74c3c';
+    };
+    const cachedTeam = localStorage.getItem('userTeam') || '';
+    const employee = state.employeeData.find(
+        item => String(item.IDRec || '').trim() === String(savedUsername || '').trim()
+    );
+    const currentTeam = String(employee?.หน่วยงาน || cachedTeam).trim();
+    if (currentTeam) {
+        setUserTeam(currentTeam);
+    } else {
+        loadEmployeeData()
+            .then(employees => {
+                if (localStorage.getItem('username') !== savedUsername) return;
+                const currentEmployee = employees.find(
+                    item => String(item.IDRec || '').trim() === String(savedUsername || '').trim()
+                );
+                const team = String(currentEmployee?.หน่วยงาน || '').trim();
+                if (team) localStorage.setItem('userTeam', team);
+                setUserTeam(team);
+            })
+            .catch(error => {
+                console.error('Failed to load user department:', error);
+                if (localStorage.getItem('username') === savedUsername) {
+                    modalUserTeam.textContent = 'โหลดข้อมูลไม่สำเร็จ';
+                    modalUserTeam.style.color = '#e74c3c';
+                }
+            });
     }
 
     const adminSection = document.getElementById('adminAnnouncementSection');
@@ -704,6 +727,11 @@ export async function openAnnouncementEditor() {
                     <small class="announcement-form-hint">ระบุหลายหน่วยงานได้ โดยคั่นด้วยเครื่องหมายจุลภาค (,)</small>
                 </div>
                 <div class="announcement-form-field">
+                    <label for="announcementTargetEmployeeCodes">รหัสพนักงาน (ตัวเลือก)</label>
+                    <input id="announcementTargetEmployeeCodes" class="swal2-input" maxlength="1000" placeholder="เว้นว่าง = ไม่จำกัดรหัสพนักงาน">
+                    <small class="announcement-form-hint">ระบุรหัสเดียวหรือหลายรหัส คั่นด้วยจุลภาค (,); หากระบุ จะต้องตรงกับเงื่อนไขหน่วยงานและ Plant ด้วย</small>
+                </div>
+                <div class="announcement-form-field">
                     <label for="announcementTargetPlant">Plant (ตัวเลือก)</label>
                     <input id="announcementTargetPlant" class="swal2-input" value="*" placeholder="* ทุก Plant หรือระบุ เช่น 0001,0002">
                 </div>
@@ -726,6 +754,7 @@ export async function openAnnouncementEditor() {
             const endAt = document.getElementById('announcementEndAt').value;
             const targetPlant = document.getElementById('announcementTargetPlant').value.trim() || '*';
             const targetTeam = document.getElementById('announcementTargetTeam').value.trim() || '*';
+            const targetEmployeeCodes = document.getElementById('announcementTargetEmployeeCodes').value.trim();
 
             if (!title || !message) {
                 Swal.showValidationMessage('กรุณากรอกหัวข้อและรายละเอียดประกาศ');
@@ -744,7 +773,8 @@ export async function openAnnouncementEditor() {
                 startAt,
                 endAt,
                 targetPlant,
-                targetTeam
+                targetTeam,
+                targetEmployeeCodes
             });
             try {
                 const response = await apiFetch('/api/gas-announcement', {

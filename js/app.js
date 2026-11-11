@@ -20,7 +20,7 @@ import {
     openAnnouncementEditor,
     showUnreadAnnouncementPopup,
     resetAnnouncementState
-} from './ui.js?v=10';
+} from './ui.js?v=12';
 import { handleClearCacheAndReload, ensureCacheFreshForVersion } from './cache.js';
 import { debounce } from './utils.js';
 import { loadTheme } from './theme.js';

@@ -6,10 +6,12 @@ const ANNOUNCEMENT_READS_SHEET_NAME = 'AnnouncementReads';
 
 const ANNOUNCEMENTS_HEADERS = [
   'AnnouncementID', 'Title', 'Message', 'Type', 'StartAt',
-  'EndAt', 'IsActive', 'TargetPlant', 'CreatedAt', 'CreatedBy', 'TargetTeam'
+  'EndAt', 'IsActive', 'TargetPlant', 'CreatedAt', 'CreatedBy',
+  'TargetTeam', 'TargetEmployeeCodes'
 ];
 const ANNOUNCEMENT_READS_HEADERS = ['AnnouncementID', 'EmployeeCode', 'ReadAt'];
-const PREVIOUS_ANNOUNCEMENTS_HEADERS = ANNOUNCEMENTS_HEADERS.slice(0, 10);
+const PREVIOUS_ANNOUNCEMENTS_HEADERS = ANNOUNCEMENTS_HEADERS.slice(0, 11);
+const LEGACY_ANNOUNCEMENTS_HEADERS = ANNOUNCEMENTS_HEADERS.slice(0, 10);
 
 function doGet(e) {
   return handleAnnouncementRequest(e);
@@ -62,7 +64,7 @@ function getAnnouncementParams(e) {
 
 function setupAnnouncementSheets() {
   const spreadsheet = SpreadsheetApp.openById(ANNOUNCEMENT_SPREADSHEET_ID);
-  ensureAnnouncementSheet(spreadsheet, ANNOUNCEMENTS_SHEET_NAME, ANNOUNCEMENTS_HEADERS, [150, 220, 420, 120, 160, 160, 100, 140, 160, 160, 220], [5, 6, 9]);
+  ensureAnnouncementSheet(spreadsheet, ANNOUNCEMENTS_SHEET_NAME, ANNOUNCEMENTS_HEADERS, [150, 220, 420, 120, 160, 160, 100, 140, 160, 160, 220, 240], [5, 6, 9]);
   ensureAnnouncementSheet(spreadsheet, ANNOUNCEMENT_READS_SHEET_NAME, ANNOUNCEMENT_READS_HEADERS, [180, 160, 180], [3]);
   Logger.log('Announcement sheets are ready.');
 }
@@ -81,10 +83,16 @@ function ensureAnnouncementSheet(spreadsheet, sheetName, headers, widths, dateCo
 
     if (
       sheetName === ANNOUNCEMENTS_SHEET_NAME &&
+      actualHeaders.length === LEGACY_ANNOUNCEMENTS_HEADERS.length &&
+      LEGACY_ANNOUNCEMENTS_HEADERS.every((header, index) => actualHeaders[index] === header)
+    ) {
+      sheet.getRange(1, 11, 1, 2).setValues([['TargetTeam', 'TargetEmployeeCodes']]);
+    } else if (
+      sheetName === ANNOUNCEMENTS_SHEET_NAME &&
       actualHeaders.length === PREVIOUS_ANNOUNCEMENTS_HEADERS.length &&
       PREVIOUS_ANNOUNCEMENTS_HEADERS.every((header, index) => actualHeaders[index] === header)
     ) {
-      sheet.getRange(1, headers.length).setValue('TargetTeam');
+      sheet.getRange(1, headers.length).setValue('TargetEmployeeCodes');
     } else if (!headers.every((header, index) => actualHeaders[index] === header)) {
       throw new Error(`Sheet "${sheetName}" has unexpected headers; existing data was not changed.`);
     }
@@ -116,7 +124,8 @@ function getAnnouncements(params) {
     .filter(row =>
       isAnnouncementActive(row, now) &&
       isAnnouncementForPlant(row.TargetPlant, user.plant) &&
-      isAnnouncementForTeam(row.TargetTeam, user.team)
+      isAnnouncementForTeam(row.TargetTeam, user.team) &&
+      isAnnouncementForEmployee(row.TargetEmployeeCodes, user.employeeCode)
     )
     .map(row => Object.assign({}, row, {
       IsRead: readIds.has(String(row.AnnouncementID))
@@ -166,6 +175,8 @@ function createAnnouncement(params) {
   const type = String(params.type || 'ทั่วไป').trim();
   const targetPlant = String(params.targetPlant || '*').trim();
   const targetTeam = normalizeTargetTeam(params.targetTeam || '*');
+  const targetEmployeeCodes = normalizeTargetEmployeeCodes(params.targetEmployeeCodes);
+  validateTargetEmployeeCodes(targetEmployeeCodes);
   const startAt = parseAnnouncementDate(params.startAt);
   const endAt = parseAnnouncementDate(params.endAt);
   if (!title || !message) {
@@ -196,7 +207,8 @@ function createAnnouncement(params) {
     targetPlant || '*',
     createdAt,
     user.name,
-    targetTeam
+    targetTeam,
+    targetEmployeeCodes
   ]);
   return { status: 'success', data: { AnnouncementID: announcementId } };
 }
@@ -301,6 +313,44 @@ function isAnnouncementForTeam(targetTeam, team) {
   const userTeam = normalizeAnnouncementText(team);
   if (!userTeam) return false;
   return target.split(',').some(entry => normalizeAnnouncementText(entry) === userTeam);
+}
+
+function normalizeTargetEmployeeCodes(value) {
+  const entries = String(value || '')
+    .split(',')
+    .map(entry => entry.trim().toUpperCase())
+    .filter(Boolean);
+  if (!entries.length || entries.includes('*')) return '*';
+  return [...new Set(entries)].join(', ');
+}
+
+function validateTargetEmployeeCodes(targetEmployeeCodes) {
+  if (targetEmployeeCodes === '*') return;
+
+  const sheet = SpreadsheetApp.openById(EMPLOYEE_SPREADSHEET_ID).getSheetByName(EMPLOYEE_SHEET_NAME);
+  if (!sheet) throw new Error(`Employee sheet "${EMPLOYEE_SHEET_NAME}" does not exist`);
+  const values = sheet.getDataRange().getValues();
+  if (values.length < 2) throw new Error('Employee directory is empty');
+
+  const headers = values[0].map(value => String(value).trim().toLowerCase());
+  const codeIndex = headers.indexOf('idrec');
+  if (codeIndex < 0) throw new Error('Employee sheet must contain an IDRec column');
+
+  const knownCodes = new Set(values.slice(1)
+    .map(row => String(row[codeIndex] || '').trim().toUpperCase())
+    .filter(Boolean));
+  const unknownCodes = targetEmployeeCodes.split(', ')
+    .filter(code => !knownCodes.has(code));
+  if (unknownCodes.length) {
+    throw new Error(`Employee codes not found: ${unknownCodes.join(', ')}`);
+  }
+}
+
+function isAnnouncementForEmployee(targetEmployeeCodes, employeeCode) {
+  const target = normalizeTargetEmployeeCodes(targetEmployeeCodes);
+  if (target === '*') return true;
+  const userCode = String(employeeCode || '').trim().toUpperCase();
+  return Boolean(userCode) && target.split(', ').includes(userCode);
 }
 
 function parseAnnouncementDate(value) {
