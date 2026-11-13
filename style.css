@@ -2493,61 +2493,72 @@ body.dark-mode #parts #data-table tbody.parts-deck > tr > td:nth-child(8) .stock
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 28px;
-  padding: 5px 11px;
+  box-sizing: border-box;
+  flex: 0 1 72px;
+  width: 72px;
+  height: 32px;
+  min-height: 32px;
+  padding: 4px;
   border: 1px solid transparent;
-  border-radius: 999px;
-  font-size: 12px;
+  border-bottom-width: 3px;
+  border-radius: 10px;
+  font-size: 11px;
   font-weight: 700;
   line-height: 1.2;
   white-space: nowrap;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.75), 0 3px 0 rgba(0, 0, 0, 0.16), 0 5px 8px rgba(0, 0, 0, 0.12);
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.45);
 }
 
 #today .today-status-pending {
   border-color: #e4a528;
-  background: #fff3cd;
+  border-bottom-color: #b98522;
+  background: linear-gradient(180deg, #fff8df 0%, #ffe6a3 100%);
   color: #815500;
 }
 
 #today .today-status-issued {
   border-color: #45a66b;
-  background: #d9f3e2;
+  border-bottom-color: #287c49;
+  background: linear-gradient(180deg, #e6f8ec 0%, #bce8cb 100%);
   color: #176638;
 }
 
 #today .today-status-cancelled {
   border-color: #dc6670;
-  background: #fde2e4;
+  border-bottom-color: #a63b45;
+  background: linear-gradient(180deg, #ffedef 0%, #f6c1c6 100%);
   color: #9c2631;
 }
 
 #today .today-status-other {
   border-color: #9aa8b5;
-  background: #edf1f4;
+  border-bottom-color: #667583;
+  background: linear-gradient(180deg, #f5f7f9 0%, #d9e0e6 100%);
   color: #465563;
 }
 
 body.dark-mode #today .today-status-pending {
   border-color: #b98522;
-  background: #4a3b1e;
+  background: linear-gradient(180deg, #5b4926 0%, #3b2e18 100%);
   color: #ffda83;
 }
 
 body.dark-mode #today .today-status-issued {
   border-color: #398454;
-  background: #1d4430;
+  background: linear-gradient(180deg, #28573c 0%, #193727 100%);
   color: #a5e5bb;
 }
 
 body.dark-mode #today .today-status-cancelled {
   border-color: #ae4f58;
-  background: #4b292e;
+  background: linear-gradient(180deg, #60363c 0%, #3a2025 100%);
   color: #ffb6bd;
 }
 
 body.dark-mode #today .today-status-other {
   border-color: #677b8e;
-  background: #354757;
+  background: linear-gradient(180deg, #43586b 0%, #2c3c4b 100%);
   color: #d4e0ea;
 }
 
@@ -5738,9 +5749,76 @@ body.dark-mode .sticker-btn {
     font-weight: 700;
 }
 
+.borrow-action-cell {
+    text-align: center;
+}
+
+.borrow-return-button {
+    box-sizing: border-box;
+    width: 64px;
+    min-height: 32px;
+    padding: 5px 8px;
+    border: 1px solid #e3a238;
+    border-bottom: 3px solid #b97916;
+    border-radius: 8px;
+    background: linear-gradient(180deg, #fff4d5 0%, #ffd783 100%);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8), 0 2px 0 rgba(113, 70, 8, 0.2);
+    color: #754509;
+    font: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    touch-action: manipulation;
+}
+
+.borrow-return-button:hover:not(:disabled) {
+    filter: brightness(0.97);
+    transform: translateY(-1px);
+}
+
+.borrow-return-button:active:not(:disabled) {
+    transform: translateY(1px);
+}
+
+.borrow-return-button:disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
+}
+
+.borrow-return-button.borrow-return-success {
+    border-color: #45a66b;
+    border-bottom-color: #287c49;
+    background: linear-gradient(180deg, #e6f8ec 0%, #bce8cb 100%);
+    color: #176638;
+    cursor: default;
+}
+
+.borrow-return-feedback {
+    display: block;
+    margin-top: 4px;
+    color: #a63b45;
+    font-size: 11px;
+    line-height: 1.25;
+    overflow-wrap: anywhere;
+}
+
 body.dark-mode .borrow-phone-link {
     background: #23432e;
     color: #9be0ac;
+}
+
+body.dark-mode .borrow-return-button {
+    border-color: #b98522;
+    border-bottom-color: #785817;
+    background: linear-gradient(180deg, #5b4926 0%, #3b2e18 100%);
+    color: #ffda83;
+}
+
+body.dark-mode .borrow-return-button.borrow-return-success {
+    border-color: #398454;
+    border-bottom-color: #28623e;
+    background: linear-gradient(180deg, #28573c 0%, #193727 100%);
+    color: #a5e5bb;
 }
 
 body.dark-mode .borrow-total-button {
@@ -5819,6 +5897,44 @@ body.dark-mode .borrow-detail-table th {
 
     .borrow-detail-table .borrow-quantity {
         white-space: normal;
+    }
+
+    .borrow-detail-table-admin th,
+    .borrow-detail-table-admin td {
+        box-sizing: border-box;
+    }
+
+    .borrow-detail-table-admin th:nth-child(2),
+    .borrow-detail-table-admin td:nth-child(2) {
+        width: 9%;
+    }
+
+    .borrow-detail-table-admin th:nth-child(3),
+    .borrow-detail-table-admin td:nth-child(3) {
+        width: 32%;
+    }
+
+    .borrow-detail-table-admin th:nth-child(4),
+    .borrow-detail-table-admin td:nth-child(4) {
+        width: 22%;
+    }
+
+    .borrow-detail-table-admin th:nth-child(5),
+    .borrow-detail-table-admin td:nth-child(5) {
+        width: 13%;
+    }
+
+    .borrow-detail-table-admin th:nth-child(6),
+    .borrow-detail-table-admin td:nth-child(6) {
+        width: 24%;
+    }
+
+    .borrow-detail-table-admin .borrow-return-button {
+        width: 100%;
+        max-width: 64px;
+        padding: 4px;
+        white-space: normal;
+        overflow-wrap: anywhere;
     }
 }
 
@@ -6803,8 +6919,29 @@ body.dark-mode #parts #data-table tbody.parts-deck > tr > td:nth-child(2) img {
   }
 }
 
-.today-cancel-button {
-  display: none;
+#today #data-table-today tbody.today-deck > tr > td.today-status-cell .today-cancel-button {
+  display: inline-flex;
+  margin-left: 8px;
+  appearance: none;
+  font-family: inherit;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: transform 120ms ease, filter 120ms ease, box-shadow 120ms ease;
+}
+
+#today #data-table-today tbody.today-deck > tr > td.today-status-cell .today-cancel-button:hover {
+  filter: brightness(0.97);
+  transform: translateY(-1px);
+}
+
+#today #data-table-today tbody.today-deck > tr > td.today-status-cell .today-cancel-button:active {
+  box-shadow: inset 0 2px 3px rgba(0, 0, 0, 0.2), 0 1px 0 rgba(0, 0, 0, 0.16);
+  transform: translateY(2px);
+}
+
+#today #data-table-today tbody.today-deck > tr > td.today-status-cell .today-cancel-button:focus-visible {
+  outline: 2px solid #1877f2;
+  outline-offset: 3px;
 }
 
 @media (max-width: 899.98px) {
@@ -6820,20 +6957,16 @@ body.dark-mode #parts #data-table tbody.parts-deck > tr > td:nth-child(2) img {
   }
 
   #today #data-table-today tbody.today-deck > tr > td.today-status-cell .today-cancel-button {
-    display: inline-flex;
-    flex: 0 0 auto;
+    flex: 0 1 72px;
+    max-width: calc((100% - 8px) / 2);
+    min-width: 0;
     margin-left: auto;
-    appearance: none;
-    font-family: inherit;
-    cursor: pointer;
-    touch-action: manipulation;
-  }
-
-  #today #data-table-today tbody.today-deck > tr > td.today-status-cell .today-cancel-button:active {
-    transform: scale(0.97);
   }
 
   #today #data-table-today tbody.today-deck > tr > td.today-status-cell .today-status-badge {
+    flex: 0 1 72px;
+    max-width: calc((100% - 8px) / 2);
+    min-width: 0;
     padding: 4px 7px;
     font-size: 10px;
   }

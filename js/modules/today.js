@@ -279,7 +279,6 @@ export function updateTableToday() {
 
     // Manage Header Visibility for Admin Features
     const userAuth = localStorage.getItem('userAuth');
-    const currentUserName = (localStorage.getItem('userName') || '').trim().replace(/\s+/g, ' ').toLocaleLowerCase();
     const thSelect = document.getElementById('th-select-today');
     const thPrint = document.getElementById('th-print-today');
     if (thSelect) thSelect.style.display = (userAuth === 'Admin') ? '' : 'none';
@@ -373,18 +372,8 @@ export function updateTableToday() {
         statusBadge.textContent = status || '-';
         statusTd.className = 'today-status-cell';
         statusTd.appendChild(statusBadge);
-        const statusEmployeeName = (row.EmployeeName || row.employeeName || '')
-            .toString()
-            .trim()
-            .replace(/\s+/g, ' ')
-            .toLocaleLowerCase();
         const statusRowId = row.row_id || row.id || row.IDRow || row.idRow || '';
-        if (
-            currentUserName &&
-            statusEmployeeName === currentUserName &&
-            status === 'รอเบิก' &&
-            !String(statusRowId).startsWith('temp_')
-        ) {
+        if (status === 'รอเบิก' && !String(statusRowId).startsWith('temp_')) {
             const cancelButton = document.createElement('button');
             cancelButton.type = 'button';
             cancelButton.className = 'today-cancel-button today-status-badge today-status-cancelled';
@@ -575,7 +564,7 @@ async function cancelTodayRequest(row) {
     const confirmation = await Swal.fire({
         icon: 'warning',
         title: 'ยืนยันยกเลิกรายการ?',
-        text: `ยกเลิกรายการ ${row.Material || row.material || ''} ที่ส่งโดยคุณ`,
+        text: `ยกเลิกรายการ ${row.Material || row.material || ''}`,
         showCancelButton: true,
         confirmButtonText: 'ยืนยันยกเลิก',
         cancelButtonText: 'กลับ',

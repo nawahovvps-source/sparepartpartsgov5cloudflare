@@ -2,7 +2,7 @@ import { state } from './state.js';
 import { checkAuthForRequisition, loadEmployeeData } from './auth.js';
 import { getStorageBinValue, extractIdFromUrlWeb, parseSafeFloat } from './utils.js';
 import { apiFetch } from './api.js';
-import { getBorrowTotal, loadBorrowData, showBorrowPopup } from './loans.js';
+import { getBorrowTotal, loadBorrowData, showBorrowPopup } from './loans.js?v=3';
 
 export function hideLoading() {
     const loading = document.getElementById("loading");
@@ -173,10 +173,14 @@ export function showSettings() {
     }
 
     const adminSection = document.getElementById('adminAnnouncementSection');
+    const adminAnnouncementListSection = document.getElementById('adminAnnouncementListSection');
     if (isAdminAuth && adminSection) {
         adminSection.style.display = 'flex';
     } else if (adminSection) {
         adminSection.style.display = 'none';
+    }
+    if (adminAnnouncementListSection) {
+        adminAnnouncementListSection.style.display = isAdminAuth ? 'flex' : 'none';
     }
 
     document.getElementById('settingsModal').style.display = 'block';
@@ -603,10 +607,10 @@ async function markAnnouncementRead(item) {
     if (result.status !== 'success') throw new Error(result.data || 'บันทึกสถานะอ่านไม่สำเร็จ');
 }
 
-function renderAnnouncementDeck() {
+function renderAnnouncementDeck(announcements = announcementsCache) {
     const root = document.createElement('div');
     root.className = 'announcement-deck';
-    const sorted = [...announcementsCache].sort((a, b) => {
+    const sorted = [...announcements].sort((a, b) => {
         const dateA = Date.parse(a.CreatedAt || '') || 0;
         const dateB = Date.parse(b.CreatedAt || '') || 0;
         return dateB - dateA;
@@ -633,22 +637,22 @@ function renderAnnouncementDeck() {
     return root;
 }
 
-async function openAnnouncementDetail(item) {
+async function openAnnouncementDetail(item, announcements = announcementsCache, showReadAction = true) {
     const result = await Swal.fire({
         title: 'รายละเอียดประกาศ',
-        html: createAnnouncementCard(item),
+        html: createAnnouncementCard(item, { showReadAction }),
         width: '600px',
         confirmButtonText: 'กลับไปยังรายการ',
         showCloseButton: true,
         customClass: { popup: 'announcement-popup announcement-detail-popup' }
     });
-    if (result.isConfirmed) showAnnouncementDeck();
+    if (result.isConfirmed) showAnnouncementDeck(announcements, { showReadAction });
 }
 
-function showAnnouncementDeck() {
+function showAnnouncementDeck(announcements = announcementsCache, { showReadAction = true } = {}) {
     Swal.fire({
         title: '📢 ข่าวและประกาศ',
-        html: renderAnnouncementDeck(),
+        html: renderAnnouncementDeck(announcements),
         width: '600px',
         confirmButtonText: 'ปิด',
         customClass: { popup: 'announcement-popup announcement-deck-popup' },
@@ -659,10 +663,10 @@ function showAnnouncementDeck() {
             const openFromEvent = event => {
                 const card = event.target.closest('.announcement-card-summary');
                 if (!card || !deck.contains(card)) return;
-                const item = announcementsCache.find(
+                const item = announcements.find(
                     announcement => String(announcement.AnnouncementID || '') === card.dataset.announcementId
                 );
-                if (item) openAnnouncementDetail(item);
+                if (item) openAnnouncementDetail(item, announcements, showReadAction);
             };
             deck.addEventListener('click', openFromEvent);
             deck.addEventListener('keydown', event => {
@@ -680,6 +684,28 @@ export async function openAnnouncementDeck() {
         showAnnouncementDeck();
     } catch (error) {
         console.error('Failed to load announcements:', error);
+        Swal.fire('โหลดประกาศไม่สำเร็จ', error.message || 'กรุณาลองใหม่อีกครั้ง', 'error');
+    }
+}
+
+export async function openAdminAnnouncementDeck() {
+    if (localStorage.getItem('userAuth') !== 'Admin') {
+        await Swal.fire('ไม่มีสิทธิ์', 'เฉพาะผู้ดูแลระบบเท่านั้นที่ดูประกาศทั้งหมดได้', 'warning');
+        return;
+    }
+
+    try {
+        const response = await apiFetch('/api/gas-announcement?action=getAnnouncements&includeAll=true', {
+            cache: 'no-store'
+        });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const result = await response.json();
+        if (result.status !== 'success' || !Array.isArray(result.data)) {
+            throw new Error(result.data || 'ข้อมูลประกาศไม่ถูกต้อง');
+        }
+        showAnnouncementDeck(result.data, { showReadAction: false });
+    } catch (error) {
+        console.error('Failed to load all announcements:', error);
         Swal.fire('โหลดประกาศไม่สำเร็จ', error.message || 'กรุณาลองใหม่อีกครั้ง', 'error');
     }
 }

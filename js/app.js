@@ -6,7 +6,6 @@ import {
     checkLoginStatus,
     checkAuthForRequisition
 } from './auth.js?v=2';
-// app.js - v18.10.39 - Force Reload
 import {
     hideLoading,
     showDetailModal,
@@ -17,6 +16,7 @@ import {
     handleSwiperNext,
     closeAllImageModals,
     openAnnouncementDeck,
+    openAdminAnnouncementDeck,
     openAnnouncementEditor,
     showUnreadAnnouncementPopup,
     resetAnnouncementState
@@ -52,8 +52,6 @@ function showUpdateToast() {
         cancelButtonText: 'ภายหลัง',
         showCancelButton: true,
         allowOutsideClick: false,
-        timer: 20000,
-        timerProgressBar: true,
         customClass: { popup: 'animated bounceIn' }
     }).then((result) => {
         if (result.isConfirmed) {
@@ -80,8 +78,24 @@ if ('serviceWorker' in navigator) {
                 showUpdateToast();
             }
 
-            // Optional: check for update on every load
-            reg.update().catch(err => console.log('SW update check failed:', err));
+            const checkForServiceWorkerUpdate = () => {
+                reg.update()
+                    .then(() => {
+                        if (reg.waiting) {
+                            newWorker = reg.waiting;
+                            showUpdateToast();
+                        }
+                    })
+                    .catch(err => console.log('SW update check failed:', err));
+            };
+
+            checkForServiceWorkerUpdate();
+            window.setInterval(() => {
+                if (document.visibilityState === 'visible') checkForServiceWorkerUpdate();
+            }, 10 * 60 * 1000);
+            document.addEventListener('visibilitychange', () => {
+                if (document.visibilityState === 'visible') checkForServiceWorkerUpdate();
+            });
 
             reg.addEventListener('updatefound', () => {
                 console.log('SW: update found event');
@@ -244,6 +258,7 @@ window.handleSwiperPrev = handleSwiperPrev;
 window.handleSwiperNext = handleSwiperNext;
 window.closeAllImageModals = closeAllImageModals;
 window.openAnnouncementDeck = openAnnouncementDeck;
+window.openAdminAnnouncementDeck = openAdminAnnouncementDeck;
 // Today Tab Exports
 window.exportTodayData = exportTodayData;
 window.saveTodayDataSnapshot = saveTodayDataSnapshot;
@@ -368,6 +383,13 @@ document.addEventListener('DOMContentLoaded', () => {
 window.addEventListener('auth-changed', (e) => {
     // If logged in, maybe refresh data or UI
     console.log("Auth changed:", e.detail);
+    const versionUpdated = localStorage.getItem('versionUpdatedPrompt') === 'true';
+    if (versionUpdated) {
+        setTimeout(() => {
+            localStorage.removeItem('versionUpdatedPrompt');
+            sessionStorage.removeItem('updateInProgress');
+        }, 5000);
+    }
 
     // Force close settings modal on any auth change
     const settingsModal = document.getElementById('settingsModal');
@@ -406,18 +428,11 @@ window.addEventListener('auth-changed', (e) => {
         loginModal.classList.add('active');
         document.getElementById('appContent').classList.remove('logged-in');
 
-        if (localStorage.getItem('versionUpdatedPrompt') === 'true') {
+        if (versionUpdated) {
             const loginTitle = loginModal.querySelector('h2');
             if (loginTitle) {
                 loginTitle.innerHTML = '<div style="color:#2ecc71; font-size:40px; margin-bottom:10px;"><i class="fas fa-check-circle"></i></div>อัปเดตแอปพลิเคชันสำเร็จ!<br><span style="font-size:16px; color:#7f8c8d; font-weight:normal; display:block; margin-top:8px;">กรุณาเข้าสู่ระบบใหม่อีกครั้งเพื่อใช้งานฟีเจอร์ล่าสุด</span>';
             }
-            
-            // Do NOT remove the flag immediately, otherwise the async SW registration might trigger the popup again.
-            // Remove it after a few seconds or when user interacts.
-            setTimeout(() => {
-                localStorage.removeItem('versionUpdatedPrompt');
-                sessionStorage.removeItem('updateInProgress');
-            }, 5000);
         }
     }
 });

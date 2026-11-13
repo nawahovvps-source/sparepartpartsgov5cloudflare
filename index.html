@@ -12,7 +12,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="ระบบขอสั่งอะไหล่คลังสินค้านวนคร">
   <link rel="apple-touch-icon" href="/icon-192.png">
-  <link rel="stylesheet" href="style.css?v=58">
+  <link rel="stylesheet" href="style.css?v=61">
   <!-- Enhanced Content Security Policy to reduce phishing risks -->
   <meta http-equiv="Content-Security-Policy"
     content="default-src 'self' https:; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://unpkg.com https://code.jquery.com https://docs.google.com https://script.google.com https://script.googleusercontent.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: https: blob: https://drive.google.com https://lh3.googleusercontent.com; connect-src 'self' https://docs.google.com https://script.google.com https://script.googleusercontent.com; frame-src https://docs.google.com https://drive.google.com; object-src 'none'; base-uri 'self'; form-action 'self' https://docs.google.com;">
@@ -457,6 +457,16 @@
             </button>
           </div>
 
+          <div class="setting-item" id="adminAnnouncementListSection" style="display: none;">
+            <button onclick="openAdminAnnouncementDeck()" class="setting-button">
+              <span class="setting-icon bg-blue"><i class="fas fa-newspaper"></i></span>
+              <div class="setting-text">
+                <div class="setting-title">ข่าวและประกาศ</div>
+                <div class="setting-sub">แสดงข่าวและประกาศทั้งหมด</div>
+              </div>
+            </button>
+          </div>
+
           <div class="setting-item">
             <button class="setting-button" onclick="showQRCode()">
               <span class="setting-icon bg-green"><i class="fas fa-qrcode"></i></span>
@@ -538,7 +548,7 @@
       </div>
   </div>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-  <script type="module" src="js/app.js?v=63"></script>
+  <script type="module" src="js/app.js?v=65"></script>
 </body>
 
 </html>

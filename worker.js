@@ -26,6 +26,18 @@ const PUBLIC_ASSETS = new Set([
   '/icon-512.png'
 ]);
 
+function preventAppAssetCaching(response) {
+  const headers = new Headers(response.headers);
+  headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
+  headers.set('CDN-Cache-Control', 'no-store');
+  headers.set('Cloudflare-CDN-Cache-Control', 'no-store');
+  return new Response(response.body, {
+    status: response.status,
+    statusText: response.statusText,
+    headers
+  });
+}
+
 const applyBindings = env => {
   Object.assign(process.env, env);
   process.env.SESSION_SECRET ||= 'change-this-session-secret-before-production';
@@ -114,7 +126,11 @@ export default {
     }
 
     if (PUBLIC_ASSETS.has(url.pathname) || url.pathname.startsWith('/js/')) {
-      return env.ASSETS.fetch(request);
+      const response = await env.ASSETS.fetch(request);
+      if (url.pathname === '/' || /\.(?:html|css|js)$/i.test(url.pathname)) {
+        return preventAppAssetCaching(response);
+      }
+      return response;
     }
 
     return env.ASSETS.fetch(request);

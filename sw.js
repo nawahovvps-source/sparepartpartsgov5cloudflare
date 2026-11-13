@@ -1,5 +1,5 @@
-// sw.js — PartsGo v15.8.8 (29 พ.ย. 2568) — แก้ comma + เพิ่มความเสถียร
-const VERSION = 'v18.12.84';
+// PartsGo service worker
+const VERSION = 'v18.12.85';
 const CACHE = `partgo-${VERSION}`;
 
 const SHELL = [
@@ -48,9 +48,12 @@ const DATA_PATHS = [
 ];
 
 self.addEventListener('install', event => {
+  const shellRequests = SHELL.map(path =>
+    new Request(new URL(path, self.location.origin), { cache: 'reload' })
+  );
   event.waitUntil(
     caches.open(CACHE)
-      .then(cache => cache.addAll([...SHELL, ...SHELL_EXTERNAL]))
+      .then(cache => cache.addAll([...shellRequests, ...SHELL_EXTERNAL]))
   );
 });
 
@@ -89,9 +92,12 @@ self.addEventListener('fetch', event => {
   const isShellLocal = isSameOrigin && SHELL.includes(requestUrl.pathname);
   const isShellExternal = SHELL_EXTERNAL.includes(url);
   if (isShellLocal || isShellExternal) {
+    const networkRequest = isShellLocal
+      ? new Request(request, { cache: 'reload' })
+      : request;
     event.respondWith(
       caches.match(request)
-        .then(cached => cached || fetch(request)
+        .then(cached => cached || fetch(networkRequest)
           .then(res => {
             if (res && res.status === 200) {
               const resClone = res.clone();

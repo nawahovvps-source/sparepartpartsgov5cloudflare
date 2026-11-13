@@ -119,14 +119,16 @@ function getAnnouncements(params) {
   const rows = getSheetObjects(announcementSheet, ANNOUNCEMENTS_HEADERS);
   const now = new Date();
   const readIds = getReadAnnouncementIds(readSheet, user.employeeCode);
+  const includeAll = String(params.includeAll || '').toLowerCase() === 'true' &&
+    user.auth.toLowerCase() === 'admin';
 
   const announcements = rows
-    .filter(row =>
+    .filter(row => includeAll || (
       isAnnouncementActive(row, now) &&
       isAnnouncementForPlant(row.TargetPlant, user.plant) &&
       isAnnouncementForTeam(row.TargetTeam, user.team) &&
       isAnnouncementForEmployee(row.TargetEmployeeCodes, user.employeeCode)
-    )
+    ))
     .map(row => Object.assign({}, row, {
       IsRead: readIds.has(String(row.AnnouncementID))
     }));
