@@ -5,7 +5,7 @@ import {
     handleLogout,
     checkLoginStatus,
     checkAuthForRequisition
-} from './auth.js?v=2';
+} from './auth.js?v=3';
 import {
     hideLoading,
     showDetailModal,
@@ -20,7 +20,7 @@ import {
     openAnnouncementEditor,
     showUnreadAnnouncementPopup,
     resetAnnouncementState
-} from './ui.js?v=12';
+} from './ui.js?v=15';
 import { handleClearCacheAndReload, ensureCacheFreshForVersion } from './cache.js';
 import { debounce } from './utils.js';
 import { loadTheme } from './theme.js';

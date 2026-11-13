@@ -60,6 +60,16 @@ module.exports = async (req, res) => {
     return;
   }
 
+  const activeStatus = String(employee.Active || '').trim().toLowerCase();
+  if (activeStatus === 'block') {
+    res.setHeader('Cache-Control', 'no-store');
+    res.status(403).json({
+      code: 'ACCOUNT_BLOCKED',
+      error: 'กรุณาติดต่อคลังเพื่อทำการเข้าสู่ระบบ'
+    });
+    return;
+  }
+
   const ttlHours = Number(process.env.SESSION_TTL_HOURS || '24');
   const maxAgeSeconds = Math.max(1, Math.floor(ttlHours * 3600));
   const payload = {

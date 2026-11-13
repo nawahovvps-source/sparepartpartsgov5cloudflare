@@ -402,6 +402,7 @@ let autoAnnouncementChecked = false;
 let announcementsCacheLoaded = false;
 let announcementsRequest = null;
 let announcementsCacheGeneration = 0;
+let announcementDeckRequested = false;
 const ANNOUNCEMENTS_CACHE_KEY = 'announcementSessionCache';
 
 function readAnnouncementSessionCache() {
@@ -656,35 +657,72 @@ function showAnnouncementDeck(announcements = announcementsCache, { showReadActi
         width: '600px',
         confirmButtonText: 'ปิด',
         customClass: { popup: 'announcement-popup announcement-deck-popup' },
-        didOpen: popup => {
-            const deck = popup.querySelector('.announcement-deck');
-            if (!deck) return;
+        didOpen: popup => bindAnnouncementDeck(popup, announcements, showReadAction)
+    });
+}
 
-            const openFromEvent = event => {
-                const card = event.target.closest('.announcement-card-summary');
-                if (!card || !deck.contains(card)) return;
-                const item = announcements.find(
-                    announcement => String(announcement.AnnouncementID || '') === card.dataset.announcementId
-                );
-                if (item) openAnnouncementDetail(item, announcements, showReadAction);
-            };
-            deck.addEventListener('click', openFromEvent);
-            deck.addEventListener('keydown', event => {
-                if (event.key !== 'Enter' && event.key !== ' ') return;
-                event.preventDefault();
-                openFromEvent(event);
-            });
-        }
+function bindAnnouncementDeck(popup, announcements, showReadAction) {
+    const deck = popup.querySelector('.announcement-deck');
+    if (!deck) return;
+
+    const openFromEvent = event => {
+        const card = event.target.closest('.announcement-card-summary');
+        if (!card || !deck.contains(card)) return;
+        const item = announcements.find(
+            announcement => String(announcement.AnnouncementID || '') === card.dataset.announcementId
+        );
+        if (item) openAnnouncementDetail(item, announcements, showReadAction);
+    };
+    deck.addEventListener('click', openFromEvent);
+    deck.addEventListener('keydown', event => {
+        if (event.key !== 'Enter' && event.key !== ' ') return;
+        event.preventDefault();
+        openFromEvent(event);
     });
 }
 
 export async function openAnnouncementDeck() {
+    announcementDeckRequested = true;
+    const cachedData = announcementsCacheLoaded ? announcementsCache : readAnnouncementSessionCache();
+    if (cachedData) {
+        announcementsCache = cachedData;
+        announcementsCacheLoaded = true;
+        updateAnnouncementBadge();
+        showAnnouncementDeck(cachedData);
+        return;
+    }
+
+    // Open the dialog immediately so the UI responds while the first network request is in flight.
+    Swal.fire({
+        title: '📢 ข่าวและประกาศ',
+        html: '<div class="announcement-loading"><i class="fas fa-spinner fa-spin" aria-hidden="true"></i><p>กำลังโหลดข่าวและประกาศ…</p></div>',
+        width: '600px',
+        showConfirmButton: false,
+        allowOutsideClick: false,
+        customClass: { popup: 'announcement-popup announcement-deck-popup' },
+        didOpen: () => Swal.showLoading()
+    });
+
     try {
-        await loadAnnouncements();
-        showAnnouncementDeck();
+        const announcements = await loadAnnouncements();
+        Swal.hideLoading();
+        Swal.update({
+            html: renderAnnouncementDeck(announcements),
+            showConfirmButton: true,
+            confirmButtonText: 'ปิด',
+            allowOutsideClick: true
+        });
+        bindAnnouncementDeck(Swal.getPopup(), announcements, true);
     } catch (error) {
         console.error('Failed to load announcements:', error);
-        Swal.fire('โหลดประกาศไม่สำเร็จ', error.message || 'กรุณาลองใหม่อีกครั้ง', 'error');
+        Swal.hideLoading();
+        Swal.update({
+            title: 'โหลดประกาศไม่สำเร็จ',
+            html: `<p>${String(error.message || 'กรุณาลองใหม่อีกครั้ง').replace(/[&<>"']/g, character => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[character])}</p>`,
+            showConfirmButton: true,
+            confirmButtonText: 'ปิด',
+            allowOutsideClick: true
+        });
     }
 }
 
@@ -693,6 +731,17 @@ export async function openAdminAnnouncementDeck() {
         await Swal.fire('ไม่มีสิทธิ์', 'เฉพาะผู้ดูแลระบบเท่านั้นที่ดูประกาศทั้งหมดได้', 'warning');
         return;
     }
+
+    // This menu loads the full announcement list from GAS. Show the dialog before waiting on that request.
+    Swal.fire({
+        title: '📢 ข่าวและประกาศ',
+        html: '<div class="announcement-loading"><i class="fas fa-spinner fa-spin" aria-hidden="true"></i><p>กำลังโหลดข่าวและประกาศ…</p></div>',
+        width: '600px',
+        showConfirmButton: false,
+        allowOutsideClick: false,
+        customClass: { popup: 'announcement-popup announcement-deck-popup' },
+        didOpen: () => Swal.showLoading()
+    });
 
     try {
         const response = await apiFetch('/api/gas-announcement?action=getAnnouncements&includeAll=true', {
@@ -703,10 +752,24 @@ export async function openAdminAnnouncementDeck() {
         if (result.status !== 'success' || !Array.isArray(result.data)) {
             throw new Error(result.data || 'ข้อมูลประกาศไม่ถูกต้อง');
         }
-        showAnnouncementDeck(result.data, { showReadAction: false });
+        Swal.hideLoading();
+        Swal.update({
+            html: renderAnnouncementDeck(result.data),
+            showConfirmButton: true,
+            confirmButtonText: 'ปิด',
+            allowOutsideClick: true
+        });
+        bindAnnouncementDeck(Swal.getPopup(), result.data, false);
     } catch (error) {
         console.error('Failed to load all announcements:', error);
-        Swal.fire('โหลดประกาศไม่สำเร็จ', error.message || 'กรุณาลองใหม่อีกครั้ง', 'error');
+        Swal.hideLoading();
+        Swal.update({
+            title: 'โหลดประกาศไม่สำเร็จ',
+            html: `<p>${String(error.message || 'กรุณาลองใหม่อีกครั้ง').replace(/[&<>"']/g, character => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[character])}</p>`,
+            showConfirmButton: true,
+            confirmButtonText: 'ปิด',
+            allowOutsideClick: true
+        });
     }
 }
 
@@ -842,6 +905,8 @@ export async function showUnreadAnnouncementPopup() {
     autoAnnouncementChecked = true;
     try {
         await loadAnnouncements();
+        // Do not replace the user's announcement list with the delayed automatic unread prompt.
+        if (announcementDeckRequested) return;
         const unread = announcementsCache.find(item => !item.IsRead);
         if (!unread) return;
         Swal.fire({
@@ -873,6 +938,7 @@ export async function showUnreadAnnouncementPopup() {
 
 export function resetAnnouncementState() {
     autoAnnouncementChecked = false;
+    announcementDeckRequested = false;
     announcementsCacheGeneration += 1;
     announcementsCache = [];
     announcementsCacheLoaded = false;

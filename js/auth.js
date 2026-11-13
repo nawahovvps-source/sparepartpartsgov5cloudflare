@@ -94,11 +94,28 @@ export async function handleLogin() {
         });
 
         if (!response.ok) {
-            let errorMsg = `HTTP ${response.status}`;
+            let errJson = {};
             try {
-                const errJson = await response.json();
-                if (errJson.error) errorMsg += `: ${errJson.error}`;
+                errJson = await response.json();
             } catch (e) { }
+
+            if (response.status === 403 && errJson.code === 'ACCOUNT_BLOCKED') {
+                passwordInput.value = '';
+                await Swal.fire({
+                    icon: 'warning',
+                    title: 'ไม่สามารถเข้าสู่ระบบได้',
+                    text: 'กรุณาติดต่อคลังเพื่อทำการเข้าสู่ระบบ',
+                    confirmButtonText: 'ยืนยัน',
+                    allowOutsideClick: false,
+                    allowEscapeKey: false
+                });
+                handleLogout();
+                return false;
+            }
+
+            const errorMsg = errJson.error
+                ? `HTTP ${response.status}: ${errJson.error}`
+                : `HTTP ${response.status}`;
             throw new Error(errorMsg);
         }
 
