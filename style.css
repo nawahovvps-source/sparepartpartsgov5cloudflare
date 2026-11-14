@@ -7907,3 +7907,96 @@ body.dark-mode .requisition-cancel-button {
     font-size: 14px;
   }
 }
+
+@media (max-width: 899.98px) {
+  #parts #data-table tbody.parts-deck > tr:not(.parts-empty-row),
+  #today #data-table-today tbody.today-deck > tr:not(.today-empty-row),
+  #pending-calls #data-table-pending tbody > tr {
+    border: 1px solid #e4b9c8;
+    background: #fff0f5;
+    box-shadow: 0 3px 9px rgba(35, 69, 102, 0.09);
+  }
+
+  #parts #data-table tbody.parts-deck > tr:nth-child(even):not(.parts-empty-row),
+  #today #data-table-today tbody.today-deck > tr:nth-child(even):not(.today-empty-row),
+  #pending-calls #data-table-pending tbody > tr:nth-child(even) {
+    border-color: #b9d3e8;
+    background: #edf6ff;
+  }
+
+  #parts #data-table tbody.parts-deck > tr > td,
+  #today #data-table-today tbody.today-deck > tr > td,
+  #pending-calls #data-table-pending tbody > tr > td {
+    background: transparent !important;
+  }
+
+  #images #gallery-container-images .gallery-item {
+    border: 1px solid #e4b9c8;
+    background: #fff0f5;
+    box-shadow: 0 3px 9px rgba(35, 69, 102, 0.09);
+  }
+
+  #images #gallery-container-images .gallery-item:nth-child(even) {
+    border-color: #b9d3e8;
+    background: #edf6ff;
+  }
+
+  #all .all-table-container tbody tr {
+    border-bottom: 1px solid #e4b9c8;
+    background: #fff0f5;
+  }
+
+  #all .all-table-container tbody tr:nth-child(even) {
+    background: #edf6ff;
+    outline: 1px solid #b9d3e8;
+  }
+
+  #all .all-table-container tbody td {
+    background: transparent !important;
+  }
+
+  body.dark-mode #parts #data-table tbody.parts-deck > tr:not(.parts-empty-row),
+  body.dark-mode #today #data-table-today tbody.today-deck > tr:not(.today-empty-row),
+  body.dark-mode #pending-calls #data-table-pending tbody > tr {
+    border-color: #805b6c;
+    background: #43343d;
+    box-shadow: 0 3px 9px rgba(0, 0, 0, 0.2);
+  }
+
+  body.dark-mode #parts #data-table tbody.parts-deck > tr:nth-child(even):not(.parts-empty-row),
+  body.dark-mode #today #data-table-today tbody.today-deck > tr:nth-child(even):not(.today-empty-row),
+  body.dark-mode #pending-calls #data-table-pending tbody > tr:nth-child(even) {
+    border-color: #58738c;
+    background: #2e4356;
+  }
+
+  body.dark-mode #parts #data-table tbody.parts-deck > tr > td,
+  body.dark-mode #today #data-table-today tbody.today-deck > tr > td,
+  body.dark-mode #pending-calls #data-table-pending tbody > tr > td {
+    background: transparent !important;
+  }
+
+  body.dark-mode #images #gallery-container-images .gallery-item {
+    border: 1px solid #805b6c;
+    background: #43343d;
+  }
+
+  body.dark-mode #images #gallery-container-images .gallery-item:nth-child(even) {
+    border-color: #58738c;
+    background: #2e4356;
+  }
+
+  body.dark-mode #all .all-table-container tbody tr {
+    border-color: #805b6c;
+    background: #43343d;
+  }
+
+  body.dark-mode #all .all-table-container tbody tr:nth-child(even) {
+    background: #2e4356;
+    outline-color: #58738c;
+  }
+
+  body.dark-mode #all .all-table-container tbody td {
+    background: transparent !important;
+  }
+}

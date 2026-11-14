@@ -1,5 +1,5 @@
 // PartsGo service worker
-const VERSION = 'v18.12.96';
+const VERSION = 'v18.12.98';
 const CACHE = `partgo-${VERSION}`;
 
 const SHELL = [
