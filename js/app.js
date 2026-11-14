@@ -20,11 +20,11 @@ import {
     openAnnouncementEditor,
     showUnreadAnnouncementPopup,
     resetAnnouncementState
-} from './ui.js?v=20';
+} from './ui.js?v=26';
 import { handleClearCacheAndReload, ensureCacheFreshForVersion } from './cache.js';
 import { debounce } from './utils.js';
 import { loadTheme } from './theme.js?v=3';
-import { loadData, applyFilters, showRequisitionDialog } from './modules/parts.js?v=44';
+import { loadData, applyFilters, showRequisitionDialog } from './modules/parts.js?v=45';
 import { applyFiltersImages } from './modules/images.js?v=39';
 import { loadTodayData, updateTableToday, exportTodayData, saveTodayDataSnapshot, initTodayListeners } from './modules/today.js?v=57';
 import { loadPendingCallsData, initPendingListeners } from './modules/pending.js?v=52';
@@ -140,12 +140,15 @@ if ('serviceWorker' in navigator) {
 }
 
 function updateAppVersionDisplay() {
-    if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
-        navigator.serviceWorker.controller.postMessage({ type: 'GET_VERSION' });
-    } else {
-        const versionElement = document.getElementById('appVersion');
-        if (versionElement) versionElement.textContent = 'v??';
+    if (!('serviceWorker' in navigator)) return;
+    const worker = navigator.serviceWorker.controller;
+    if (worker) {
+        worker.postMessage({ type: 'GET_VERSION' });
+        return;
     }
+    navigator.serviceWorker.ready
+        .then(registration => registration.active?.postMessage({ type: 'GET_VERSION' }))
+        .catch(error => console.warn('Could not read app version from service worker:', error));
 }
 
 navigator.serviceWorker.addEventListener('message', async event => {

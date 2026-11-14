@@ -12,7 +12,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="ระบบขอสั่งอะไหล่คลังสินค้านวนคร">
   <link rel="apple-touch-icon" href="/icon-192.png">
-  <link rel="stylesheet" href="style.css?v=67">
+  <link rel="stylesheet" href="style.css?v=71">
   <!-- Enhanced Content Security Policy to reduce phishing risks -->
   <meta http-equiv="Content-Security-Policy"
     content="default-src 'self' https:; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://unpkg.com https://code.jquery.com https://docs.google.com https://script.google.com https://script.googleusercontent.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: https: blob: https://drive.google.com https://lh3.googleusercontent.com; connect-src 'self' https://docs.google.com https://script.google.com https://script.googleusercontent.com; frame-src https://docs.google.com https://drive.google.com; object-src 'none'; base-uri 'self'; form-action 'self' https://docs.google.com;">
@@ -93,8 +93,31 @@
       <button class="header-setting-btn" onclick="showSettings()" title="ตั้งค่า"><i class="fas fa-bars"></i></button>
     </div>
     <div class="loading" id="loading">
-      <div class="spinner"></div>
-      <span>กำลังโหลดข้อมูล...</span>
+      <div class="loading-panel" role="status" aria-live="polite">
+        <div class="loading-brand">
+          <img src="/icon-192.png" alt="" />
+          <span>PartsGo</span>
+        </div>
+        <p class="loading-title">กำลังเตรียมข้อมูล</p>
+        <div class="loading-data-preview" aria-hidden="true">
+          <div class="loading-data-row">
+            <span class="loading-shape loading-material"></span>
+            <span class="loading-shape loading-description"></span>
+            <span class="loading-shape loading-value"></span>
+          </div>
+          <div class="loading-data-row">
+            <span class="loading-shape loading-material"></span>
+            <span class="loading-shape loading-description"></span>
+            <span class="loading-shape loading-value"></span>
+          </div>
+          <div class="loading-data-row">
+            <span class="loading-shape loading-material"></span>
+            <span class="loading-shape loading-description"></span>
+            <span class="loading-shape loading-value"></span>
+          </div>
+        </div>
+        <span class="loading-caption">กำลังโหลดข้อมูลสำหรับคุณ…</span>
+      </div>
     </div>
     <div class="container">
       <!-- Original tabs hidden -->
@@ -523,7 +546,7 @@
         <div class="settings-footer-card">
           <div class="settings-footer-stack">
             <div class="settings-footer-tile">
-              <p class="footer-title">PartsGo Ver. <span id="appVersion">v20.1.1</span></p>
+              <p class="footer-title">PartsGo Ver. <span id="appVersion">v20.1.7</span></p>
               <p class="footer-sub">© 2025 คลังสินค้า SparePart วิภาวดี 62</p>
               <p class="footer-sub">ระบบภายในสำหรับพนักงานเท่านั้น</p>
             </div>
@@ -560,7 +583,7 @@
       </div>
   </div>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-  <script type="module" src="js/app.js?v=83"></script>
+  <script type="module" src="js/app.js?v=91"></script>
 </body>
 
 </html>

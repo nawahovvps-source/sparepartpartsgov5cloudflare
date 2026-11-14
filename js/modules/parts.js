@@ -188,6 +188,7 @@ export function applyFilters() {
     const query2 = searchInput2 ? searchInput2.value.toLowerCase().trim() : '';
 
     state.currentFilteredData = state.allData.filter(row => {
+        if (!String(row.Material ?? '').trim()) return false;
         const searchStr = row._searchString || "";
         const match1 = !query1 || searchStr.includes(query1);
         const match2 = !query2 || searchStr.includes(query2);

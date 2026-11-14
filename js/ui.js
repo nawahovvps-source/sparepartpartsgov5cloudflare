@@ -31,17 +31,75 @@ export function showHelp() {
     Swal.fire({
         title: 'วิธีใช้งาน PartsGo',
         html: `
-      <div style="text-align:left;font-size:15px;line-height:1.5;">
-        <p><strong>วัตถุประสงค์</strong><br>ค้นหาอะไหล่ ดูรูป เช็กสต็อก และส่งคำขอเบิกได้ด้วยตัวเอง</p>
-        <p><strong>เริ่มต้น</strong><br>1) ล็อกอิน User และ Password <br>2) เลือกแท็บที่ต้องการด้านล่าง (ค้นหาอะไหล่ / รูปภาพ / เบิกวันนี้ / งานค้าง)</p>
-        <p><strong>ค้นหาอะไหล่</strong><br>- พิมพ์คำค้นในช่อง ค้นหา1/ค้นหา2 แล้วผลจะกรองอัตโนมัติ<br>- คลิกรูปหรือแถวเพื่อดูรายละเอียดและกด “เบิก” (ถ้ามีสิทธิ์)</p>
-        <p><strong>ค้นหารูป</strong><br>- ใช้คำค้นเหมือนแท็บอะไหล่ ภาพจะแสดงเป็นการ์ด<br>- คลิกรูปเพื่อเปิด popup ดูข้อมูลอะไหล่</p>
-        <p><strong>เบิกวันนี้ / งานค้าง</strong><br>- ดูสถานะการเบิกวันนี้หรือรายการที่รอ<br>- ใช้ปุ่มตัวกรองและค้นหาเพื่อตรวจสอบข้อมูล</p>
-        <p><strong>ทริก</strong><br>- ปุ่ม Clear ล้างคำค้นทั้งสองช่อง<br>- ปุ่ม Update ในเมนูช่วยรีเฟรชแคชหากข้อมูลไม่อัปเดต</p>
+      <div style="text-align:left;font-size:14px;line-height:1.65;max-height:min(68vh,680px);overflow-y:auto;padding:0 8px 4px;">
+        <p>คู่มือทีละขั้นตอนสำหรับค้นหาอะไหล่ ส่งคำขอเบิก และติดตามรายการใน PartsGo</p>
+
+        <h3>1. เข้าสู่ระบบและเริ่มต้น</h3>
+        <ol>
+          <li>กรอก <strong>Username</strong> และ <strong>รหัสผ่าน</strong> แล้วกด <strong>Login</strong></li>
+          <li>เลือกแท็บจากแถบนำทางด้านล่าง: <strong>ค้นหาอะไหล่</strong>, <strong>รูปภาพ</strong>, <strong>เบิกวันนี้</strong> หรือ <strong>งานค้าง</strong></li>
+          <li>กดไอคอนกระดิ่งด้านบนเพื่อเปิดข่าวและประกาศ หรือกดปุ่มเมนูเพื่อดูการตั้งค่าและเครื่องมืออื่น</li>
+        </ol>
+
+        <h3>2. แท็บค้นหาอะไหล่</h3>
+        <ol>
+          <li>พิมพ์คำค้นในช่อง <strong>ตัวกรองหลัก</strong> หรือ <strong>ตัวกรองย่อย</strong> ระบบกรองผลให้อัตโนมัติ</li>
+          <li>กด <strong>Clear</strong> เพื่อล้างคำค้นทั้งสองช่อง</li>
+          <li>เลื่อนดูการ์ดอะไหล่ โดยข้อมูลอาจมี Material, Description, Storage bin, คงเหลือ, นวนคร, ทดแทน และหมายเหตุ แถวที่ไม่มี Material จะไม่แสดง</li>
+          <li>ใช้ปุ่มแบ่งหน้าและจำนวนรายการต่อหน้า หากผลลัพธ์มีหลายหน้า</li>
+          <li>แตะการ์ดหรือรูปอะไหล่เพื่อเปิดรายละเอียด แล้วกด <strong>เบิก</strong> เพื่อเริ่มทำรายการ (ผู้ใช้ต้องมีสิทธิ์เบิก)</li>
+        </ol>
+
+        <h3>3. ส่งคำขอเบิกอะไหล่</h3>
+        <ol>
+          <li>ตรวจสอบ Material และ Description ให้ตรงกับอะไหล่ที่ต้องการ</li>
+          <li>กรอกจำนวนที่ต้องการและเบอร์ติดต่อ โดยเบอร์ติดต่อต้องมีอย่างน้อย 9 หลัก</li>
+          <li>กรอกเลขที่ใบงานให้ครบ 7 หลัก หรือกรอกหมายเหตุแทนเมื่อไม่มีเลขที่ใบงาน</li>
+          <li>เลือกประเภท Call: <strong>I, P, Q</strong> หรือ <strong>R</strong> แล้วตรวจข้อมูลก่อนกด <strong>ยืนยันเบิก</strong></li>
+          <li>ถ้ามีคำเตือนว่าคลังวิภาวดีมีของอยู่ ให้อ่านจำนวนคงเหลือและตรวจสอบก่อนยืนยัน ระบบจะแจ้งว่ารายการจะเบิกจากคลังนวนครแทน</li>
+        </ol>
+
+        <h3>4. แท็บรูปภาพ</h3>
+        <ol>
+          <li>ค้นหาด้วยตัวกรองหลักหรือตัวกรองย่อยเช่นเดียวกับแท็บค้นหาอะไหล่</li>
+          <li>กด <strong>Clear</strong> เพื่อล้างตัวกรอง และใช้ปุ่มแบ่งหน้าเพื่อดูผลเพิ่มเติม</li>
+          <li>แตะรูปเพื่อเปิดรายละเอียดอะไหล่ จากหน้ารายละเอียดสามารถกด <strong>เบิก</strong> ได้เมื่อบัญชีมีสิทธิ์</li>
+        </ol>
+
+        <h3>5. แท็บเบิกวันนี้</h3>
+        <ol>
+          <li>ผู้ใช้ทั่วไปเห็นรายการของหน่วยงานตนเอง ส่วน Admin เห็นรายการทั้งหมด</li>
+          <li>เริ่มจากมุมมอง <strong>รอบวันนี้</strong> และกดปุ่ม <strong>ทั้งหมด</strong> เพื่อสลับดูรายการทั้งหมด กดอีกครั้งเพื่อกลับมารอบวันนี้</li>
+          <li>ค้นหาด้วย Code, Material, ชื่อช่าง หรือทีม และแตะหัวคอลัมน์ที่มีลูกศรเพื่อเรียงข้อมูล</li>
+          <li>ตรวจสอบสถานะ เช่น <strong>รอเบิก</strong>, <strong>สั่งเบิกแล้ว</strong>, <strong>เข้าคลังแล้ว</strong> หรือ <strong>ยกเลิก</strong> รายการที่สั่งเบิกแล้วจะแสดงเข้าคลังแล้วเมื่อยอดคงเหลือเพียงพอกับจำนวนสั่ง</li>
+          <li>เจ้าของรายการหรือ Admin สามารถกดยกเลิกรายการที่ยังรอเบิกได้ โดยกดไอคอนถังขยะและยืนยัน</li>
+          <li>Admin ใช้ปุ่ม <strong>Save</strong> เพื่อบันทึกข้อมูล และ <strong>Export</strong> เพื่อส่งออกรายการที่มีสถานะรอเบิก</li>
+        </ol>
+
+        <h3>6. แท็บงานค้าง</h3>
+        <ol>
+          <li>กด <strong>มีอะไหล่</strong> หรือ <strong>รออะไหล่</strong> เพื่อเลือกกลุ่มรายการ</li>
+          <li>ค้นหาด้วย Ticket, Team, สาขา, ค้างหน่วยงาน, Material หรือ Description แล้วกดปุ่มค้นหา</li>
+          <li>แตะหัวคอลัมน์เพื่อเรียงข้อมูล ใช้ปุ่มแบ่งหน้าเพื่อดูรายการอื่น</li>
+          <li>ตรวจสอบวันที่แจ้ง, Ticket, ทีม, สาขา, Material, คงเหลือ และค้างยืมในแต่ละรายการ</li>
+        </ol>
+
+        <h3>7. เมนูและการตั้งค่า</h3>
+        <ol>
+          <li>กดปุ่มเมนูด้านบนเพื่อเปิดข้อมูลบัญชีและรายการเครื่องมือ</li>
+          <li>ใช้สวิตช์ธีมเพื่อสลับระหว่าง <strong>มืด</strong> กับ <strong>สว่าง</strong></li>
+          <li>Admin ใช้ <strong>ประกาศใหม่</strong> เพื่อสร้างหรือแก้ไขประกาศ และ <strong>ข่าวและประกาศ</strong> เพื่อดูรายการประกาศทั้งหมด</li>
+          <li>กด <strong>QR Code</strong> เพื่อแสดง QR สำหรับเปิดระบบ หรือกด <strong>วิธีใช้งาน</strong> เพื่อกลับมาดูคู่มือนี้</li>
+          <li>กด <strong>รีเฟรชข้อมูล</strong> เมื่อต้องการล้างแคชและโหลดเว็บใหม่ หากข้อมูลไม่อัปเดต</li>
+          <li>กด <strong>ออกจากระบบ</strong> เพื่อปิดเซสชัน เมื่อกลับเข้ามาให้ Login ใหม่</li>
+        </ol>
+
+        <p><strong>หมายเหตุ:</strong> เมนูหรือปุ่มบางรายการจะแสดงตามสิทธิ์ของบัญชี ผู้ใช้ทั่วไปค้นหาและติดตามข้อมูลได้ ส่วนการเบิกและเครื่องมือ Admin ต้องมีสิทธิ์ที่ระบบกำหนด</p>
       </div>
     `,
-        confirmButtonText: 'รับทราบ',
-        width: '650px'
+        confirmButtonText: 'ปิดคู่มือ',
+        width: window.innerWidth <= 600 ? '94vw' : '760px',
+        customClass: { popup: 'partsgo-help-popup' }
     });
 }
 
@@ -789,11 +847,21 @@ export async function openAnnouncementEditor() {
     const localDateTime = new Date(now.getTime() - now.getTimezoneOffset() * 60000)
         .toISOString()
         .slice(0, 16);
+    const defaultStartDate = localDateTime.slice(0, 10);
+    const defaultStartTime = localDateTime.slice(11, 16);
+    const defaultEndDateValue = new Date(now);
+    defaultEndDateValue.setDate(defaultEndDateValue.getDate() + 2);
+    const defaultEndDate = [
+        defaultEndDateValue.getFullYear(),
+        String(defaultEndDateValue.getMonth() + 1).padStart(2, '0'),
+        String(defaultEndDateValue.getDate()).padStart(2, '0')
+    ].join('-');
+    let pickerOverlay;
     const result = await Swal.fire({
         title: 'สร้างประกาศใหม่',
         html: `
             <div class="announcement-form">
-                <div class="announcement-form-intro">กรอกข้อมูลด้านล่างเพื่อแจ้งข่าวให้ผู้ใช้งาน</div>
+                <div class="announcement-form-intro"><strong>สร้างข่าวหรือประกาศ</strong><br>กรอกหัวข้อ รายละเอียด และกำหนดช่วงเวลาที่ต้องการให้แสดง</div>
                 <label for="announcementTitle">หัวข้อประกาศ</label>
                 <input id="announcementTitle" class="swal2-input" maxlength="160" placeholder="ระบุหัวข้อ">
                 <label for="announcementMessage">รายละเอียด</label>
@@ -804,35 +872,49 @@ export async function openAnnouncementEditor() {
                     <option value="แจ้งด่วน">🚨 แจ้งด่วน</option>
                     <option value="ปิดปรับปรุง">🛠 ปิดปรับปรุง</option>
                 </select>
-                <div class="announcement-form-section-title">กำหนดเวลาแสดง</div>
-                <div class="announcement-form-grid">
-                    <div class="announcement-form-field">
-                        <label for="announcementStartAt">เริ่มแสดง</label>
-                        <input id="announcementStartAt" class="swal2-input" type="datetime-local" value="${localDateTime}">
+                <section class="announcement-schedule-card" aria-label="กำหนดเวลาแสดงประกาศ">
+                    <div class="announcement-form-section-title">กำหนดวันและเวลา</div>
+                    <p class="announcement-form-hint">แตะช่องวันที่เพื่อเลือกจากปฏิทิน และแตะช่องเวลาเพื่อเลือกเวลา</p>
+                    <div class="announcement-time-period">
+                        <div class="announcement-period-heading"><strong>เริ่มแสดง</strong><span>จำเป็น</span></div>
+                        <div class="announcement-date-time-grid">
+                            <div class="announcement-date-time-field">
+                                <span>วันที่</span>
+                                <input id="announcementStartDate" type="hidden" value="${defaultStartDate}">
+                                <button class="announcement-date-time-trigger" type="button" data-picker-trigger data-picker-kind="date" data-input-id="announcementStartDate"><i class="fas fa-calendar-days" aria-hidden="true"></i><span data-picker-value>วันนี้</span><i class="fas fa-chevron-down" aria-hidden="true"></i></button>
+                            </div>
+                            <div class="announcement-date-time-field">
+                                <span>เวลา</span>
+                                <input id="announcementStartTime" type="hidden" value="${defaultStartTime}">
+                                <button class="announcement-date-time-trigger" type="button" data-picker-trigger data-picker-kind="time" data-input-id="announcementStartTime"><i class="fas fa-clock" aria-hidden="true"></i><span data-picker-value>${defaultStartTime}</span><i class="fas fa-chevron-down" aria-hidden="true"></i></button>
+                            </div>
+                        </div>
                     </div>
-                    <div class="announcement-form-field">
-                        <label for="announcementEndAt">สิ้นสุด (เว้นว่างได้)</label>
-                        <input id="announcementEndAt" class="swal2-input" type="datetime-local">
+                    <div class="announcement-time-period">
+                        <div class="announcement-period-heading"><strong>สิ้นสุด</strong><span>ไม่บังคับ</span></div>
+                        <div class="announcement-date-time-grid">
+                            <div class="announcement-date-time-field">
+                                <span>วันที่</span>
+                                <input id="announcementEndDate" type="hidden" value="${defaultEndDate}">
+                                <button class="announcement-date-time-trigger" type="button" data-picker-trigger data-picker-kind="date" data-input-id="announcementEndDate"><i class="fas fa-calendar-days" aria-hidden="true"></i><span data-picker-value></span><i class="fas fa-chevron-down" aria-hidden="true"></i></button>
+                            </div>
+                            <div class="announcement-date-time-field">
+                                <span>เวลา</span>
+                                <input id="announcementEndTime" type="hidden" value="23:59">
+                                <button class="announcement-date-time-trigger" type="button" data-picker-trigger data-picker-kind="time" data-input-id="announcementEndTime"><i class="fas fa-clock" aria-hidden="true"></i><span data-picker-value>23:59</span><i class="fas fa-chevron-down" aria-hidden="true"></i></button>
+                            </div>
+                        </div>
                     </div>
-                </div>
-                <div class="announcement-form-section-title">กลุ่มผู้รับ</div>
-                <div class="announcement-form-field">
-                    <label for="announcementTargetTeam">หน่วยงาน</label>
-                    <input id="announcementTargetTeam" class="swal2-input" value="*" maxlength="500" placeholder="* ทุกหน่วยงาน หรือระบุชื่อหน่วยงาน">
-                    <small class="announcement-form-hint">ระบุหลายหน่วยงานได้ โดยคั่นด้วยเครื่องหมายจุลภาค (,)</small>
-                </div>
-                <div class="announcement-form-field">
-                    <label for="announcementTargetEmployeeCodes">รหัสพนักงาน (ตัวเลือก)</label>
-                    <input id="announcementTargetEmployeeCodes" class="swal2-input" maxlength="1000" placeholder="เว้นว่าง = ไม่จำกัดรหัสพนักงาน">
-                    <small class="announcement-form-hint">ระบุรหัสเดียวหรือหลายรหัส คั่นด้วยจุลภาค (,); หากระบุ จะต้องตรงกับเงื่อนไขหน่วยงานและ Plant ด้วย</small>
-                </div>
-                <div class="announcement-form-field">
+                </section>
+                <section class="announcement-plant-card" aria-label="กำหนด Plant ผู้รับ">
+                    <div class="announcement-form-section-title">Plant ผู้รับ</div>
                     <label for="announcementTargetPlant">Plant (ตัวเลือก)</label>
-                    <input id="announcementTargetPlant" class="swal2-input" value="*" placeholder="* ทุก Plant หรือระบุ เช่น 0001,0002">
-                </div>
+                    <input id="announcementTargetPlant" class="swal2-input" value="*" maxlength="500" placeholder="* ทุก Plant หรือระบุ เช่น S001,S002">
+                    <small class="announcement-form-hint">ระบุหลาย Plant ได้ โดยคั่นด้วยเครื่องหมายจุลภาค (,) · ใช้ * เพื่อส่งทุก Plant</small>
+                </section>
             </div>
         `,
-        width: '600px',
+        width: window.innerWidth <= 600 ? '94vw' : '640px',
         showCancelButton: true,
         confirmButtonText: 'บันทึกประกาศ',
         cancelButtonText: 'ยกเลิก',
@@ -841,18 +923,169 @@ export async function openAnnouncementEditor() {
             popup: 'announcement-popup announcement-editor-popup',
             htmlContainer: 'announcement-editor-content'
         },
+        didOpen: () => {
+            const popupContainer = Swal.getContainer();
+            pickerOverlay = document.createElement('div');
+            pickerOverlay.className = 'announcement-picker-overlay';
+            pickerOverlay.hidden = true;
+            document.body.appendChild(pickerOverlay);
+
+            const formatDateLabel = value => {
+                const [year, month, day] = value.split('-').map(Number);
+                return new Date(year, month - 1, day).toLocaleDateString('th-TH', {
+                    day: 'numeric', month: 'short', year: 'numeric'
+                });
+            };
+            popupContainer.querySelectorAll('[data-picker-kind="date"]').forEach(button => {
+                const input = document.getElementById(button.dataset.inputId);
+                const valueLabel = button.querySelector('[data-picker-value]');
+                if (input && valueLabel) valueLabel.textContent = formatDateLabel(input.value);
+            });
+
+            const closePicker = () => {
+                pickerOverlay.hidden = true;
+                pickerOverlay.replaceChildren();
+            };
+            pickerOverlay.addEventListener('click', event => {
+                if (event.target === pickerOverlay || event.target.closest('[data-picker-close]')) closePicker();
+            });
+
+            const showPickerPanel = (title, panelContent) => {
+                pickerOverlay.innerHTML = `
+                    <div class="announcement-picker-backdrop" data-picker-close></div>
+                    <section class="announcement-picker-panel" role="dialog" aria-modal="true" aria-label="${title}">
+                        <div class="announcement-picker-panel-header">
+                            <div><span class="announcement-picker-eyebrow">ตั้งค่าประกาศ</span><h3>${title}</h3></div>
+                            <button type="button" class="announcement-picker-close" data-picker-close aria-label="ปิด">&times;</button>
+                        </div>
+                        ${panelContent}
+                    </section>`;
+                pickerOverlay.hidden = false;
+            };
+
+            const renderCalendar = (input, trigger, visibleMonth) => {
+                const year = visibleMonth.getFullYear();
+                const month = visibleMonth.getMonth();
+                const firstDayOffset = (new Date(year, month, 1).getDay() + 6) % 7;
+                const daysInMonth = new Date(year, month + 1, 0).getDate();
+                const selectedDate = input.value;
+                const today = new Date();
+                const todayValue = [today.getFullYear(), String(today.getMonth() + 1).padStart(2, '0'), String(today.getDate()).padStart(2, '0')].join('-');
+                const dayCells = Array.from({ length: firstDayOffset }, () => '<span class="announcement-calendar-empty" aria-hidden="true"></span>');
+                for (let day = 1; day <= daysInMonth; day += 1) {
+                    const dateValue = [year, String(month + 1).padStart(2, '0'), String(day).padStart(2, '0')].join('-');
+                    const classes = [
+                        'announcement-calendar-day',
+                        dateValue === selectedDate ? 'is-selected' : '',
+                        dateValue === todayValue ? 'is-today' : ''
+                    ].filter(Boolean).join(' ');
+                    dayCells.push(`<button type="button" class="${classes}" data-calendar-date="${dateValue}" aria-pressed="${dateValue === selectedDate}">${day}</button>`);
+                }
+
+                showPickerPanel('เลือกวันที่', `
+                    <div class="announcement-calendar-toolbar">
+                        <button type="button" class="announcement-calendar-nav" data-calendar-shift="-1" aria-label="เดือนก่อนหน้า"><i class="fas fa-chevron-left"></i></button>
+                        <strong>${visibleMonth.toLocaleDateString('th-TH', { month: 'long', year: 'numeric' })}</strong>
+                        <button type="button" class="announcement-calendar-nav" data-calendar-shift="1" aria-label="เดือนถัดไป"><i class="fas fa-chevron-right"></i></button>
+                    </div>
+                    <div class="announcement-calendar-grid announcement-calendar-weekdays">${['จ', 'อ', 'พ', 'พฤ', 'ศ', 'ส', 'อา'].map(day => `<span>${day}</span>`).join('')}</div>
+                    <div class="announcement-calendar-grid">${dayCells.join('')}</div>
+                    <div class="announcement-picker-actions"><button type="button" class="announcement-picker-secondary" data-picker-close>ยกเลิก</button></div>
+                `);
+
+                pickerOverlay.querySelectorAll('[data-calendar-shift]').forEach(navButton => {
+                    navButton.addEventListener('click', () => {
+                        const nextMonth = new Date(year, month + Number(navButton.dataset.calendarShift), 1);
+                        renderCalendar(input, trigger, nextMonth);
+                    });
+                });
+                pickerOverlay.querySelectorAll('[data-calendar-date]').forEach(dayButton => {
+                    dayButton.addEventListener('click', () => {
+                        input.value = dayButton.dataset.calendarDate;
+                        trigger.querySelector('[data-picker-value]').textContent = formatDateLabel(input.value);
+                        closePicker();
+                    });
+                });
+            };
+
+            popupContainer.querySelectorAll('.announcement-date-time-field').forEach(field => {
+                const trigger = field.querySelector('.announcement-date-time-trigger');
+                if (!trigger) return;
+                field.addEventListener('click', event => {
+                    if (event.target.closest('button') && !event.target.closest('.announcement-date-time-trigger')) return;
+                    const input = document.getElementById(trigger.dataset.inputId);
+                    const valueLabel = trigger.querySelector('[data-picker-value]');
+                    if (!input || !valueLabel) return;
+
+                    if (trigger.dataset.pickerKind === 'date') {
+                        const [year, month] = input.value.split('-').map(Number);
+                        renderCalendar(input, trigger, new Date(year, month - 1, 1));
+                        return;
+                    }
+
+                    let [selectedHour, selectedMinute] = (input.value || '00:00').split(':').map(Number);
+                    const renderTimePicker = () => {
+                        const hourButtons = Array.from({ length: 24 }, (_, hour) =>
+                            `<button type="button" class="announcement-time-option${hour === selectedHour ? ' is-selected' : ''}" data-time-hour="${hour}">${String(hour).padStart(2, '0')}</button>`
+                        ).join('');
+                        const minuteButtons = Array.from({ length: 60 }, (_, minute) =>
+                            `<button type="button" class="announcement-time-option${minute === selectedMinute ? ' is-selected' : ''}" data-time-minute="${minute}">${String(minute).padStart(2, '0')}</button>`
+                        ).join('');
+                        showPickerPanel('เลือกเวลา', `
+                            <div class="announcement-time-preview"><i class="fas fa-clock" aria-hidden="true"></i><strong>${String(selectedHour).padStart(2, '0')}:${String(selectedMinute).padStart(2, '0')}</strong></div>
+                            <div class="announcement-time-picker-columns">
+                                <div class="announcement-time-column"><span>ชั่วโมง</span><div>${hourButtons}</div></div>
+                                <div class="announcement-time-column"><span>นาที</span><div>${minuteButtons}</div></div>
+                            </div>
+                            <div class="announcement-picker-actions"><button type="button" class="announcement-picker-secondary" data-picker-close>ยกเลิก</button><button type="button" class="announcement-picker-primary" data-time-apply>ใช้เวลานี้</button></div>
+                        `);
+                        pickerOverlay.querySelectorAll('[data-time-hour]').forEach(option => {
+                            option.addEventListener('click', () => {
+                                selectedHour = Number(option.dataset.timeHour);
+                                renderTimePicker();
+                            });
+                        });
+                        pickerOverlay.querySelectorAll('[data-time-minute]').forEach(option => {
+                            option.addEventListener('click', () => {
+                                selectedMinute = Number(option.dataset.timeMinute);
+                                renderTimePicker();
+                            });
+                        });
+                        pickerOverlay.querySelector('[data-time-apply]')?.addEventListener('click', () => {
+                            input.value = `${String(selectedHour).padStart(2, '0')}:${String(selectedMinute).padStart(2, '0')}`;
+                            valueLabel.textContent = input.value;
+                            closePicker();
+                        });
+                    };
+                    renderTimePicker();
+                });
+            });
+        },
+        willClose: () => pickerOverlay?.remove(),
         preConfirm: async () => {
             const title = document.getElementById('announcementTitle').value.trim();
             const message = document.getElementById('announcementMessage').value.trim();
             const type = document.getElementById('announcementType').value;
-            const startAt = document.getElementById('announcementStartAt').value;
-            const endAt = document.getElementById('announcementEndAt').value;
+            const startDate = document.getElementById('announcementStartDate').value;
+            const startTime = document.getElementById('announcementStartTime').value;
+            const endDate = document.getElementById('announcementEndDate').value;
+            const endTime = document.getElementById('announcementEndTime').value;
+            const startAt = startDate && startTime ? `${startDate}T${startTime}` : '';
+            const endAt = endDate && endTime ? `${endDate}T${endTime}` : '';
             const targetPlant = document.getElementById('announcementTargetPlant').value.trim() || '*';
-            const targetTeam = document.getElementById('announcementTargetTeam').value.trim() || '*';
-            const targetEmployeeCodes = document.getElementById('announcementTargetEmployeeCodes').value.trim();
+            const targetTeam = '*';
+            const targetEmployeeCodes = '';
 
             if (!title || !message) {
                 Swal.showValidationMessage('กรุณากรอกหัวข้อและรายละเอียดประกาศ');
+                return false;
+            }
+            if (!startDate || !startTime) {
+                Swal.showValidationMessage('กรุณาเลือกวันที่และเวลาเริ่มแสดง');
+                return false;
+            }
+            if ((endDate && !endTime) || (!endDate && endTime)) {
+                Swal.showValidationMessage('กรุณาระบุทั้งวันและเวลาสิ้นสุด หรือเว้นว่างทั้งคู่');
                 return false;
             }
             if (startAt && endAt && new Date(endAt) < new Date(startAt)) {
