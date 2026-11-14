@@ -6234,16 +6234,42 @@ body.dark-mode .sticker-btn {
 }
 
 .borrow-popup {
-    max-width: 95vw;
+    width: min(1300px, calc(100vw - 40px)) !important;
+    max-width: calc(100vw - 40px);
     box-sizing: border-box;
     border-radius: 18px;
+    padding: 24px !important;
 }
 
 .borrow-popup-content {
     max-height: 65vh;
     overflow-x: hidden;
     overflow-y: auto;
+    padding-right: 14px;
+    scrollbar-width: thin;
+    scrollbar-color: #91b89b #edf4ef;
+    scrollbar-gutter: stable;
+    overscroll-behavior: contain;
     text-align: left;
+}
+
+.borrow-popup-content::-webkit-scrollbar {
+    width: 9px;
+}
+
+.borrow-popup-content::-webkit-scrollbar-track {
+    border-radius: 999px;
+    background: #edf4ef;
+}
+
+.borrow-popup-content::-webkit-scrollbar-thumb {
+    border: 2px solid #edf4ef;
+    border-radius: 999px;
+    background: #91b89b;
+}
+
+.borrow-popup-content::-webkit-scrollbar-thumb:hover {
+    background: #5f9870;
 }
 
 .borrow-description {
@@ -6279,6 +6305,18 @@ body.dark-mode .sticker-btn {
     border-collapse: collapse;
     font-size: 14px;
     table-layout: fixed;
+}
+
+.borrow-detail-table-admin th,
+.borrow-detail-table-admin td {
+    box-sizing: border-box;
+}
+
+.borrow-detail-table-admin th:last-child,
+.borrow-detail-table-admin td:last-child {
+    width: 100px;
+    padding-right: 12px;
+    text-align: center;
 }
 
 .borrow-detail-table th,
@@ -6329,7 +6367,7 @@ body.dark-mode .sticker-btn {
 
 .borrow-return-button {
     box-sizing: border-box;
-    width: 64px;
+    width: 72px;
     min-height: 32px;
     padding: 5px 8px;
     border: 1px solid #e3a238;
@@ -6410,11 +6448,32 @@ body.dark-mode .borrow-detail-table th {
     color: #c7d2ca;
 }
 
+body.dark-mode .borrow-popup-content {
+    scrollbar-color: #527b5e #202722;
+}
+
+body.dark-mode .borrow-popup-content::-webkit-scrollbar-track {
+    background: #202722;
+}
+
+body.dark-mode .borrow-popup-content::-webkit-scrollbar-thumb {
+    border-color: #202722;
+    background: #527b5e;
+}
+
+body.dark-mode .borrow-popup-content::-webkit-scrollbar-thumb:hover {
+    background: #75a783;
+}
+
 @media (max-width: 600px) {
+    .borrow-popup-content {
+        padding-right: 4px;
+    }
+
     .borrow-popup {
         width: calc(100vw - 20px) !important;
         max-width: calc(100vw - 20px);
-        padding: 16px 12px;
+        padding: 16px 12px !important;
     }
 
     .borrow-popup .swal2-title {
@@ -6476,6 +6535,12 @@ body.dark-mode .borrow-detail-table th {
     .borrow-detail-table-admin th,
     .borrow-detail-table-admin td {
         box-sizing: border-box;
+    }
+
+    .borrow-detail-table-admin th:last-child,
+    .borrow-detail-table-admin td:last-child {
+        width: auto;
+        padding-right: 4px;
     }
 
     .borrow-detail-table-admin th:nth-child(2),
