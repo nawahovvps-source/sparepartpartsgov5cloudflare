@@ -109,7 +109,7 @@ export function setupSettingsDragging() {
 export function showSettings() {
     setupSettingsDragging();
     resetSettingsPosition();
-    const currentTheme = localStorage.getItem('theme') || 'light';
+    const currentTheme = localStorage.getItem('theme') || 'dark';
     const savedUsername = localStorage.getItem('username');
     const savedUserName = localStorage.getItem('userName') || 'ไม่พบชื่อ';
     const userPlant = localStorage.getItem('userPlant') || '';
@@ -188,7 +188,7 @@ export function showSettings() {
     const themeSelect = document.getElementById('themeSelect');
     themeSelect.onchange = null;
     themeSelect.addEventListener('change', function (e) {
-        import('./theme.js').then(module => module.setTheme(e.target.value));
+        import('./theme.js?v=2').then(module => module.setTheme(e.target.value));
     });
 
     window.dispatchEvent(new CustomEvent('request-version-update'));
@@ -285,7 +285,7 @@ export function showDetailModal(row, modalId, contentId, options = {}) {
       ${row["Rebuilt"] ? `<div class="detail-row"><span class="label">ทดแทน</span><span class="value rebuilt-text">${row["Rebuilt"]}</span></div>` : ''}
       ${row["Product"] ? `<div class="detail-row"><span class="label">Product</span><span class="value">${row["Product"]}</span></div>` : ''}
       ${row["OCRTAXT"] ? `<div class="detail-row"><span class="label">Spec</span><span class="value spec-text">${row["OCRTAXT"]}</span></div>` : ''}
-      ${row["หมายเหตุ"] ? `<div class="detail-row"><span class="label" style="color:#e74c3c;font-weight:bold;">หมายเหตุ</span><span class="value" style="color:#e74c3c;font-weight:bold;">${row["หมายเหตุ"]}</span></div>` : ''}
+      ${row["หมายเหตุ"] ? `<div class="detail-row"><span class="label remark-text" style="color:#e74c3c;font-weight:bold;">หมายเหตุ</span><span class="value remark-text" style="color:#e74c3c;font-weight:bold;">${row["หมายเหตุ"]}</span></div>` : ''}
       
       <div class="detail-row" style="margin-top:15px; padding-top:15px; border-top:1px dashed #ddd;">
         <span class="label" style="color:#7f8c8d;">สถานะสิทธิ์:</span>
@@ -661,6 +661,21 @@ function showAnnouncementDeck(announcements = announcementsCache, { showReadActi
     });
 }
 
+function showLoadedAnnouncementDeck(announcements, showReadAction) {
+    // SweetAlert2 can leave the initial loading markup in place when `html` is a DOM node.
+    // Replace the container contents explicitly so the spinner disappears as soon as data arrives.
+    Swal.hideLoading();
+    Swal.update({
+        showConfirmButton: true,
+        confirmButtonText: 'ปิด',
+        allowOutsideClick: true
+    });
+    const htmlContainer = Swal.getHtmlContainer();
+    if (!htmlContainer) return;
+    htmlContainer.replaceChildren(renderAnnouncementDeck(announcements));
+    bindAnnouncementDeck(Swal.getPopup(), announcements, showReadAction);
+}
+
 function bindAnnouncementDeck(popup, announcements, showReadAction) {
     const deck = popup.querySelector('.announcement-deck');
     if (!deck) return;
@@ -705,14 +720,7 @@ export async function openAnnouncementDeck() {
 
     try {
         const announcements = await loadAnnouncements();
-        Swal.hideLoading();
-        Swal.update({
-            html: renderAnnouncementDeck(announcements),
-            showConfirmButton: true,
-            confirmButtonText: 'ปิด',
-            allowOutsideClick: true
-        });
-        bindAnnouncementDeck(Swal.getPopup(), announcements, true);
+        showLoadedAnnouncementDeck(announcements, true);
     } catch (error) {
         console.error('Failed to load announcements:', error);
         Swal.hideLoading();
@@ -752,14 +760,7 @@ export async function openAdminAnnouncementDeck() {
         if (result.status !== 'success' || !Array.isArray(result.data)) {
             throw new Error(result.data || 'ข้อมูลประกาศไม่ถูกต้อง');
         }
-        Swal.hideLoading();
-        Swal.update({
-            html: renderAnnouncementDeck(result.data),
-            showConfirmButton: true,
-            confirmButtonText: 'ปิด',
-            allowOutsideClick: true
-        });
-        bindAnnouncementDeck(Swal.getPopup(), result.data, false);
+        showLoadedAnnouncementDeck(result.data, false);
     } catch (error) {
         console.error('Failed to load all announcements:', error);
         Swal.hideLoading();

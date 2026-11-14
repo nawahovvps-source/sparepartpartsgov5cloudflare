@@ -5,7 +5,7 @@ export function setTheme(theme) {
 }
 
 export function loadTheme() {
-    const theme = localStorage.getItem('theme') || 'light';
+    const theme = localStorage.getItem('theme') || 'dark';
     setTheme(theme);
     if (document.getElementById('themeSelect')) {
         document.getElementById('themeSelect').value = theme;

@@ -530,17 +530,6 @@ export function updateTableToday() {
                 td.style.textAlign = "left";
             }
 
-            // Remark and Bold Logic
-            const rmk = (row.remark || row.Remark || "").toString().trim();
-            if (rmk !== "") {
-                if (col === "remark" || col === "material" || col === "description" || col === "Timestamp") {
-                    td.style.color = "#d32f2f";
-                    td.style.fontWeight = "bold";
-                }
-            }
-            // Vibhavadi green override if just value present? main.js says if (col === "vibhavadi" && value) green
-            // But we handled it above with realStock check.
-
             // Admin Call Technician Feature
             if (col === "employeeName") {
                 const userAuth = localStorage.getItem('userAuth');

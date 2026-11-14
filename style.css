@@ -7070,6 +7070,469 @@ body.dark-mode #parts #data-table tbody.parts-deck > tr > td:nth-child(2) img {
   }
 }
 
+/* Full-screen glass login inspired by the supplied mobile reference. */
+#loginModal.login-screen {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 100vh;
+  min-height: 100dvh;
+  padding: 24px;
+  overflow-y: auto;
+  align-items: center;
+  justify-content: center;
+  background:
+    radial-gradient(ellipse at 15% 16%, rgba(20, 91, 128, 0.68), transparent 43%),
+    radial-gradient(ellipse at 78% 34%, rgba(201, 143, 123, 0.62), transparent 43%),
+    linear-gradient(180deg, #102a3d 0%, #28363a 54%, #080b0d 100%);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+#loginModal.login-screen.active {
+  display: flex;
+}
+
+#loginModal .login-content {
+  display: flex;
+  box-sizing: border-box;
+  flex-direction: column;
+  width: min(100%, 430px);
+  max-width: 430px;
+  padding: 38px 34px 30px;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 28px;
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0.055));
+  box-shadow: 0 28px 80px rgba(0, 0, 0, 0.36), inset 0 1px 0 rgba(255, 255, 255, 0.24);
+  color: #fff;
+  text-align: left;
+  animation: fadeInUp 0.45s ease;
+  -webkit-backdrop-filter: blur(24px);
+  backdrop-filter: blur(24px);
+}
+
+#loginModal .login-content::before {
+  display: none;
+}
+
+#loginModal .login-brand {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-bottom: 38px;
+  color: rgba(255, 255, 255, 0.95);
+  font-family: "Poppins", sans-serif;
+  font-size: 38px;
+  font-style: italic;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  text-shadow: 0 3px 18px rgba(0, 0, 0, 0.3);
+}
+
+#loginModal .login-brand-logo {
+  display: block;
+  width: 78px;
+  height: 78px;
+  border: 1px solid rgba(255, 255, 255, 0.62);
+  border-radius: 22px;
+  object-fit: cover;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3), 0 0 18px rgba(255, 255, 255, 0.12);
+}
+
+#loginModal .login-heading {
+  margin-bottom: 25px;
+  text-align: center;
+}
+
+#loginModal .login-eyebrow {
+  margin: 0 0 8px;
+  color: rgba(255, 255, 255, 0.74);
+  font-size: 13px;
+  letter-spacing: 1.2px;
+}
+
+#loginModal .login-heading h2 {
+  margin: 0;
+  color: #fff;
+  font-family: "Kanit", sans-serif;
+  font-size: clamp(29px, 7vw, 36px);
+  font-weight: 500;
+  line-height: 1.2;
+  text-shadow: 0 2px 20px rgba(0, 0, 0, 0.16);
+}
+
+#loginModal .login-heading h2 em {
+  color: rgba(255, 255, 255, 0.83);
+  font-style: normal;
+  font-weight: 300;
+}
+
+#loginModal .login-subtitle {
+  margin: 12px 0 0;
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 16px;
+  font-weight: 400;
+}
+
+#loginModal .login-heading-divider {
+  width: 100%;
+  height: 1px;
+  margin: 24px auto 2px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.42), transparent);
+}
+
+#loginModal .login-update-icon {
+  display: block;
+  margin: 0 auto 10px;
+  color: #38d982;
+  font-size: 46px;
+  line-height: 1;
+  filter: drop-shadow(0 5px 12px rgba(56, 217, 130, 0.25));
+}
+
+#loginModal .login-update-title,
+#loginModal .login-update-message {
+  display: block;
+}
+
+#loginModal .login-update-title {
+  font-size: clamp(25px, 6vw, 32px);
+  font-weight: 600;
+}
+
+#loginModal .login-update-message {
+  margin-top: 10px;
+  color: rgba(255, 255, 255, 0.78);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.55;
+}
+
+#loginModal.version-updated .login-brand {
+  margin-top: 22px;
+  margin-bottom: 28px;
+}
+
+#loginModal .login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+#loginModal .login-label {
+  margin-top: 3px;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 13px;
+  font-weight: 400;
+}
+
+#loginModal .login-field {
+  position: relative;
+  display: flex;
+  box-sizing: border-box;
+  align-items: center;
+  min-height: 52px;
+  margin: 0 0 5px;
+  padding: 0 15px;
+  border: 1px solid rgba(255, 255, 255, 0.34);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.09);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.86);
+  transition: border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+}
+
+#loginModal .login-field:focus-within {
+  border-color: rgba(255, 255, 255, 0.72);
+  background: rgba(255, 255, 255, 0.14);
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.09), inset 0 1px 0 rgba(255, 255, 255, 0.16);
+}
+
+#loginModal .login-field > i:first-child {
+  flex: 0 0 auto;
+  width: 20px;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 15px;
+  text-align: center;
+}
+
+#loginModal .login-field input {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  height: 48px;
+  margin: 0;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 999px;
+  outline: 0;
+  background: transparent;
+  box-shadow: none;
+  color: #fff;
+  font-family: "Kanit", sans-serif;
+  font-size: 14px;
+}
+
+#loginModal .login-field input:focus {
+  border: 0;
+  outline: 0;
+  box-shadow: none;
+  transform: none;
+}
+
+#loginModal .login-field input::placeholder {
+  color: rgba(255, 255, 255, 0.57);
+}
+
+#loginModal .password-container {
+  padding-right: 9px;
+}
+
+#loginModal .password-container .login-field-icon {
+  position: static;
+  transform: none;
+}
+
+#loginModal .password-toggle {
+  display: grid;
+  flex: 0 0 34px;
+  width: 34px;
+  height: 34px;
+  margin: 0;
+  padding: 0;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  box-shadow: none;
+  color: rgba(255, 255, 255, 0.8);
+  cursor: pointer;
+  font-size: 14px;
+}
+
+#loginModal .password-toggle:hover {
+  transform: none;
+  background: rgba(255, 255, 255, 0.12);
+  box-shadow: none;
+}
+
+#loginModal .password-toggle i {
+  position: static;
+  transform: none;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 14px;
+}
+
+#loginModal .login-field {
+  background: rgba(255, 255, 255, 0.025) !important;
+  border-color: rgba(255, 255, 255, 0.28);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  -webkit-backdrop-filter: blur(3px);
+  backdrop-filter: blur(3px);
+}
+
+#loginModal .login-field:focus-within {
+  background: rgba(255, 255, 255, 0.055) !important;
+  border-color: rgba(255, 255, 255, 0.62);
+}
+
+#loginModal .login-field input,
+body.dark-mode #loginModal .login-field input {
+  background: transparent !important;
+  background-color: transparent !important;
+  border-radius: 999px;
+  box-shadow: none !important;
+}
+
+#loginModal .login-field input:-webkit-autofill,
+#loginModal .login-field input:-webkit-autofill:hover,
+#loginModal .login-field input:-webkit-autofill:focus,
+#loginModal .login-field input:-webkit-autofill:active,
+#loginModal .login-field input:autofill,
+#loginModal .login-field input:autofill:hover,
+#loginModal .login-field input:autofill:focus {
+  -webkit-box-shadow: none !important;
+  -webkit-text-fill-color: #fff !important;
+  caret-color: #fff;
+  background: transparent !important;
+  background-color: transparent !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  transition: background-color 999999s ease-out 0s;
+}
+
+body.dark-mode #loginModal.login-screen .login-content .login-field input:-webkit-autofill,
+body.dark-mode #loginModal.login-screen .login-content .login-field input:-webkit-autofill:hover,
+body.dark-mode #loginModal.login-screen .login-content .login-field input:-webkit-autofill:focus,
+body.dark-mode #loginModal.login-screen .login-content .login-field input:-webkit-autofill:active,
+body.dark-mode #loginModal.login-screen .login-content .login-field input:autofill,
+body.dark-mode #loginModal.login-screen .login-content .login-field input:autofill:hover,
+body.dark-mode #loginModal.login-screen .login-content .login-field input:autofill:focus {
+  -webkit-box-shadow: inset 0 0 0 1000px transparent !important;
+  box-shadow: inset 0 0 0 1000px transparent !important;
+  -webkit-text-fill-color: #fff !important;
+  background: transparent !important;
+  background-color: transparent !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  color-scheme: dark;
+}
+
+#loginModal .remember-me {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 2px 0 12px;
+  padding: 0 2px;
+  color: rgba(255, 255, 255, 0.82);
+  font-size: 12px;
+}
+
+#loginModal .remember-option {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+#loginModal .remember-option input {
+  width: 17px;
+  height: 17px;
+  margin: 0;
+  accent-color: #fff;
+}
+
+#loginModal .login-secure-note {
+  color: rgba(255, 255, 255, 0.68);
+}
+
+#loginModal .login-secure-note i {
+  margin-right: 4px;
+}
+
+#loginModal .login-submit {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 54px;
+  margin: 0;
+  padding: 12px 20px;
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  border-radius: 999px;
+  background: linear-gradient(135deg, #fff 0%, #e9edf0 62%, #b7c0c3 100%);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.22), inset 0 2px 0 rgba(255, 255, 255, 0.9);
+  color: #33424b;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: none;
+  cursor: pointer;
+  transition: transform 0.18s ease, filter 0.18s ease, box-shadow 0.18s ease;
+}
+
+#loginModal .login-submit:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.04);
+  box-shadow: 0 11px 28px rgba(0, 0, 0, 0.28), inset 0 2px 0 rgba(255, 255, 255, 0.95);
+}
+
+#loginModal .login-submit:active {
+  transform: translateY(0);
+}
+
+#loginModal .login-content .error {
+  margin-top: 16px;
+  padding: 10px 13px;
+  border: 1px solid rgba(255, 128, 128, 0.45);
+  border-left: 3px solid #ff8b8b;
+  border-radius: 12px;
+  background: rgba(116, 20, 27, 0.42);
+  color: #ffe1e1;
+  font-size: 13px;
+}
+
+#loginModal .login-footer {
+  margin-top: 30px;
+  color: rgba(255, 255, 255, 0.62);
+  font-size: 12px;
+  text-align: center;
+}
+
+#loginModal .login-footer i {
+  margin-right: 5px;
+}
+
+@media (max-width: 520px) {
+  #loginModal.login-screen {
+    align-items: stretch;
+    padding: 0;
+  }
+
+  #loginModal .login-content {
+    width: 100%;
+    max-width: none;
+    min-height: 100vh;
+    min-height: 100dvh;
+    justify-content: center;
+    padding: max(28px, env(safe-area-inset-top)) 24px max(24px, env(safe-area-inset-bottom));
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+
+  #loginModal .login-brand {
+    margin-bottom: clamp(28px, 8vh, 56px);
+  }
+
+  #loginModal .login-heading {
+    margin-bottom: 27px;
+  }
+
+  #loginModal .login-footer {
+    margin-top: clamp(28px, 8vh, 60px);
+  }
+}
+
+body.dark-mode #parts #data-table tbody.parts-deck > tr > td:nth-child(9),
+body.dark-mode #parts #data-table tbody.parts-deck > tr > td:nth-child(10) {
+  color: #ffd978 !important;
+  font-weight: 700;
+}
+
+body.dark-mode .rebuilt-text,
+body.dark-mode .remark-text {
+  color: #ffd978 !important;
+}
+
+body.dark-mode #today .today-warning {
+  color: #ffd978;
+}
+
+#pending-calls #data-table-pending tbody td:nth-child(8) .borrow-total-button,
+#pending-calls #data-table-pending tbody td:nth-child(8) .stock-zero-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  width: auto;
+  min-width: 30px;
+  max-width: 100%;
+  min-height: 25px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  line-height: 1.1;
+  white-space: nowrap;
+}
+
 #today #data-table-today tbody.today-deck > tr > td.today-status-cell .today-cancel-button {
   display: inline-flex;
   align-items: center;
@@ -7999,4 +8462,252 @@ body.dark-mode .requisition-cancel-button {
   body.dark-mode #all .all-table-container tbody td {
     background: transparent !important;
   }
+}
+
+/* PartsGo glass menu, matched to the login screen and tuned for touch use. */
+#settingsModal[style*="display: block"] {
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  padding: 20px;
+  overflow: auto;
+  background:
+    radial-gradient(ellipse at 15% 16%, rgba(20, 91, 128, 0.5), transparent 43%),
+    radial-gradient(ellipse at 78% 34%, rgba(201, 143, 123, 0.42), transparent 43%),
+    rgba(5, 12, 17, 0.72);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+}
+
+#settingsModal .settings-modal-content.settings-mobile {
+  position: relative;
+  inset: auto;
+  transform: none;
+  box-sizing: border-box;
+  width: min(100%, 500px);
+  max-width: 500px;
+  max-height: min(90dvh, 820px);
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 0 0 max(12px, env(safe-area-inset-bottom));
+  border: 1px solid rgba(255, 255, 255, 0.23);
+  border-radius: 28px;
+  color: #fff;
+  background:
+    radial-gradient(ellipse at 8% 0%, rgba(20, 91, 128, 0.6), transparent 45%),
+    radial-gradient(ellipse at 92% 20%, rgba(201, 143, 123, 0.32), transparent 42%),
+    linear-gradient(165deg, rgba(39, 57, 68, 0.97), rgba(13, 21, 25, 0.98));
+  box-shadow: 0 28px 90px rgba(0, 0, 0, 0.48), inset 0 1px 0 rgba(255, 255, 255, 0.18);
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.28) transparent;
+}
+
+#settingsModal .settings-topbar {
+  position: sticky;
+  z-index: 3;
+  top: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 76px;
+  padding: 12px 18px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(18, 32, 40, 0.82);
+  -webkit-backdrop-filter: blur(18px);
+  backdrop-filter: blur(18px);
+  touch-action: pan-y;
+}
+
+#settingsModal .settings-brand-logo {
+  flex: 0 0 auto;
+  width: 46px;
+  height: 46px;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 14px;
+  object-fit: cover;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.28);
+}
+
+#settingsModal .settings-brand-text {
+  display: grid;
+  gap: 1px;
+}
+
+#settingsModal .settings-topbar .settings-brand-text h2 {
+  color: #fff;
+  font-family: "Kanit", sans-serif;
+  font-size: 23px;
+  line-height: 1.15;
+}
+
+#settingsModal .settings-brand-text span {
+  color: rgba(255, 255, 255, 0.68);
+  font-size: 12px;
+}
+
+#settingsModal .close-settings {
+  order: 2;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  margin-left: auto;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 15px;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.1);
+  font-size: 26px;
+  line-height: 1;
+}
+
+#settingsModal .settings-hero,
+#settingsModal .settings-user-card,
+#settingsModal .settings-card.list-card,
+#settingsModal .settings-footer-tile {
+  border: 1px solid rgba(255, 255, 255, 0.17);
+  color: #fff;
+  background: rgba(255, 255, 255, 0.075) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 10px 26px rgba(0, 0, 0, 0.15);
+}
+
+#settingsModal .settings-hero {
+  margin: 16px 16px 12px;
+  padding: 14px;
+  border-radius: 20px;
+  background: linear-gradient(120deg, rgba(34, 121, 157, 0.48), rgba(191, 131, 115, 0.3)) !important;
+}
+
+#settingsModal .settings-hero-title,
+#settingsModal .settings-hero-icon,
+#settingsModal .settings-hero-badge,
+#settingsModal .settings-hero-sub {
+  color: #fff;
+}
+
+#settingsModal .settings-hero-sub,
+#settingsModal .setting-text .setting-sub,
+#settingsModal .settings-footer-tile .footer-sub,
+#settingsModal .user-meta,
+#settingsModal .user-id,
+#settingsModal .user-team {
+  color: rgba(255, 255, 255, 0.68) !important;
+}
+
+#settingsModal .settings-user-card {
+  margin: 0 16px 12px;
+  border-radius: 20px;
+}
+
+#settingsModal .user-name,
+#settingsModal .setting-text .setting-title,
+#settingsModal .settings-footer-tile .footer-title {
+  color: #fff !important;
+}
+
+#settingsModal .settings-card.list-card {
+  margin: 12px 16px;
+  padding: 5px 10px;
+  border-radius: 20px;
+}
+
+#settingsModal .setting-item {
+  min-height: 66px;
+  padding: 8px 4px;
+  border-bottom-color: rgba(255, 255, 255, 0.13);
+}
+
+#settingsModal .setting-button {
+  min-height: 58px;
+  gap: 13px;
+  border-radius: 14px;
+  color: #fff;
+  -webkit-tap-highlight-color: transparent;
+}
+
+#settingsModal .setting-button:active {
+  background: rgba(255, 255, 255, 0.1);
+  transform: scale(0.985);
+}
+
+#settingsModal .setting-icon {
+  width: 42px;
+  height: 42px;
+  flex: 0 0 42px;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 14px;
+  box-shadow: 0 5px 14px rgba(0, 0, 0, 0.18);
+}
+
+#settingsModal .theme-select {
+  width: auto;
+  min-width: 104px;
+  min-height: 44px;
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  border-radius: 14px;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+#settingsModal .theme-select option {
+  color: #172631;
+  background: #f4f7fa;
+}
+
+#settingsModal .settings-footer-card {
+  margin: 12px 16px 4px;
+}
+
+#settingsModal .settings-footer-stack {
+  width: 100%;
+}
+
+#settingsModal .settings-footer-tile {
+  border-radius: 17px;
+  text-align: center;
+}
+
+@media (max-width: 600px) {
+  #settingsModal[style*="display: block"] {
+    align-items: flex-end;
+    padding: 0;
+  }
+
+  #settingsModal .settings-modal-content.settings-mobile {
+    width: 100%;
+    max-width: none;
+    max-height: min(92dvh, 860px);
+    border-right: 0;
+    border-bottom: 0;
+    border-left: 0;
+    border-radius: 28px 28px 0 0;
+    padding-bottom: max(12px, env(safe-area-inset-bottom));
+    animation: menuSheetIn 220ms ease-out;
+  }
+
+  #settingsModal .settings-topbar {
+    min-height: 72px;
+    padding: 10px 16px;
+  }
+
+  #settingsModal .settings-hero {
+    margin: 13px 13px 10px;
+  }
+
+  #settingsModal .settings-user-card,
+  #settingsModal .settings-card.list-card {
+    margin-right: 13px;
+    margin-left: 13px;
+  }
+
+  #settingsModal .settings-card.list-card {
+    padding-right: 9px;
+    padding-left: 9px;
+  }
+}
+
+@keyframes menuSheetIn {
+  from { opacity: 0.65; transform: translateY(18px); }
+  to { opacity: 1; transform: translateY(0); }
 }

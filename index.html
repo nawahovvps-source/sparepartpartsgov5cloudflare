@@ -12,7 +12,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="ระบบขอสั่งอะไหล่คลังสินค้านวนคร">
   <link rel="apple-touch-icon" href="/icon-192.png">
-  <link rel="stylesheet" href="style.css?v=61">
+  <link rel="stylesheet" href="style.css?v=62">
   <!-- Enhanced Content Security Policy to reduce phishing risks -->
   <meta http-equiv="Content-Security-Policy"
     content="default-src 'self' https:; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://unpkg.com https://code.jquery.com https://docs.google.com https://script.google.com https://script.googleusercontent.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: https: blob: https://drive.google.com https://lh3.googleusercontent.com; connect-src 'self' https://docs.google.com https://script.google.com https://script.googleusercontent.com; frame-src https://docs.google.com https://drive.google.com; object-src 'none'; base-uri 'self'; form-action 'self' https://docs.google.com;">
@@ -32,25 +32,45 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
 </head>
 
-<body class="light-mode">
-  <!-- Login Modal -->
-  <div id="loginModal" class="login-modal active">
-    <div class="login-content">
-      <h2>เข้าสู่ระบบ</h2>
-      <form onsubmit="event.preventDefault(); handleLogin();">
-        <input type="text" id="username" placeholder="รหัสพนักงาน" autocomplete="username" />
-        <div class="password-container">
-          <input type="password" id="password" placeholder="รหัสผ่าน (ให้นึกก่อน)" autocomplete="current-password" />
-          <i class="fas fa-eye-slash" id="togglePassword" onclick="togglePasswordVisibility()"></i>
+<body class="dark-mode">
+  <!-- Full-screen glass login -->
+  <div id="loginModal" class="login-modal login-screen active">
+    <main class="login-content">
+      <div class="login-brand">
+        <img class="login-brand-logo" src="/icon-192.png" alt="PartsGo logo" />
+        <span>PartsGo</span>
+      </div>
+      <div class="login-heading">
+        <h2 id="loginTitle">เข้าสู่ระบบ</h2>
+        <p class="login-subtitle">ขอเบิกอะไหล่จากคลังนวนคร</p>
+        <div class="login-heading-divider" aria-hidden="true"></div>
+      </div>
+      <form class="login-form" onsubmit="event.preventDefault(); handleLogin();">
+        <label class="login-label" for="username">Username</label>
+        <div class="login-field">
+          <i class="fas fa-envelope" aria-hidden="true"></i>
+          <input type="text" id="username" placeholder="Username" autocomplete="username" />
+        </div>
+        <label class="login-label" for="password">รหัสผ่าน</label>
+        <div class="login-field password-container">
+          <i class="fas fa-lock login-field-icon" aria-hidden="true"></i>
+          <input type="password" id="password" placeholder="กรอกรหัสผ่าน" autocomplete="current-password" />
+          <button class="password-toggle" type="button" id="togglePassword" aria-label="แสดงรหัสผ่าน">
+            <i class="fas fa-eye-slash" aria-hidden="true"></i>
+          </button>
         </div>
         <div class="remember-me">
-          <input type="checkbox" id="rememberMe" />
-          <label for="rememberMe">Remember me</label>
+          <label class="remember-option" for="rememberMe">
+            <input type="checkbox" id="rememberMe" />
+            <span>จดจำฉัน</span>
+          </label>
+          <span class="login-secure-note"><i class="fas fa-shield-alt" aria-hidden="true"></i> ระบบภายใน</span>
         </div>
-        <button type="submit">เข้าสู่ระบบ</button>
+        <button class="login-submit" type="submit">Login <i class="fas fa-arrow-right" aria-hidden="true"></i></button>
       </form>
       <div id="loginError" class="error">ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง!</div>
-    </div>
+      <div class="login-footer"><i class="fas fa-lock" aria-hidden="true"></i> ระบบสำหรับพนักงานเท่านั้น</div>
+    </main>
   </div>
   <!-- App Content -->
   <div id="appContent" class="app-content">
@@ -390,19 +410,10 @@
       <div class="settings-modal-content settings-mobile">
         <div class="settings-topbar">
           <span class="close-settings" id="closeSettings">&times;</span>
-          <h2>การตั้งค่า</h2>
-        </div>
-
-        <div class="settings-hero">
-          <div class="settings-hero-left">
-            <div class="settings-hero-icon"><i class="fas fa-cog"></i></div>
-            <div>
-              <div class="settings-hero-title">ตั้งค่า</div>
-              <div class="settings-hero-sub">จัดการบัญชีและปรับแต่งการใช้งาน</div>
-            </div>
-          </div>
-          <div class="settings-hero-badge">
-            <i class="fas fa-shield-alt"></i> Secure
+          <img class="settings-brand-logo" src="/icon-192.png" alt="" />
+          <div class="settings-brand-text">
+            <h2>เมนู</h2>
+            <span>PartsGo · บัญชีและการใช้งาน</span>
           </div>
         </div>
 
@@ -546,7 +557,7 @@
       </div>
   </div>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-  <script type="module" src="js/app.js?v=75"></script>
+  <script type="module" src="js/app.js?v=81"></script>
 </body>
 
 </html>

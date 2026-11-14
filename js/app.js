@@ -20,15 +20,31 @@ import {
     openAnnouncementEditor,
     showUnreadAnnouncementPopup,
     resetAnnouncementState
-} from './ui.js?v=16';
+} from './ui.js?v=19';
 import { handleClearCacheAndReload, ensureCacheFreshForVersion } from './cache.js';
 import { debounce } from './utils.js';
-import { loadTheme } from './theme.js';
+import { loadTheme } from './theme.js?v=2';
 import { loadData, applyFilters, showRequisitionDialog } from './modules/parts.js?v=44';
 import { applyFiltersImages } from './modules/images.js?v=39';
-import { loadTodayData, updateTableToday, exportTodayData, saveTodayDataSnapshot, initTodayListeners } from './modules/today.js?v=56';
+import { loadTodayData, updateTableToday, exportTodayData, saveTodayDataSnapshot, initTodayListeners } from './modules/today.js?v=57';
 import { loadPendingCallsData, initPendingListeners } from './modules/pending.js?v=52';
 import { loadAllData } from './modules/all.js?v=39';
+
+const passwordToggleButton = document.getElementById('togglePassword');
+if (passwordToggleButton) {
+    passwordToggleButton.addEventListener('click', () => {
+        const passwordInput = document.getElementById('password');
+        const icon = passwordToggleButton.querySelector('i');
+        if (!passwordInput) return;
+        const showPassword = passwordInput.type === 'password';
+        passwordInput.type = showPassword ? 'text' : 'password';
+        passwordToggleButton.setAttribute('aria-label', showPassword ? 'ซ่อนรหัสผ่าน' : 'แสดงรหัสผ่าน');
+        if (icon) {
+            icon.classList.toggle('fa-eye', showPassword);
+            icon.classList.toggle('fa-eye-slash', !showPassword);
+        }
+    });
+}
 
 // Service Worker Registration
 let newWorker;
@@ -431,7 +447,8 @@ window.addEventListener('auth-changed', (e) => {
         if (versionUpdated) {
             const loginTitle = loginModal.querySelector('h2');
             if (loginTitle) {
-                loginTitle.innerHTML = '<div style="color:#2ecc71; font-size:40px; margin-bottom:10px;"><i class="fas fa-check-circle"></i></div>อัปเดตแอปพลิเคชันสำเร็จ!<br><span style="font-size:16px; color:#7f8c8d; font-weight:normal; display:block; margin-top:8px;">กรุณาเข้าสู่ระบบใหม่อีกครั้งเพื่อใช้งานฟีเจอร์ล่าสุด</span>';
+                loginModal.classList.add('version-updated');
+                loginTitle.innerHTML = '<span class="login-update-icon"><i class="fas fa-check-circle"></i></span><span class="login-update-title">Update Version ใหม่</span><span class="login-update-message">กรุณาเข้าสู่ระบบใหม่อีกครั้งเพื่อใช้งานเวอร์ชันล่าสุด</span>';
             }
         }
     }
