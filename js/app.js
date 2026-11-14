@@ -19,8 +19,10 @@ import {
     openAdminAnnouncementDeck,
     openAnnouncementEditor,
     showUnreadAnnouncementPopup,
-    resetAnnouncementState
-} from './ui.js?v=27';
+    resetAnnouncementState,
+    startAnnouncementBackgroundCheck,
+    stopAnnouncementBackgroundCheck
+} from './ui.js?v=28';
 import { handleClearCacheAndReload, ensureCacheFreshForVersion } from './cache.js';
 import { debounce } from './utils.js';
 import { loadTheme } from './theme.js?v=3';
@@ -419,6 +421,7 @@ window.addEventListener('auth-changed', (e) => {
         document.getElementById('loginModal').classList.remove('active');
         document.getElementById('appContent').classList.add('logged-in');
         showUnreadAnnouncementPopup();
+        startAnnouncementBackgroundCheck();
 
         const userNameSmall = document.getElementById('userNameSmall');
         if (userNameSmall) userNameSmall.textContent = localStorage.getItem('userName') || '';
@@ -442,6 +445,7 @@ window.addEventListener('auth-changed', (e) => {
         }
         window.showTab('parts');
     } else {
+        stopAnnouncementBackgroundCheck();
         resetAnnouncementState();
         const loginModal = document.getElementById('loginModal');
         loginModal.classList.add('active');

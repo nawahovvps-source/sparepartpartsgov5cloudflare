@@ -1172,6 +1172,7 @@ export async function showUnreadAnnouncementPopup() {
 }
 
 export function resetAnnouncementState() {
+    stopAnnouncementBackgroundCheck();
     autoAnnouncementChecked = false;
     announcementDeckRequested = false;
     announcementsCacheGeneration += 1;
@@ -1184,6 +1185,117 @@ export function resetAnnouncementState() {
         console.warn('Unable to clear announcement session cache:', error);
     }
     updateAnnouncementBadge();
+}
+
+let backgroundCheckTimer = null;
+let lastBackgroundCheckTime = 0;
+const BACKGROUND_CHECK_INTERVAL_MS = 60 * 1000;
+
+export async function checkAnnouncementsInBackground() {
+    const username = localStorage.getItem('username');
+    if (!username) return;
+    if (document.visibilityState !== 'visible') return;
+
+    try {
+        const previousUnreadIds = new Set(
+            announcementsCache.filter(item => !item.IsRead).map(item => String(item.AnnouncementID))
+        );
+
+        const requestGeneration = announcementsCacheGeneration;
+        const response = await apiFetch('/api/gas-announcement?action=getAnnouncements', { cache: 'no-store' });
+        if (!response.ok) return;
+        const result = await response.json();
+        if (result.status !== 'success' || !Array.isArray(result.data)) return;
+        if (requestGeneration !== announcementsCacheGeneration) return;
+
+        announcementsCache = result.data;
+        announcementsCacheLoaded = true;
+        saveAnnouncementSessionCache();
+        updateAnnouncementBadge();
+
+        const newlyArrived = announcementsCache.filter(
+            item => !item.IsRead && !previousUnreadIds.has(String(item.AnnouncementID))
+        );
+
+        if (newlyArrived.length > 0) {
+            const latest = newlyArrived[0];
+            if (typeof Swal !== 'undefined' && Swal.isVisible()) {
+                Swal.mixin({
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: true,
+                    confirmButtonText: 'ดูประกาศ',
+                    showCloseButton: true,
+                    timer: 10000,
+                    timerProgressBar: true
+                }).fire({
+                    icon: latest.Type === 'แจ้งด่วน' ? 'warning' : 'info',
+                    title: latest.Title || 'ประกาศใหม่',
+                    text: latest.Message ? (latest.Message.length > 60 ? latest.Message.slice(0, 60) + '...' : latest.Message) : ''
+                }).then(res => {
+                    if (res.isConfirmed) {
+                        openAnnouncementDeck();
+                    }
+                });
+            } else if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    title: '📢 ประกาศใหม่',
+                    html: createAnnouncementCard(latest, { showReadAction: false }),
+                    showCancelButton: true,
+                    confirmButtonText: 'รับทราบ',
+                    cancelButtonText: 'ปิดไว้ก่อน',
+                    allowOutsideClick: false,
+                    customClass: { popup: 'announcement-popup' },
+                    preConfirm: async () => {
+                        try {
+                            await markAnnouncementRead(latest);
+                            latest.IsRead = true;
+                            saveAnnouncementSessionCache();
+                            updateAnnouncementBadge();
+                            return true;
+                        } catch (error) {
+                            Swal.showValidationMessage(error.message || 'บันทึกสถานะอ่านไม่สำเร็จ');
+                            return false;
+                        }
+                    }
+                });
+            }
+        }
+    } catch (error) {
+        console.warn('Background announcement check failed:', error);
+    }
+}
+
+export function startAnnouncementBackgroundCheck() {
+    if (backgroundCheckTimer) clearInterval(backgroundCheckTimer);
+    lastBackgroundCheckTime = Date.now();
+    backgroundCheckTimer = setInterval(() => {
+        if (document.visibilityState === 'visible') {
+            checkAnnouncementsInBackground();
+            lastBackgroundCheckTime = Date.now();
+        }
+    }, BACKGROUND_CHECK_INTERVAL_MS);
+}
+
+export function stopAnnouncementBackgroundCheck() {
+    if (backgroundCheckTimer) {
+        clearInterval(backgroundCheckTimer);
+        backgroundCheckTimer = null;
+    }
+}
+
+if (typeof document !== 'undefined') {
+    document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible') {
+            const username = localStorage.getItem('username');
+            if (!username) return;
+            const now = Date.now();
+            if (now - lastBackgroundCheckTime >= 30 * 1000) {
+                checkAnnouncementsInBackground();
+                lastBackgroundCheckTime = now;
+            }
+        }
+    });
 }
 
 export function renderPagination(totalItems, currentPage, containerId, itemsPerPage, prefix = "") {

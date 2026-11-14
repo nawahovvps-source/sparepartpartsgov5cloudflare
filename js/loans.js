@@ -3,6 +3,7 @@ import { CONFIG } from './config.js';
 import { state } from './state.js';
 import { parseSafeFloat } from './utils.js';
 import { loadEmployeeData } from './auth.js';
+import { resetAnnouncementState } from './ui.js';
 
 let borrowDataPromise = null;
 
@@ -108,16 +109,17 @@ export function getBorrowTotal(material) {
     return getBorrowRows(material).reduce((total, row) => total + parseSafeFloat(row['จำนวน']), 0);
 }
 
-async function createReturnAnnouncement(row, material) {
+async function createReturnAnnouncement(row, material, requestedQty) {
     const team = String(row['หน่วยงาน'] ?? '').trim();
     if (!team) throw new Error('ไม่พบทีมของรายการนี้ จึงไม่สามารถส่งประกาศได้');
 
     const materialCode = String(row.Material || material || '').trim();
     const description = String(row.Description || '').trim() || '-';
-    const quantity = parseSafeFloat(row['จำนวน']).toLocaleString();
+    const numQty = requestedQty !== undefined ? parseSafeFloat(requestedQty) : parseSafeFloat(row['จำนวน']);
+    const quantity = numQty.toLocaleString();
     const employeeName = String(row['ชื่อ'] || '').trim() || '-';
     const title = `ขอคืนอะไหล่ ${materialCode}`;
-    const message = `ขอคืนอะไหล่ ${materialCode} ${description} จำนวน ${quantity} ชิ้น ${employeeName} ${team} รบกวนทีมติดต่อช่างเพื่อส่งคืนออะไหล่ดังกล่าว ขอบคุณครับ`;
+    const message = `ขอคืนอะไหล่ ${materialCode} ${description} จำนวน ${quantity} ชิ้น ${employeeName} รบกวนทีม ${team} ติดต่อช่างเพื่อส่งคืนอะไหล่ดังกล่าวที่คลังด้วยครับ มีทีมงานอื่นต้องการใช้อะไหล่ดังกล่าว ขอบคุณครับ`;
     const body = new URLSearchParams({
         action: 'createAnnouncement',
         title,
@@ -143,6 +145,10 @@ async function createReturnAnnouncement(row, material) {
     if (result.status !== 'success') {
         throw new Error(typeof result.data === 'string' ? result.data : 'สร้างประกาศไม่สำเร็จ');
     }
+
+    try {
+        resetAnnouncementState();
+    } catch (_) {}
 }
 
 export async function showBorrowPopup(material) {
@@ -233,19 +239,79 @@ export async function showBorrowPopup(material) {
                     const feedback = button.nextElementSibling;
                     if (!row || !feedback) return;
 
-                    button.disabled = true;
-                    button.textContent = 'กำลังส่ง';
-                    feedback.textContent = '';
+                    const maxQty = parseSafeFloat(row['จำนวน']);
+                    const employeeName = String(row['ชื่อ'] || '').trim() || '-';
+                    const team = String(row['หน่วยงาน'] ?? '').trim() || 'ไม่ระบุทีม';
+
+                    const { value: requestedQty, isConfirmed } = await Swal.fire({
+                        title: 'ขอคืนอะไหล่',
+                        html: `
+                            <div style="text-align: left; font-size: 14px; line-height: 1.6;">
+                                <p style="margin: 0 0 6px 0;"><strong>รหัสอะไหล่:</strong> ${escapeHtml(material)}</p>
+                                <p style="margin: 0 0 6px 0;"><strong>รายการ:</strong> ${escapeHtml(row.Description || '-')}</p>
+                                <p style="margin: 0 0 6px 0;"><strong>ช่าง:</strong> ${escapeHtml(employeeName)} (ทีม: ${escapeHtml(team)})</p>
+                                <p style="margin: 0 0 12px 0;"><strong>ยอดค้างยืม:</strong> <span style="color:#d9534f; font-weight:bold; font-size: 16px;">${maxQty.toLocaleString()}</span> ชิ้น</p>
+                                <label for="returnQtyInput" style="display:block; margin-bottom: 6px; font-weight: 600;">ระบุจำนวนที่ต้องการขอคืน:</label>
+                                <input id="returnQtyInput" type="number" class="swal2-input" value="${maxQty}" min="0.01" max="${maxQty}" step="any" style="margin: 0; width: 100%; box-sizing: border-box;">
+                            </div>
+                        `,
+                        icon: 'question',
+                        showCancelButton: true,
+                        confirmButtonText: 'ยืนยันส่งคำขอ',
+                        cancelButtonText: 'ยกเลิก',
+                        confirmButtonColor: '#e3a238',
+                        cancelButtonColor: '#6c757d',
+                        focusConfirm: false,
+                        preConfirm: () => {
+                            const inputVal = document.getElementById('returnQtyInput')?.value;
+                            const parsed = parseFloat(inputVal);
+                            if (isNaN(parsed) || parsed <= 0) {
+                                Swal.showValidationMessage('กรุณาระบุจำนวนที่มากกว่า 0');
+                                return false;
+                            }
+                            if (parsed > maxQty) {
+                                Swal.showValidationMessage(`จำนวนต้องไม่เกินยอดค้างยืม (${maxQty.toLocaleString()} ชิ้น)`);
+                                return false;
+                            }
+                            return parsed;
+                        }
+                    });
+
+                    if (!isConfirmed || requestedQty === undefined) {
+                        await showBorrowPopup(material);
+                        return;
+                    }
+
+                    Swal.fire({
+                        title: 'กำลังส่งประกาศขอคืน...',
+                        allowOutsideClick: false,
+                        didOpen: () => Swal.showLoading()
+                    });
+
                     try {
-                        await createReturnAnnouncement(row, material);
-                        button.textContent = 'ส่งแล้ว';
-                        button.classList.add('borrow-return-success');
-                        feedback.textContent = 'ส่งประกาศขอคืนแล้ว';
+                        await createReturnAnnouncement(row, material, requestedQty);
+                        await Swal.fire({
+                            icon: 'success',
+                            title: 'ส่งประกาศขอคืนแล้ว',
+                            html: `ส่งประกาศขอคืนอะไหล่ <b>${escapeHtml(material)}</b><br>จำนวน <b>${requestedQty.toLocaleString()}</b> ชิ้น<br>ไปยังทีม <b>${escapeHtml(team)}</b> เรียบร้อยแล้ว`,
+                            confirmButtonText: 'กลับไปหน้ารายการค้างยืม',
+                            showCancelButton: true,
+                            cancelButtonText: 'ปิด'
+                        }).then(result => {
+                            if (result.isConfirmed) {
+                                showBorrowPopup(material);
+                            }
+                        });
                     } catch (error) {
                         console.error('Failed to send borrow return announcement:', error);
-                        button.disabled = false;
-                        button.textContent = 'ลองอีกครั้ง';
-                        feedback.textContent = `ส่งไม่สำเร็จ: ${error.message || 'กรุณาลองใหม่'}`;
+                        await Swal.fire({
+                            icon: 'error',
+                            title: 'ส่งไม่สำเร็จ',
+                            text: error.message || 'กรุณาลองใหม่อีกครั้ง',
+                            confirmButtonText: 'กลับไปหน้ารายการค้างยืม'
+                        }).then(() => {
+                            showBorrowPopup(material);
+                        });
                     }
                 });
             });
