@@ -39,7 +39,8 @@ module.exports = async (req, res) => {
     upstream = await fetch(targetUrl, { headers: { 'Accept': 'application/json' } });
   } catch (err) {
     console.error('Upstream fetch error:', err);
-    res.status(502).json({ error: 'Upstream connection failed: ' + err.message });
+    const detail = err.cause ? (err.cause.message || err.cause.code || String(err.cause)) : err.message;
+    res.status(502).json({ error: 'Upstream connection failed: ' + err.message + ' (' + detail + ')' });
     return;
   }
   if (!upstream.ok) {
