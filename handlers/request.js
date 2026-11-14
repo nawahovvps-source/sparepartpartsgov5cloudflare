@@ -35,8 +35,14 @@ module.exports = async (req, res) => {
     return;
   }
 
-  const targetUrl = buildOpenSheetUrl(sheetId, sheetName);
-  const upstream = await fetch(targetUrl, { headers: { Accept: 'application/json' } });
+  const targetUrl = new URL(buildOpenSheetUrl(sheetId, sheetName));
+  targetUrl.searchParams.set('_t', String(Date.now()));
+  const upstream = await fetch(targetUrl.toString(), {
+    headers: {
+      Accept: 'application/json',
+      'Cache-Control': 'no-cache, no-store'
+    }
+  });
 
   if (!upstream.ok) {
     res.status(upstream.status).json({ error: `Upstream ${upstream.status}` });
@@ -44,6 +50,7 @@ module.exports = async (req, res) => {
   }
 
   const data = await upstream.json();
-  res.setHeader('Cache-Control', 'no-store');
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
+  res.setHeader('Pragma', 'no-cache');
   res.status(200).json(data);
 };

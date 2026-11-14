@@ -42,7 +42,8 @@ export async function loadTodayData(options = {}) {
     try {
         timeoutId = setTimeout(() => controller.abort(), 30000);
 
-        const response = await apiFetch(`${CONFIG.ENDPOINTS.REQUEST_SHEET_BASE}?type=all`, {
+        const cacheBuster = `_t=${Date.now()}`;
+        const response = await apiFetch(`${CONFIG.ENDPOINTS.REQUEST_SHEET_BASE}?type=all&${cacheBuster}`, {
             signal: controller.signal,
             cache: 'no-store'
         });
@@ -295,8 +296,6 @@ export function updateTableToday() {
     // Calculate stock maps
     const { vMap, nMap, binMap } = getStockMaps();
 
-    tableBody.innerHTML = '';
-
     // Manage Header Visibility for Admin Features
     const thSelect = document.getElementById('th-select-today');
     const thPrint = document.getElementById('th-print-today');
@@ -309,6 +308,8 @@ export function updateTableToday() {
         if (pageContainer) pageContainer.innerHTML = '';
         return;
     }
+
+    const fragment = document.createDocumentFragment();
 
     const columnLabels = [
         'เลือก', 'Print', 'Status', 'ลำดับ', 'รูป', 'วันเวลา', 'Material', 'Description',
@@ -579,8 +580,10 @@ export function updateTableToday() {
             cell.dataset.label = columnLabels[index];
         });
 
-        tableBody.appendChild(tr);
+        fragment.appendChild(tr);
     });
+
+    tableBody.replaceChildren(fragment);
 
     // Pagination
     renderPagination(state.currentFilteredDataToday.length, state.currentPageToday, "pageNumbersToday", itemsPerPage, "Today");

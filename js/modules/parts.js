@@ -541,15 +541,78 @@ export async function showRequisitionDialog(row) {
         callNumber: getFromLocalStorage('callNumber')
     };
 
-    // Use exact HTML from main.js
-    // Pre-Requisition Checks Logic from main.js
+    // Pre-Requisition Checks Logic
     const vibhavadiValue = parseSafeFloat(row["วิภาวดี"]);
-    const unrestrictedValue = parseSafeFloat(row["Unrestricted"]);
-    const remark = row["หมายเหตุ"] || '';
+    const unrestrictedValue = parseSafeFloat(row["Unrestricted"] !== undefined ? row["Unrestricted"] : row["นวนคร"]);
+    const remark = (row["หมายเหตุ"] || '').toString().trim();
     const hasStockVibha = vibhavadiValue > 0;
 
-    // 1. Check for Replacement (Unrestricted=0, Remark exists)
-    if (unrestrictedValue === 0 && remark.trim() !== '') {
+    // 1. ตรวจสอบลำดับที่ 1: ยอดคงเหลือ (วิภาวดี) > 0
+    if (hasStockVibha) {
+        const warningResult = await Swal.fire({
+            title: '<strong style="font-size:24px; color:#f39c12;">คำเตือน!</strong>',
+            iconColor: '#f39c12',
+            width: window.innerWidth <= 480 ? '90%' : '560px',
+            padding: '30px 20px',
+            background: document.body.classList.contains('dark-mode') ? '#2d2d2d' : '#ffffff',
+            backdrop: 'rgba(0,0,0,0.85)',
+            allowOutsideClick: false,
+            allowEscapeKey: false,
+            showCancelButton: true,
+            confirmButtonText: '<i class="fas fa-check"></i> ยืนยัน',
+            cancelButtonText: '<i class="fas fa-times"></i> ยกเลิก',
+            reverseButtons: true,
+            buttonsStyling: false,
+            html: `
+        <div style="text-align:center; margin:20px 0;">
+          <i class="fas fa-exclamation-triangle" style="font-size:60px; color:#f39c12; margin-bottom:15px; opacity:0.9;"></i>
+          <div style="font-size:18px; font-weight:600; color:#e67e22;">
+            ${row.Material || ''}
+          </div>
+          <div style="font-size:18px; font-weight:600; color:#e67e22; margin-top:10px;">
+            ${row.Description || ''}
+          </div>
+          <div class="vibhavadi-stock-alert" style="margin-top:15px;">
+            <i class="fas fa-info-circle" aria-hidden="true"></i>
+            คลังวิภาวดีมีของอยู่ (${vibhavadiValue.toLocaleString()} ชิ้น)
+          </div>
+          <div style="font-size:17px; color:#7f8c8d; margin:15px 0;">
+            กรุณาตรวจสอบว่าจำเป็นต้องเบิกจากนวนครจริงหรือไม่
+          </div>
+          <div style="
+            margin-top:20px; 
+            padding:16px; 
+            background:#e8f5e8; 
+            border-left:6px solid #27ae60; 
+            border-radius:12px; 
+            font-size:16px; 
+            color:#1e874b;
+            font-weight:bold;
+            display:flex;
+            align-items:center;
+            gap:10px;
+          ">
+            <i class="fas fa-info-circle" style="font-size:20px;"></i>
+            <span>หากยืนยัน ระบบจะดึงจากคลังนวนครแทน</span>
+          </div>
+        </div>
+      `,
+            didOpen: () => {
+                const confirmBtn = document.querySelector('.swal2-confirm');
+                const cancelBtn = document.querySelector('.swal2-cancel');
+                if (confirmBtn) confirmBtn.style.cssText = `background: linear-gradient(135deg, #e74c3c, #c0392b) !important; color: white !important; padding: 14px 36px !important; border-radius: 30px !important; font-size: 17px !important; font-weight: bold !important; box-shadow: 0 6px 20px rgba(231,76,60,0.5) !important;`;
+                if (cancelBtn) cancelBtn.style.cssText = `background: linear-gradient(135deg, #95a5a6, #7f8c8d) !important; color: white !important; padding: 14px 36px !important; border-radius: 30px !important; font-size: 17px !important; font-weight: bold !important; box-shadow: 0 6px 20px rgba(127,140,141,0.5) !important;`;
+            }
+        });
+
+        if (warningResult.isDismissed) {
+            document.body.style.overflow = 'auto';
+            return;
+        }
+    }
+
+    // 2. ตรวจสอบลำดับที่ 2: ยอดนวนคร = 0
+    if (unrestrictedValue <= 0) {
         const replacementWarning = await Swal.fire({
             title: '<strong style="font-size:24px; color:#f39c12;">คำเตือน!</strong>',
             iconColor: '#f39c12',
@@ -573,9 +636,10 @@ export async function showRequisitionDialog(row) {
           <div style="font-size:18px; font-weight:600; color:#e67e22; margin-top:10px;">
             ${row.Description || ''}
           </div>
-          <div style="font-size:17px; color:#7f8c8d; margin:15px 0;">
-            คลังนวนครไม่มีของเหลือแล้ว
+          <div style="display:inline-block; font-size:25px; line-height:1.3; font-weight:800; color:#c0392b; background:#fff0ee; border:2px solid #ef9a91; border-radius:12px; padding:12px 18px; margin:15px 0; box-shadow:0 3px 10px rgba(192,57,43,0.14);">
+            คลังนวนครของหมดแล้ว (0 ชิ้น)
           </div>
+          ${remark ? `
           <div style="
     margin-top:20px; 
     padding:18px 20px; 
@@ -590,8 +654,10 @@ export async function showRequisitionDialog(row) {
     <i class="fas fa-exclamation-circle" style="color:#2ecc71; margin-right:8px;"></i>
     อาจมีอะไหล่ทดแทน: 
     <span style="color:#0a0; font-size:18px;">${remark}</span>
-</div>
-          </div>
+</div>` : `
+          <div style="margin-top:15px; font-size:16px; color:#7f8c8d;">
+            ขณะนี้ไม่มีสต็อกที่คลังนวนคร กรุณาตรวจสอบก่อนยืนยันทำรายการ
+          </div>`}
         </div>
       `,
             didOpen: () => {
@@ -603,67 +669,6 @@ export async function showRequisitionDialog(row) {
         });
 
         if (replacementWarning.isDismissed) {
-            document.body.style.overflow = 'auto';
-            return;
-        }
-    }
-
-    // 2. Check for Vibhavadi Stock (Vibhavadi > 0)
-    if (hasStockVibha) {
-        const warningResult = await Swal.fire({
-            title: '<strong style="font-size:24px; color:#f39c12;">คำเตือน!</strong>',
-            iconColor: '#f39c12',
-            width: window.innerWidth <= 480 ? '90%' : '560px',
-            padding: '30px 20px',
-            background: document.body.classList.contains('dark-mode') ? '#2d2d2d' : '#ffffff',
-            backdrop: 'rgba(0,0,0,0.85)',
-            allowOutsideClick: false,
-            allowEscapeKey: false,
-            showCancelButton: true,
-            confirmButtonText: '<i class="fas fa-check"></i> ยืนยัน',
-            cancelButtonText: '<i class="fas fa-times"></i> ยกเลิก',
-            reverseButtons: true,
-            buttonsStyling: false,
-            html: `
-        <div style="text-align:center; margin:20px 0;">
-          <i class="fas fa-exclamation-triangle" style="font-size:60px; color:#f39c12; margin-bottom:15px; opacity:0.9;"></i>
-          <div class="vibhavadi-stock-alert">
-            <i class="fas fa-info-circle" aria-hidden="true"></i>
-            คลังวิภาวดีมีของอยู่
-          </div>
-          <div style="font-size:32px; font-weight:bold; color:#27ae60; margin:12px 0;">
-            ${vibhavadiValue.toLocaleString()} ชิ้น
-          </div>
-          <div style="font-size:17px; color:#7f8c8d; margin:15px 0;">
-            กรุณาตรวจสอบว่าจำเป็นต้องเบิกจากนวนครจริงหรือไม่
-          </div>
-          <div style="
-    margin-top:20px; 
-    padding:16px; 
-    background:#e8f5e8; 
-    border-left:6px solid #27ae60; 
-    border-radius:12px; 
-    font-size:16px; 
-    color:#1e874b;
-    font-weight:bold;
-    display:flex;
-    align-items:center;
-    gap:10px;
-">
-    <i class="fas fa-info-circle" style="font-size:20px;"></i>
-    <span>หากยืนยัน ระบบจะดึงจากคลังนวนครแทน</span>
-</div>
-        </div>
-      `,
-            didOpen: () => {
-                const confirmBtn = document.querySelector('.swal2-confirm');
-                const cancelBtn = document.querySelector('.swal2-cancel');
-                if (confirmBtn) confirmBtn.style.cssText = `background: linear-gradient(135deg, #e74c3c, #c0392b) !important; color: white !important; padding: 14px 36px !important; border-radius: 30px !important; font-size: 17px !important; font-weight: bold !important; box-shadow: 0 6px 20px rgba(231,76,60,0.5) !important;`;
-                if (cancelBtn) cancelBtn.style.cssText = `background: linear-gradient(135deg, #95a5a6, #7f8c8d) !important; color: white !important; padding: 14px 36px !important; border-radius: 30px !important; font-size: 17px !important; font-weight: bold !important; box-shadow: 0 6px 20px rgba(127,140,141,0.5) !important;`;
-            }
-        });
-
-        if (warningResult.isDismissed) {
             document.body.style.overflow = 'auto';
             return;
         }

@@ -26,9 +26,9 @@ import {
 import { handleClearCacheAndReload, ensureCacheFreshForVersion } from './cache.js';
 import { debounce } from './utils.js';
 import { loadTheme } from './theme.js?v=3';
-import { loadData, applyFilters, showRequisitionDialog } from './modules/parts.js?v=45';
+import { loadData, applyFilters, showRequisitionDialog } from './modules/parts.js?v=48';
 import { applyFiltersImages } from './modules/images.js?v=39';
-import { loadTodayData, updateTableToday, exportTodayData, saveTodayDataSnapshot, initTodayListeners } from './modules/today.js?v=57';
+import { loadTodayData, updateTableToday, exportTodayData, saveTodayDataSnapshot, initTodayListeners } from './modules/today.js?v=59';
 import { loadPendingCallsData, initPendingListeners } from './modules/pending.js?v=52';
 import { loadAllData } from './modules/all.js?v=39';
 
@@ -240,10 +240,9 @@ window.showTab = function (tabId) {
             });
             break;
         case "today":
+            // Always reload fresh data without screen flickering
             if (state.todayDataLoaded) {
-                updateTableToday();
-                hideLoading();
-                loadTodayData({ silent: true }).then(() => hideLoading());
+                loadTodayData({ silent: true });
             } else {
                 loadTodayData({ silent: false }).then(() => hideLoading());
             }
