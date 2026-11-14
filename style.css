@@ -2593,6 +2593,97 @@ body.dark-mode #parts #data-table tbody.parts-deck > tr > td:nth-child(8) .stock
   }
 }
 
+/* Compact raised controls for Parts and Images tabs */
+#searchButton,
+#searchButtonImages {
+  width: 25px !important;
+  height: 25px !important;
+  min-width: 25px !important;
+  max-width: 25px !important;
+  padding: 0 !important;
+  border: 2px solid #25282c !important;
+  border-bottom-width: 4px !important;
+  border-radius: 50% !important;
+  background: linear-gradient(180deg, #f35b65 0%, #cc2633 58%, #a81220 100%) !important;
+  box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.5), inset 0 -2px 0 rgba(0, 0, 0, 0.16), 0 2px 0 #111, 0 4px 5px rgba(0, 0, 0, 0.28) !important;
+  line-height: 1 !important;
+}
+
+#searchButton i,
+#searchButtonImages i {
+  color: #fff !important;
+  font-size: 11px !important;
+}
+
+#searchButton:hover,
+#searchButtonImages:hover {
+  background: linear-gradient(180deg, #e84b55 0%, #ba1e2a 58%, #920e19 100%) !important;
+  box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.5), inset 0 -2px 0 rgba(0, 0, 0, 0.16), 0 2px 0 #111, 0 4px 5px rgba(0, 0, 0, 0.28) !important;
+  animation: none !important;
+  filter: none;
+  transform: translateY(-1px);
+}
+
+#searchButton:active,
+#searchButtonImages:active {
+  box-shadow: inset 0 2px 3px rgba(0, 0, 0, 0.28), 0 1px 0 #111 !important;
+  transform: translateY(2px);
+}
+
+#parts #data-table tbody.parts-deck > tr > td.part-card-action .requisition-button,
+#parts #imageModalContent .material-row .requisition-button,
+#parts #imageModalContent .detail-header-row .header-btn.requisition-button,
+#imageModalContent .detail-header-row .header-btn.requisition-button,
+#images .requisition-button,
+#images .requisition-button-images,
+#images #imageModalContentImages .material-row .requisition-button,
+#images #imageModalContentImages .detail-header-row .header-btn.requisition-button,
+#imageModalContentImages .detail-header-row .header-btn.requisition-button,
+#images #imageModalContentImages .material-row .requisition-button-images {
+  min-width: 42px !important;
+  min-height: 27px !important;
+  padding: 2px 7px !important;
+  border: 2px solid #174d2b !important;
+  border-bottom-width: 4px !important;
+  border-radius: 8px !important;
+  background: linear-gradient(180deg, #54b875 0%, #258349 58%, #176536 100%) !important;
+  box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.45), inset 0 -2px 0 rgba(0, 0, 0, 0.15), 0 2px 0 #111, 0 4px 5px rgba(0, 0, 0, 0.25) !important;
+  color: #fff !important;
+  font-size: 10px !important;
+  font-weight: 800 !important;
+}
+
+#parts .requisition-button-disabled,
+#images .requisition-button-disabled,
+#imageModalContent .detail-header-row .header-btn.requisition-button-disabled,
+#imageModalContentImages .detail-header-row .header-btn.requisition-button-disabled {
+  min-width: 42px !important;
+  min-height: 27px !important;
+  padding: 2px 7px !important;
+  border: 2px solid #4b535c !important;
+  border-bottom-width: 4px !important;
+  border-radius: 8px !important;
+  background: linear-gradient(180deg, #929da8 0%, #697581 58%, #4c5863 100%) !important;
+  box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.35), 0 2px 0 #111, 0 4px 5px rgba(0, 0, 0, 0.2) !important;
+  color: #fff !important;
+  font-size: 10px !important;
+  font-weight: 800 !important;
+}
+
+#parts #data-table tbody.parts-deck > tr > td.part-card-action .requisition-button:hover,
+#parts #imageModalContent .material-row .requisition-button:hover,
+#parts #imageModalContent .detail-header-row .header-btn.requisition-button:hover,
+#imageModalContent .detail-header-row .header-btn.requisition-button:hover,
+#images .requisition-button:hover,
+#images .requisition-button-images:hover,
+#images #imageModalContentImages .material-row .requisition-button:hover,
+#images #imageModalContentImages .detail-header-row .header-btn.requisition-button:hover,
+#imageModalContentImages .detail-header-row .header-btn.requisition-button:hover,
+#images #imageModalContentImages .material-row .requisition-button-images:hover {
+  filter: brightness(1.08);
+  transform: translateY(-1px);
+}
+
 body.dark-mode #today .today-status-pending {
   border-color: #593400;
   border-bottom-color: #382000;
@@ -3329,7 +3420,7 @@ body.dark-mode #toggleAllDataBtn.today-toggle-show-round {
   transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
 }
 
-#pending-calls #data-table-pending tbody td:nth-child(8) {
+#pending-calls #data-table-pending tbody td:nth-child(6) {
   color: #1565c0;
   font-weight: 700;
 }
@@ -3339,14 +3430,14 @@ body.dark-mode #toggleAllDataBtn.today-toggle-show-round {
   font-weight: 600;
 }
 
-#pending-calls #data-table-pending tbody td:nth-child(10) {
+#pending-calls #data-table-pending tbody td:nth-child(7) {
   color: #16803c;
   font-weight: 700;
 }
 
 @media (min-width: 900px) {
-  #pending-calls #data-table-pending tbody td:nth-child(8) {
-    font-size: 19px;
+  #pending-calls #data-table-pending tbody td:nth-child(6) {
+    font-size: 16px;
     text-align: left;
   }
 
@@ -6034,6 +6125,17 @@ body.dark-mode .borrow-detail-table th {
   transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
 }
 
+#parts #data-table tbody.parts-deck > tr.parts-deck-compact {
+  grid-template-areas:
+    "image material material material action"
+    "image description description description description"
+    "storage storage vibhavadi unrestricted borrow";
+}
+
+#parts #data-table tbody.parts-deck > tr > td.parts-optional-column-hidden {
+  display: none !important;
+}
+
 #parts #data-table tbody.parts-deck > tr:hover {
   border-color: #9dc8ee;
   box-shadow: 0 3px 10px rgba(34, 105, 166, 0.12);
@@ -7563,9 +7665,8 @@ body.dark-mode .requisition-cancel-button {
     grid-template-areas:
       "ticket ticket ticket ticket ticket ticket date date date date date date"
       "pending pending pending team team team store store store store store store"
-      "material material material material material material material material material material material material"
-      "description description description description description description description description description description description description"
-      "teamplant teamplant teamplant plant plant stock stock stock borrow borrow borrow borrow";
+      "material material material material material material stock stock stock borrow borrow borrow"
+      "description description description description description description description description description description description description";
     align-content: start;
     gap: 3px;
     min-width: 0;
@@ -7644,30 +7745,14 @@ body.dark-mode .requisition-cancel-button {
   }
 
   #pending-calls #data-table-pending tbody > tr > td:nth-child(5) {
-    grid-area: teamplant;
-  }
-
-  #pending-calls #data-table-pending tbody > tr > td:nth-child(5)::before {
-    content: "TeamPlant";
-  }
-
-  #pending-calls #data-table-pending tbody > tr > td:nth-child(6) {
-    grid-area: plant;
-  }
-
-  #pending-calls #data-table-pending tbody > tr > td:nth-child(6)::before {
-    content: "Plant";
-  }
-
-  #pending-calls #data-table-pending tbody > tr > td:nth-child(7) {
     grid-area: pending;
   }
 
-  #pending-calls #data-table-pending tbody > tr > td:nth-child(7)::before {
+  #pending-calls #data-table-pending tbody > tr > td:nth-child(5)::before {
     content: "ค้างหน่วยงาน";
   }
 
-  #pending-calls #data-table-pending tbody > tr > td:nth-child(8) {
+  #pending-calls #data-table-pending tbody > tr > td:nth-child(6) {
     grid-area: material;
     display: flex;
     align-items: center;
@@ -7675,14 +7760,34 @@ body.dark-mode .requisition-cancel-button {
     padding: 4px 6px;
     background: #fff;
     color: #174f84;
-    font-size: 17px;
+    font-size: 14px;
     font-weight: 800;
     text-align: left;
   }
 
-  #pending-calls #data-table-pending tbody > tr > td:nth-child(8)::before {
+  #pending-calls #data-table-pending tbody > tr > td:nth-child(6)::before {
     display: none;
     content: none;
+  }
+
+  #pending-calls #data-table-pending tbody > tr > td:nth-child(7) {
+    grid-area: stock;
+    font-size: 14px;
+    font-weight: 700;
+    text-align: center;
+  }
+
+  #pending-calls #data-table-pending tbody > tr > td:nth-child(7)::before {
+    content: "คงเหลือ";
+  }
+
+  #pending-calls #data-table-pending tbody > tr > td:nth-child(8) {
+    grid-area: borrow;
+    text-align: center;
+  }
+
+  #pending-calls #data-table-pending tbody > tr > td:nth-child(8)::before {
+    content: "ค้างยืม";
   }
 
   #pending-calls #data-table-pending tbody > tr > td:nth-child(9) {
@@ -7699,26 +7804,6 @@ body.dark-mode .requisition-cancel-button {
   #pending-calls #data-table-pending tbody > tr > td:nth-child(9)::before {
     display: none;
     content: none;
-  }
-
-  #pending-calls #data-table-pending tbody > tr > td:nth-child(10) {
-    grid-area: stock;
-    font-size: 14px;
-    font-weight: 700;
-    text-align: center;
-  }
-
-  #pending-calls #data-table-pending tbody > tr > td:nth-child(10)::before {
-    content: "คงเหลือ";
-  }
-
-  #pending-calls #data-table-pending tbody > tr > td:nth-child(11) {
-    grid-area: borrow;
-    text-align: center;
-  }
-
-  #pending-calls #data-table-pending tbody > tr > td:nth-child(11)::before {
-    content: "ค้างยืม";
   }
 
   #pending-calls #data-table-pending tbody > tr > td[colspan] {
@@ -7744,11 +7829,11 @@ body.dark-mode .requisition-cancel-button {
   }
 
   body.dark-mode #pending-calls #data-table-pending tbody > tr > td:nth-child(2),
-  body.dark-mode #pending-calls #data-table-pending tbody > tr > td:nth-child(8) {
+  body.dark-mode #pending-calls #data-table-pending tbody > tr > td:nth-child(6) {
     color: #a9d8fa;
   }
 
-  body.dark-mode #pending-calls #data-table-pending tbody > tr > td:nth-child(8),
+  body.dark-mode #pending-calls #data-table-pending tbody > tr > td:nth-child(6),
   body.dark-mode #pending-calls #data-table-pending tbody > tr > td:nth-child(9) {
     background: #30475c;
   }
@@ -7758,12 +7843,67 @@ body.dark-mode .requisition-cancel-button {
     font-weight: 700;
   }
 
-  body.dark-mode #pending-calls #data-table-pending tbody > tr > td:nth-child(10) {
+  body.dark-mode #pending-calls #data-table-pending tbody > tr > td:nth-child(7) {
     color: #8fe0a7;
     font-weight: 700;
   }
 
   body.dark-mode #pending-calls #data-table-pending tbody > tr > td::before {
     color: #a9bacb;
+  }
+}
+
+/* Final override: keep the filter reset buttons identical to the small trash buttons. */
+#parts #searchContainer #searchButton,
+#images #searchContainerImages #searchButtonImages {
+  box-sizing: border-box !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex: 0 0 25px !important;
+  width: 25px !important;
+  height: 25px !important;
+  min-width: 25px !important;
+  max-width: 25px !important;
+  min-height: 25px !important;
+  max-height: 25px !important;
+  margin-left: 8px !important;
+  padding: 0 !important;
+  border: 2px solid #25282c !important;
+  border-bottom-width: 4px !important;
+  border-radius: 50% !important;
+  background: linear-gradient(180deg, #f35b65 0%, #cc2633 58%, #a81220 100%) !important;
+  box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.5), inset 0 -2px 0 rgba(0, 0, 0, 0.16), 0 2px 0 #111, 0 4px 5px rgba(0,  0, 0, 0.28) !important;
+  line-height: 1 !important;
+}
+
+#parts #searchContainer #searchButton i,
+#images #searchContainerImages #searchButtonImages i {
+  margin: 0 !important;
+  color: #fff !important;
+  font-size: 11px !important;
+}
+
+#parts #searchContainer #searchButton:hover,
+#images #searchContainerImages #searchButtonImages:hover {
+  background: linear-gradient(180deg, #e84b55 0%, #ba1e2a 58%, #920e19 100%) !important;
+  box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.5), inset 0 -2px 0 rgba(0, 0, 0, 0.16), 0 2px 0 #111, 0 4px 5px rgba(0, 0, 0, 0.28) !important;
+  animation: none !important;
+  transform: translateY(-1px);
+}
+
+#parts #searchContainer #searchButton:active,
+#images #searchContainerImages #searchButtonImages:active {
+  box-shadow: inset 0 2px 3px rgba(0, 0, 0, 0.28), 0 1px 0 #111 !important;
+  transform: translateY(2px);
+}
+
+@media (max-width: 899.98px) {
+  #pending-calls #data-table-pending tbody > tr > td:nth-child(1),
+  #pending-calls #data-table-pending tbody > tr > td:nth-child(2),
+  #pending-calls #data-table-pending tbody > tr > td:nth-child(3),
+  #pending-calls #data-table-pending tbody > tr > td:nth-child(4),
+  #pending-calls #data-table-pending tbody > tr > td:nth-child(5) {
+    font-size: 14px;
   }
 }

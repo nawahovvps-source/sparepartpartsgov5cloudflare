@@ -199,7 +199,7 @@ export function filterAndRenderTablePending() {
     if (lastPageButton) lastPageButton.disabled = totalPages === 0 || state.currentPagePending >= totalPages;
 
     if (slice.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="11" style="text-align:center">ไม่พบข้อมูลที่ตรงกับเงื่อนไข</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="9" style="text-align:center">ไม่พบข้อมูลที่ตรงกับเงื่อนไข</td></tr>';
     } else slice.forEach(row => {
         const tr = document.createElement("tr");
         const ticket = row["Ticket Number"];
@@ -208,7 +208,7 @@ export function filterAndRenderTablePending() {
         tr.className = colorMap[ticket] || "";
 
         // Strict Columns from main.js
-        const columns = ["Create Date", "Ticket Number", "Team", "Store Name", "TeamPlant", "Plant", "ค้างหน่วยงาน", "Material", "Description", "Unrestricted", "ค้างยืม"];
+        const columns = ["Create Date", "Ticket Number", "Team", "Store Name", "ค้างหน่วยงาน", "Material", "Unrestricted", "ค้างยืม", "Description"];
 
         columns.forEach(col => {
             const td = document.createElement("td");

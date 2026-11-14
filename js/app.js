@@ -24,10 +24,10 @@ import {
 import { handleClearCacheAndReload, ensureCacheFreshForVersion } from './cache.js';
 import { debounce } from './utils.js';
 import { loadTheme } from './theme.js';
-import { loadData, applyFilters, showRequisitionDialog } from './modules/parts.js?v=43';
+import { loadData, applyFilters, showRequisitionDialog } from './modules/parts.js?v=44';
 import { applyFiltersImages } from './modules/images.js?v=39';
 import { loadTodayData, updateTableToday, exportTodayData, saveTodayDataSnapshot, initTodayListeners } from './modules/today.js?v=56';
-import { loadPendingCallsData, initPendingListeners } from './modules/pending.js?v=51';
+import { loadPendingCallsData, initPendingListeners } from './modules/pending.js?v=52';
 import { loadAllData } from './modules/all.js?v=39';
 
 // Service Worker Registration

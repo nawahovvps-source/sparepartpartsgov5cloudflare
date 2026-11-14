@@ -252,6 +252,10 @@ export function renderTableData() {
 
     pageData.forEach(row => {
         const tr = document.createElement("tr");
+        const remarkValue = (row['หมายเหตุ'] ?? '').toString().trim();
+        const rebuiltValue = (row.Rebuilt ?? '').toString().trim();
+        const hideOptionalDetails = (remarkValue === '' || remarkValue === '-') && rebuiltValue === '';
+        if (hideOptionalDetails) tr.classList.add('parts-deck-compact');
 
         // 1. Withdraw Button
         const tdReq = document.createElement("td");
@@ -301,6 +305,9 @@ export function renderTableData() {
         columns.forEach(col => {
             const td = document.createElement("td");
             td.dataset.label = columnLabels[col];
+            if (hideOptionalDetails && ['หมายเหตุ', 'Rebuilt', 'Product'].includes(col)) {
+                td.classList.add('parts-optional-column-hidden');
+            }
             let value = col === "Storage bin" ? getStorageBinValue(row) : (row[col] ?? "");
 
             if (col === "ค้างยืม") {
