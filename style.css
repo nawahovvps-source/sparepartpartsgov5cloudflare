@@ -4717,6 +4717,11 @@ body.dark-mode .dark-blue-title {
   font: inherit;
   font-size: 15px;
   color-scheme: light;
+  cursor: pointer;
+}
+
+.announcement-form .announcement-date-time-input::-webkit-calendar-picker-indicator {
+  cursor: pointer;
 }
 
 .announcement-form .announcement-date-time-input:focus {
@@ -5131,6 +5136,10 @@ body.dark-mode .announcement-form .announcement-date-time-input {
   background: #243648;
   color: #edf4fa;
   color-scheme: dark;
+}
+
+body.dark-mode .announcement-form .announcement-date-time-input::-webkit-calendar-picker-indicator {
+  filter: invert(0.82) sepia(0.18) saturate(1.2);
 }
 
 body.dark-mode .announcement-date-time-trigger {

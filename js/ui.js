@@ -880,13 +880,11 @@ export async function openAnnouncementEditor() {
                         <div class="announcement-date-time-grid">
                             <div class="announcement-date-time-field">
                                 <span>วันที่</span>
-                                <input id="announcementStartDate" type="hidden" value="${defaultStartDate}">
-                                <button class="announcement-date-time-trigger" type="button" data-picker-trigger data-picker-kind="date" data-input-id="announcementStartDate"><i class="fas fa-calendar-days" aria-hidden="true"></i><span data-picker-value>วันนี้</span><i class="fas fa-chevron-down" aria-hidden="true"></i></button>
+                                <input id="announcementStartDate" class="announcement-date-time-input" type="date" value="${defaultStartDate}" required aria-label="วันที่เริ่มแสดง">
                             </div>
                             <div class="announcement-date-time-field">
                                 <span>เวลา</span>
-                                <input id="announcementStartTime" type="hidden" value="${defaultStartTime}">
-                                <button class="announcement-date-time-trigger" type="button" data-picker-trigger data-picker-kind="time" data-input-id="announcementStartTime"><i class="fas fa-clock" aria-hidden="true"></i><span data-picker-value>${defaultStartTime}</span><i class="fas fa-chevron-down" aria-hidden="true"></i></button>
+                                <input id="announcementStartTime" class="announcement-date-time-input" type="time" value="${defaultStartTime}" step="60" required aria-label="เวลาเริ่มแสดง">
                             </div>
                         </div>
                     </div>
@@ -895,13 +893,11 @@ export async function openAnnouncementEditor() {
                         <div class="announcement-date-time-grid">
                             <div class="announcement-date-time-field">
                                 <span>วันที่</span>
-                                <input id="announcementEndDate" type="hidden" value="${defaultEndDate}">
-                                <button class="announcement-date-time-trigger" type="button" data-picker-trigger data-picker-kind="date" data-input-id="announcementEndDate"><i class="fas fa-calendar-days" aria-hidden="true"></i><span data-picker-value></span><i class="fas fa-chevron-down" aria-hidden="true"></i></button>
+                                <input id="announcementEndDate" class="announcement-date-time-input" type="date" value="${defaultEndDate}" aria-label="วันที่สิ้นสุด">
                             </div>
                             <div class="announcement-date-time-field">
                                 <span>เวลา</span>
-                                <input id="announcementEndTime" type="hidden" value="23:59">
-                                <button class="announcement-date-time-trigger" type="button" data-picker-trigger data-picker-kind="time" data-input-id="announcementEndTime"><i class="fas fa-clock" aria-hidden="true"></i><span data-picker-value>23:59</span><i class="fas fa-chevron-down" aria-hidden="true"></i></button>
+                                <input id="announcementEndTime" class="announcement-date-time-input" type="time" value="23:59" step="60" aria-label="เวลาสิ้นสุด">
                             </div>
                         </div>
                     </div>
