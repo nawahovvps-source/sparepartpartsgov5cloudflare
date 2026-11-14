@@ -35,13 +35,10 @@ module.exports = async (req, res) => {
     return;
   }
 
-  const targetUrl = new URL(buildOpenSheetUrl(sheetId, sheetName));
-  targetUrl.searchParams.set('_t', String(Date.now()));
-  const upstream = await fetch(targetUrl.toString(), {
-    headers: {
-      Accept: 'application/json',
-      'Cache-Control': 'no-cache, no-store'
-    }
+  const targetUrl = buildOpenSheetUrl(sheetId, sheetName);
+  const upstream = await fetch(targetUrl, {
+    headers: { Accept: 'application/json' },
+    cache: 'no-store'
   });
 
   if (!upstream.ok) {
