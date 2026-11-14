@@ -282,7 +282,7 @@ export function showDetailModal(row, modalId, contentId, options = {}) {
       <div class="detail-row"><span class="label">Storage bin</span><span class="value">${getStorageBinValue(row) || '-'}</span></div>
       <div class="detail-row"><span class="label">คงเหลือ</span><span class="value">${row["วิภาวดี"] ? parseSafeFloat(row["วิภาวดี"]).toLocaleString() + ' ชิ้น' : '0 ชิ้น'}</span></div>
       <div class="detail-row"><span class="label">นวนคร</span><span class="value">${row["Unrestricted"] ? parseSafeFloat(row["Unrestricted"]).toLocaleString() + ' ชิ้น' : '0 ชิ้น'}</span></div>
-      ${row["Rebuilt"] ? `<div class="detail-row"><span class="label">Rebuilt</span><span class="value rebuilt-text">${row["Rebuilt"]}</span></div>` : ''}
+      ${row["Rebuilt"] ? `<div class="detail-row"><span class="label">ทดแทน</span><span class="value rebuilt-text">${row["Rebuilt"]}</span></div>` : ''}
       ${row["Product"] ? `<div class="detail-row"><span class="label">Product</span><span class="value">${row["Product"]}</span></div>` : ''}
       ${row["OCRTAXT"] ? `<div class="detail-row"><span class="label">Spec</span><span class="value spec-text">${row["OCRTAXT"]}</span></div>` : ''}
       ${row["หมายเหตุ"] ? `<div class="detail-row"><span class="label" style="color:#e74c3c;font-weight:bold;">หมายเหตุ</span><span class="value" style="color:#e74c3c;font-weight:bold;">${row["หมายเหตุ"]}</span></div>` : ''}

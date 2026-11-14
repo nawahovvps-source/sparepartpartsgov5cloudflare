@@ -20,13 +20,13 @@ import {
     openAnnouncementEditor,
     showUnreadAnnouncementPopup,
     resetAnnouncementState
-} from './ui.js?v=15';
+} from './ui.js?v=16';
 import { handleClearCacheAndReload, ensureCacheFreshForVersion } from './cache.js';
 import { debounce } from './utils.js';
 import { loadTheme } from './theme.js';
-import { loadData, applyFilters, showRequisitionDialog } from './modules/parts.js?v=41';
+import { loadData, applyFilters, showRequisitionDialog } from './modules/parts.js?v=43';
 import { applyFiltersImages } from './modules/images.js?v=39';
-import { loadTodayData, updateTableToday, exportTodayData, saveTodayDataSnapshot, initTodayListeners } from './modules/today.js?v=54';
+import { loadTodayData, updateTableToday, exportTodayData, saveTodayDataSnapshot, initTodayListeners } from './modules/today.js?v=56';
 import { loadPendingCallsData, initPendingListeners } from './modules/pending.js?v=51';
 import { loadAllData } from './modules/all.js?v=39';
 

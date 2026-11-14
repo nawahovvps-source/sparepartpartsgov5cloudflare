@@ -239,7 +239,7 @@ export function renderTableData() {
         'วิภาวดี': 'คงเหลือ',
         Unrestricted: 'นวนคร',
         'ค้างยืม': 'ค้างยืม',
-        Rebuilt: 'Rebuilt',
+        Rebuilt: 'ทดแทน',
         'หมายเหตุ': 'หมายเหตุ',
         Product: 'Product'
     };
@@ -619,7 +619,8 @@ export async function showRequisitionDialog(row) {
             html: `
         <div style="text-align:center; margin:20px 0;">
           <i class="fas fa-exclamation-triangle" style="font-size:60px; color:#f39c12; margin-bottom:15px; opacity:0.9;"></i>
-          <div style="font-size:18px; font-weight:600; color:#e67e22;">
+          <div class="vibhavadi-stock-alert">
+            <i class="fas fa-info-circle" aria-hidden="true"></i>
             คลังวิภาวดีมีของอยู่
           </div>
           <div style="font-size:32px; font-weight:bold; color:#27ae60; margin:12px 0;">

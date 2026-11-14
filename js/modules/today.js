@@ -754,7 +754,8 @@ export function exportTodayData() {
         { key: "material", label: "material" },
         { key: "description", label: "description" },
         { key: "quantity", label: "quantity" },
-        { key: "storage", label: "Storage bin" }
+        { key: "storage", label: "Storage bin" },
+        { key: "plant", label: "Plant" }
     ];
 
     const csvRows = [];
@@ -766,6 +767,8 @@ export function exportTodayData() {
             if (col.key === 'storage') {
                 const { binMap } = getStockMaps();
                 value = binMap[item.material] || "-";
+            } else if (col.key === 'plant') {
+                value = 'S001';
             } else if (col.key === 'quantity') {
                 value = item.quantity;
             } else {
@@ -1024,9 +1027,13 @@ function setTodayMode(isPending, { reload = true } = {}) {
         if (state.showOnlyPending) {
             btn.innerHTML = '<i class="fas fa-clock"></i> <span>ทั้งหมด</span>';
             btn.title = "กำลังแสดงรายการตั้งแต่ 14:50 เมื่อวานถึงปัจจุบัน";
+            btn.classList.add('today-toggle-show-all');
+            btn.classList.remove('today-toggle-show-round');
         } else {
-            btn.innerHTML = '<i class="fas fa-history"></i> <span>รอเบิก</span>';
-            btn.title = "คลิกเพื่อดูรายการล่าสุด และรายการค้างทั้งหมด";
+            btn.innerHTML = '<i class="fas fa-history"></i> <span>รอบวันนี้</span>';
+            btn.title = "คลิกเพื่อดูรายการรอบวันนี้";
+            btn.classList.add('today-toggle-show-round');
+            btn.classList.remove('today-toggle-show-all');
         }
     }
     state.currentPageToday = 1;
