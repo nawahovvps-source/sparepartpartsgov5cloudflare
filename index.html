@@ -12,7 +12,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="ระบบขอสั่งอะไหล่คลังสินค้านวนคร">
   <link rel="apple-touch-icon" href="/icon-192.png">
-  <link rel="stylesheet" href="style.css?v=62">
+  <link rel="stylesheet" href="style.css?v=67">
   <!-- Enhanced Content Security Policy to reduce phishing risks -->
   <meta http-equiv="Content-Security-Policy"
     content="default-src 'self' https:; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://unpkg.com https://code.jquery.com https://docs.google.com https://script.google.com https://script.googleusercontent.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: https: blob: https://drive.google.com https://lh3.googleusercontent.com; connect-src 'self' https://docs.google.com https://script.google.com https://script.googleusercontent.com; frame-src https://docs.google.com https://drive.google.com; object-src 'none'; base-uri 'self'; form-action 'self' https://docs.google.com;">
@@ -449,10 +449,13 @@
                 <div class="setting-sub"></div>
               </div>
             </div>
-            <select id="themeSelect" class="theme-select">
-              <option value="light">สว่าง</option>
-              <option value="dark">มืด</option>
-            </select>
+            <label class="theme-toggle-control" for="themeToggle">
+              <span id="themeModeLabel" class="theme-mode-label">มืด</span>
+              <span class="theme-switch">
+                <input id="themeToggle" type="checkbox" role="switch" aria-label="เปิดหรือปิดโหมดมืด" />
+                <span class="theme-switch-track" aria-hidden="true"></span>
+              </span>
+            </label>
           </div>
 
           <div class="setting-item" id="adminAnnouncementSection" style="display: none;">
@@ -520,7 +523,7 @@
         <div class="settings-footer-card">
           <div class="settings-footer-stack">
             <div class="settings-footer-tile">
-              <p class="footer-title">PartsGo Ver. <span id="appVersion">v18.10.39</span></p>
+              <p class="footer-title">PartsGo Ver. <span id="appVersion">v20.1.1</span></p>
               <p class="footer-sub">© 2025 คลังสินค้า SparePart วิภาวดี 62</p>
               <p class="footer-sub">ระบบภายในสำหรับพนักงานเท่านั้น</p>
             </div>
@@ -557,7 +560,7 @@
       </div>
   </div>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-  <script type="module" src="js/app.js?v=81"></script>
+  <script type="module" src="js/app.js?v=83"></script>
 </body>
 
 </html>

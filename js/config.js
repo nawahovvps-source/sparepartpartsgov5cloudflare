@@ -1,5 +1,5 @@
 export const CONFIG = {
-    CACHE_VERSION: "v18",
+    CACHE_VERSION: "v20.1.1",
     get CACHE_NAME() { return `partgo-cache-${this.CACHE_VERSION}`; },
     DATA_CACHE_PREFIX: 'partgo-cache-',
     DATA_CACHE_VERSION_KEY: 'dataCacheVersion',

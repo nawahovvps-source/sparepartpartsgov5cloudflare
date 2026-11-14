@@ -7,7 +7,8 @@ export function setTheme(theme) {
 export function loadTheme() {
     const theme = localStorage.getItem('theme') || 'dark';
     setTheme(theme);
-    if (document.getElementById('themeSelect')) {
-        document.getElementById('themeSelect').value = theme;
-    }
+    const themeToggle = document.getElementById('themeToggle');
+    if (themeToggle) themeToggle.checked = theme === 'dark';
+    const themeModeLabel = document.getElementById('themeModeLabel');
+    if (themeModeLabel) themeModeLabel.textContent = theme === 'dark' ? 'มืด' : 'สว่าง';
 }

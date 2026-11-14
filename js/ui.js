@@ -123,7 +123,10 @@ export function showSettings() {
     const modalUserTeam = document.getElementById('modalUserTeam');
     modalUserTeam.textContent = 'กำลังโหลด...';
     document.getElementById('modalUserAuth').textContent = isAdminAuth ? 'Admin' : isActiveAuth ? 'Active' : 'None';
-    document.getElementById('themeSelect').value = currentTheme;
+    const themeToggle = document.getElementById('themeToggle');
+    if (themeToggle) themeToggle.checked = currentTheme === 'dark';
+    const themeModeLabel = document.getElementById('themeModeLabel');
+    if (themeModeLabel) themeModeLabel.textContent = currentTheme === 'dark' ? 'มืด' : 'สว่าง';
     const modalPlantEl = document.getElementById('modalUserPlant');
     if (modalPlantEl) {
         modalPlantEl.textContent = (userPlant && userPlant !== 'None') ? `Plant: ${userPlant}` : 'Spare part วิภาวดี 62';
@@ -185,11 +188,13 @@ export function showSettings() {
 
     document.getElementById('settingsModal').style.display = 'block';
 
-    const themeSelect = document.getElementById('themeSelect');
-    themeSelect.onchange = null;
-    themeSelect.addEventListener('change', function (e) {
-        import('./theme.js?v=2').then(module => module.setTheme(e.target.value));
-    });
+    if (themeToggle) {
+        themeToggle.onchange = function (event) {
+            const theme = event.target.checked ? 'dark' : 'light';
+            if (themeModeLabel) themeModeLabel.textContent = theme === 'dark' ? 'มืด' : 'สว่าง';
+            import('./theme.js?v=3').then(module => module.setTheme(theme));
+        };
+    }
 
     window.dispatchEvent(new CustomEvent('request-version-update'));
 }

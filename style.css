@@ -8711,3 +8711,232 @@ body.dark-mode .requisition-cancel-button {
   from { opacity: 0.65; transform: translateY(18px); }
   to { opacity: 1; transform: translateY(0); }
 }
+
+/* Compact menu dimensions for phones. */
+@media (max-width: 600px) {
+  #settingsModal[style*="display: block"] {
+    align-items: center;
+    justify-content: center;
+    padding: 14px;
+  }
+
+  #settingsModal .settings-modal-content.settings-mobile {
+    left: auto !important;
+    top: auto !important;
+    right: auto !important;
+    bottom: auto !important;
+    transform: none !important;
+    margin-right: auto;
+    margin-left: auto;
+    align-self: center;
+    width: fit-content;
+    min-width: min(88vw, 320px);
+    max-width: min(92vw, 390px);
+    height: fit-content;
+    min-height: 0;
+    max-height: 82dvh;
+    border: 1px solid rgba(255, 255, 255, 0.23);
+    border-radius: 24px;
+    padding-bottom: max(8px, env(safe-area-inset-bottom));
+  }
+
+  #settingsModal .settings-topbar {
+    min-height: 60px;
+    gap: 9px;
+    padding: 8px 13px;
+  }
+
+  #settingsModal .settings-brand-logo {
+    width: 38px;
+    height: 38px;
+    border-radius: 12px;
+  }
+
+  #settingsModal .settings-topbar .settings-brand-text h2 {
+    font-size: 20px;
+  }
+
+  #settingsModal .settings-brand-text span {
+    font-size: 11px;
+  }
+
+  #settingsModal .close-settings {
+    width: 38px;
+    height: 38px;
+    border-radius: 13px;
+  }
+
+  #settingsModal .settings-user-card {
+    gap: 7px;
+    margin: 10px 11px 8px;
+    padding: 11px 12px 10px;
+    border-radius: 16px;
+  }
+
+  #settingsModal .settings-avatar {
+    width: 42px;
+    height: 42px;
+    border-radius: 13px;
+    font-size: 18px;
+  }
+
+  #settingsModal .user-main-left {
+    gap: 9px;
+  }
+
+  #settingsModal .user-name {
+    font-size: 14px;
+  }
+
+  #settingsModal .user-meta,
+  #settingsModal .user-id,
+  #settingsModal .user-team {
+    font-size: 11px;
+  }
+
+  #settingsModal .user-sub-pill {
+    padding: 4px 7px;
+    font-size: 10px;
+  }
+
+  #settingsModal .user-chip {
+    padding: 5px 8px;
+    font-size: 11px;
+  }
+
+  #settingsModal .settings-card.list-card {
+    margin: 6px 11px;
+    padding: 2px 8px;
+    border-radius: 16px;
+  }
+
+  #settingsModal .setting-item {
+    min-height: 48px;
+    padding: 2px;
+  }
+
+  #settingsModal .setting-button {
+    min-height: 42px;
+    gap: 9px;
+  }
+
+  #settingsModal .setting-icon {
+    width: 32px;
+    height: 32px;
+    flex-basis: 32px;
+    border-radius: 11px;
+    font-size: 13px;
+  }
+
+  #settingsModal .setting-text .setting-title {
+    font-size: 14px;
+  }
+
+  #settingsModal .setting-text .setting-sub {
+    font-size: 10px;
+    line-height: 1.25;
+  }
+
+  #settingsModal .theme-select {
+    min-width: 90px;
+    min-height: 38px;
+    padding: 6px 8px;
+    font-size: 12px;
+  }
+
+  #settingsModal .settings-footer-card {
+    margin: 8px 11px 2px;
+  }
+
+  #settingsModal .settings-footer-tile {
+    padding: 8px 10px;
+    border-radius: 14px;
+  }
+
+  #settingsModal .settings-footer-tile .footer-title {
+    margin-bottom: 3px;
+    font-size: 12px;
+  }
+
+  #settingsModal .settings-footer-tile .footer-sub {
+    font-size: 10px;
+    line-height: 1.3;
+  }
+}
+
+#settingsModal .theme-toggle-control {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 9px;
+  min-height: 42px;
+  padding: 0 2px 0 8px;
+  color: rgba(255, 255, 255, 0.82);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+#settingsModal .theme-mode-label {
+  min-width: 30px;
+  font-size: 12px;
+  font-weight: 600;
+  text-align: right;
+}
+
+#settingsModal .theme-switch {
+  position: relative;
+  display: inline-flex;
+  flex: 0 0 auto;
+  width: 52px;
+  height: 30px;
+}
+
+#settingsModal .theme-switch input {
+  position: absolute;
+  z-index: 2;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+#settingsModal .theme-switch-track {
+  position: absolute;
+  inset: 0;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.18);
+  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.2);
+  transition: background 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
+}
+
+#settingsModal .theme-switch-track::before {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.28);
+  content: "";
+  transition: transform 180ms ease;
+}
+
+#settingsModal .theme-switch input:checked + .theme-switch-track {
+  border-color: rgba(57, 208, 164, 0.65);
+  background: linear-gradient(110deg, #167a83, #27b58c);
+  box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.2), 0 0 12px rgba(39, 181, 140, 0.2);
+}
+
+#settingsModal .theme-switch input:checked + .theme-switch-track::before {
+  transform: translateX(22px);
+}
+
+#settingsModal .theme-switch input:focus-visible + .theme-switch-track {
+  outline: 2px solid rgba(255, 255, 255, 0.9);
+  outline-offset: 3px;
+}

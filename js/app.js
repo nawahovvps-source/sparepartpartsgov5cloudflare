@@ -20,10 +20,10 @@ import {
     openAnnouncementEditor,
     showUnreadAnnouncementPopup,
     resetAnnouncementState
-} from './ui.js?v=19';
+} from './ui.js?v=20';
 import { handleClearCacheAndReload, ensureCacheFreshForVersion } from './cache.js';
 import { debounce } from './utils.js';
-import { loadTheme } from './theme.js?v=2';
+import { loadTheme } from './theme.js?v=3';
 import { loadData, applyFilters, showRequisitionDialog } from './modules/parts.js?v=44';
 import { applyFiltersImages } from './modules/images.js?v=39';
 import { loadTodayData, updateTableToday, exportTodayData, saveTodayDataSnapshot, initTodayListeners } from './modules/today.js?v=57';
