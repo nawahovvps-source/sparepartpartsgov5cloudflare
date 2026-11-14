@@ -64,9 +64,27 @@ export async function loadTodayData(options = {}) {
             ? state.todayData.filter(r => String(r.row_id).startsWith('temp_'))
             : [];
 
+        const previousRows = Array.isArray(state.todayData) ? state.todayData : [];
         const normalizedData = (Array.isArray(data) ? data : []).map((row, index) => {
             const rowId = row.row_id || row.id || (index + 2);
-            return { ...row, row_id: rowId, id: row.id || rowId };
+            const rowTimestamp = String(row.timestamp || row.Timestamp || '').trim();
+            const rowMaterial = String(row.material || row.Material || '').trim().toLowerCase();
+            const previouslyCancelled = previousRows.find(previous => {
+                if ((previous.status || previous.Status) !== 'ยกเลิก') return false;
+                const previousId = previous.row_id || previous.id || previous.IDRow || previous.idRow || '';
+                if (String(previousId) === String(rowId)) return true;
+                const previousTimestamp = String(previous.timestamp || previous.Timestamp || '').trim();
+                const previousMaterial = String(previous.material || previous.Material || '').trim().toLowerCase();
+                return rowTimestamp !== '' && rowTimestamp === previousTimestamp && rowMaterial === previousMaterial;
+            });
+            const normalizedRow = { ...row, row_id: rowId, id: row.id || rowId };
+            // OpenSheet may briefly return the pre-cancel status after Apps Script
+            // has already confirmed the write. Keep the confirmed state in the UI.
+            if (previouslyCancelled) {
+                normalizedRow.status = 'ยกเลิก';
+                if ('Status' in normalizedRow) normalizedRow.Status = 'ยกเลิก';
+            }
+            return normalizedRow;
         });
 
         // Smart Merge: Filter out temps that seemingly match a new real row
@@ -196,13 +214,15 @@ export function updateTableToday() {
 
     // Filter logic
     let filtered = state.todayData;
-    const userPlant = localStorage.getItem('userPlant') || '';
-    if (userPlant && userPlant !== 'None') {
-        filtered = filtered.filter(row => (row.plant || row.Plant || '').toString().trim() === userPlant);
-    }
-    else {
-        const userAuth = localStorage.getItem('userAuth');
-        if (userAuth !== 'Admin') filtered = [];
+    const userAuth = (localStorage.getItem('userAuth') || '').toString().trim();
+    if (userAuth !== 'Admin') {
+        const userTeam = (localStorage.getItem('userTeam') || '').toString().trim().toLocaleLowerCase();
+        filtered = userTeam
+            ? filtered.filter(row => {
+                const rowTeam = (row.Team || row.team || row['หน่วยงาน'] || '').toString().trim().toLocaleLowerCase();
+                return rowTeam === userTeam;
+            })
+            : [];
     }
 
     // Filter by pending vs all
@@ -278,7 +298,6 @@ export function updateTableToday() {
     tableBody.innerHTML = '';
 
     // Manage Header Visibility for Admin Features
-    const userAuth = localStorage.getItem('userAuth');
     const thSelect = document.getElementById('th-select-today');
     const thPrint = document.getElementById('th-print-today');
     if (thSelect) thSelect.style.display = (userAuth === 'Admin') ? '' : 'none';
@@ -357,13 +376,22 @@ export function updateTableToday() {
 
         // 2. Status
         const statusTd = document.createElement("td");
-        const status = row.status || row.Status || '';
+        const savedStatus = row.status || row.Status || '';
+        const orderedQuantity = parseSafeFloat(row.Quantity || row.quantity);
+        const statusMaterial = (row.Material || row.material || '').toString().trim();
+        const remainingStock = vMap[statusMaterial];
+        const status = savedStatus === 'สั่งเบิกแล้ว' && remainingStock !== undefined &&
+            parseSafeFloat(remainingStock) >= orderedQuantity
+            ? 'เข้าคลังแล้ว'
+            : savedStatus;
         const statusBadge = document.createElement('span');
         statusBadge.className = 'today-status-badge';
         if (status === 'รอเบิก') {
             statusBadge.classList.add('today-status-pending');
         } else if (status === 'สั่งเบิกแล้ว') {
             statusBadge.classList.add('today-status-issued');
+        } else if (status === 'เข้าคลังแล้ว') {
+            statusBadge.classList.add('today-status-stocked');
         } else if (status === 'ยกเลิก') {
             statusBadge.classList.add('today-status-cancelled');
         } else {
@@ -373,11 +401,14 @@ export function updateTableToday() {
         statusTd.className = 'today-status-cell';
         statusTd.appendChild(statusBadge);
         const statusRowId = row.row_id || row.id || row.IDRow || row.idRow || '';
-        if (status === 'รอเบิก' && !String(statusRowId).startsWith('temp_')) {
+        const loggedInName = (localStorage.getItem('userName') || '').toString().trim().toLowerCase();
+        const requestOwner = (row.EmployeeName || row.employeeName || '').toString().trim().toLowerCase();
+        const canCancelRequest = userAuth === 'Admin' || (loggedInName !== '' && requestOwner === loggedInName);
+        if (savedStatus === 'รอเบิก' && canCancelRequest && !String(statusRowId).startsWith('temp_')) {
             const cancelButton = document.createElement('button');
             cancelButton.type = 'button';
             cancelButton.className = 'today-cancel-button today-status-badge today-status-cancelled';
-            cancelButton.textContent = 'ยกเลิก';
+            cancelButton.innerHTML = '<i class="fas fa-trash-alt" aria-hidden="true"></i>';
             cancelButton.title = 'ยกเลิกรายการเบิกนี้';
             cancelButton.setAttribute('aria-label', 'ยกเลิกรายการเบิกนี้');
             cancelButton.addEventListener('click', event => {
@@ -471,8 +502,14 @@ export function updateTableToday() {
             if (col === "vibhavadi") {
                 const realStock = vMap[mat]; // Using lookup map
                 val = (realStock !== undefined) ? realStock.toLocaleString() : "0";
-                td.style.color = (realStock > 0) ? "#27ae60" : "#e74c3c";
-                td.style.fontWeight = "bold";
+                td.classList.add('today-stock-balance');
+                const balanceBadge = document.createElement('span');
+                balanceBadge.className = `today-status-badge today-stock-balance-badge ${realStock !== undefined && parseSafeFloat(realStock) >= orderedQuantity ? 'today-status-issued' : 'today-status-pending'}`;
+                balanceBadge.textContent = val;
+                balanceBadge.setAttribute('aria-label', `คงเหลือ ${val}`);
+                td.appendChild(balanceBadge);
+                tr.appendChild(td);
+                return;
             }
             if (col === "navanakorn") {
                 const realStock = nMap[mat];
@@ -564,7 +601,12 @@ async function cancelTodayRequest(row) {
     const confirmation = await Swal.fire({
         icon: 'warning',
         title: 'ยืนยันยกเลิกรายการ?',
-        text: `ยกเลิกรายการ ${row.Material || row.material || ''}`,
+        text: `ยกเลิกรายการ ${row.Material || row.material || ''}\n${row.Description || row.description || ''}`,
+        customClass: { htmlContainer: 'today-cancel-confirmation-text' },
+        didOpen: () => {
+            const content = Swal.getHtmlContainer();
+            if (content) content.style.whiteSpace = 'pre-line';
+        },
         showCancelButton: true,
         confirmButtonText: 'ยืนยันยกเลิก',
         cancelButtonText: 'กลับ',
@@ -604,7 +646,7 @@ async function cancelTodayRequest(row) {
             throw new Error(typeof updateResult === 'string' ? updateResult : 'ไม่สามารถอัปเดตสถานะได้');
         }
 
-        const verifiedUpdates = await verifyTodayStatusUpdates(payload);
+        const verifiedUpdates = await verifyTodayStatusUpdatesWithRetry(payload);
         if (!verifiedUpdates[0]) {
             throw new Error('ส่งคำขอแล้ว แต่ยังยืนยันสถานะ "ยกเลิก" จากฐานข้อมูลไม่ได้ กรุณารีเฟรชและตรวจสอบ');
         }
@@ -754,7 +796,9 @@ async function verifyTodayStatusUpdates(payload) {
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
     const result = await response.json();
-    const rows = result.data;
+    // GAS wraps getRequests rows as { status: 'success', data: [...] }.
+    // Accept either the wrapped GAS shape or a direct array response.
+    const rows = Array.isArray(result.data) ? result.data : result.data?.data;
     if (result.status !== 'success' || !Array.isArray(rows)) {
         throw new Error('ข้อมูลยืนยันผลการบันทึกไม่ถูกต้อง');
     }
@@ -783,6 +827,17 @@ async function verifyTodayStatusUpdates(payload) {
         const status = rows[index].status || rows[index].Status || '';
         return status === item.status;
     });
+}
+
+async function verifyTodayStatusUpdatesWithRetry(payload) {
+    // Sheets writes can be visible to the update endpoint before the read endpoint
+    // returns the new value. Retry briefly to avoid reporting a false failure.
+    for (let attempt = 0; attempt < 4; attempt++) {
+        const verified = await verifyTodayStatusUpdates(payload);
+        if (verified.every(Boolean)) return verified;
+        if (attempt < 3) await new Promise(resolve => setTimeout(resolve, 500));
+    }
+    return payload.map(() => false);
 }
 
 export async function saveTodayDataSnapshot() {

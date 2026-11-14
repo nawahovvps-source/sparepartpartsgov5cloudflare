@@ -2499,36 +2499,59 @@ body.dark-mode #parts #data-table tbody.parts-deck > tr > td:nth-child(8) .stock
   height: 32px;
   min-height: 32px;
   padding: 4px;
-  border: 1px solid transparent;
-  border-bottom-width: 3px;
+  border: 2px solid #25282c;
+  border-bottom-width: 4px;
   border-radius: 10px;
   font-size: 11px;
   font-weight: 700;
   line-height: 1.2;
   white-space: nowrap;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.75), 0 3px 0 rgba(0, 0, 0, 0.16), 0 5px 8px rgba(0, 0, 0, 0.12);
-  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.45);
+  box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.55), inset 0 -3px 0 rgba(0, 0, 0, 0.16), 0 2px 0 #111, 0 4px 5px rgba(0, 0, 0, 0.3);
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.18);
+}
+
+#today .today-stock-balance-badge {
+  flex: 0 0 34px;
+  width: 34px;
+  height: 34px;
+  min-width: 34px;
+  max-width: 34px;
+  min-height: 34px;
+  max-height: 34px;
+  padding: 0;
+  border-radius: 50%;
+  border-bottom-width: 3px;
+  font-size: 10px;
+  line-height: 1;
+  overflow: hidden;
 }
 
 #today .today-status-pending {
-  border-color: #e4a528;
-  border-bottom-color: #b98522;
-  background: linear-gradient(180deg, #fff8df 0%, #ffe6a3 100%);
-  color: #815500;
+  border-color: #754600;
+  border-bottom-color: #523000;
+  background: linear-gradient(180deg, #f4c65c 0%, #d99716 58%, #b97708 100%);
+  color: #fff9e8;
 }
 
 #today .today-status-issued {
-  border-color: #45a66b;
-  border-bottom-color: #287c49;
-  background: linear-gradient(180deg, #e6f8ec 0%, #bce8cb 100%);
-  color: #176638;
+  border-color: #15572f;
+  border-bottom-color: #0b351c;
+  background: linear-gradient(180deg, #54b875 0%, #258349 58%, #176536 100%);
+  color: #f2fff6;
+}
+
+#today .today-status-stocked {
+  border-color: #164c78;
+  border-bottom-color: #0c3150;
+  background: linear-gradient(180deg, #559bd4 0%, #2876b5 58%, #195a91 100%);
+  color: #f4faff;
 }
 
 #today .today-status-cancelled {
-  border-color: #dc6670;
-  border-bottom-color: #a63b45;
-  background: linear-gradient(180deg, #ffedef 0%, #f6c1c6 100%);
-  color: #9c2631;
+  border-color: #74131c;
+  border-bottom-color: #480a10;
+  background: linear-gradient(180deg, #f35b65 0%, #cc2633 58%, #a81220 100%);
+  color: #fff5f5;
 }
 
 #today .today-status-other {
@@ -2539,21 +2562,31 @@ body.dark-mode #parts #data-table tbody.parts-deck > tr > td:nth-child(8) .stock
 }
 
 body.dark-mode #today .today-status-pending {
-  border-color: #b98522;
-  background: linear-gradient(180deg, #5b4926 0%, #3b2e18 100%);
-  color: #ffda83;
+  border-color: #593400;
+  border-bottom-color: #382000;
+  background: linear-gradient(180deg, #bd861d 0%, #8d5d0d 100%);
+  color: #fff4d6;
 }
 
 body.dark-mode #today .today-status-issued {
-  border-color: #398454;
-  background: linear-gradient(180deg, #28573c 0%, #193727 100%);
-  color: #a5e5bb;
+  border-color: #104726;
+  border-bottom-color: #092d17;
+  background: linear-gradient(180deg, #2c8a4d 0%, #1b6035 100%);
+  color: #eaffef;
+}
+
+body.dark-mode #today .today-status-stocked {
+  border-color: #123d60;
+  border-bottom-color: #0a2940;
+  background: linear-gradient(180deg, #317db7 0%, #205b8a 100%);
+  color: #eaf6ff;
 }
 
 body.dark-mode #today .today-status-cancelled {
-  border-color: #ae4f58;
-  background: linear-gradient(180deg, #60363c 0%, #3a2025 100%);
-  color: #ffb6bd;
+  border-color: #631019;
+  border-bottom-color: #3f080e;
+  background: linear-gradient(180deg, #cb3441 0%, #921925 100%);
+  color: #fff0f1;
 }
 
 body.dark-mode #today .today-status-other {
@@ -6815,6 +6848,11 @@ body.dark-mode #parts #data-table tbody.parts-deck > tr > td:nth-child(2) img {
     white-space: nowrap;
   }
 
+  #today #data-table-today tbody.today-deck > tr > td.today-stock-balance {
+    font-size: 16px;
+    font-weight: 800;
+  }
+
   #today #data-table-today tbody.today-deck > tr > td:nth-child(11) {
     grid-area: vibhavadi;
   }
@@ -6921,21 +6959,36 @@ body.dark-mode #parts #data-table tbody.parts-deck > tr > td:nth-child(2) img {
 
 #today #data-table-today tbody.today-deck > tr > td.today-status-cell .today-cancel-button {
   display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 25px;
+  height: 25px;
+  min-width: 25px;
+  max-width: 25px;
+  padding: 0;
   margin-left: 8px;
   appearance: none;
   font-family: inherit;
+  color: #fff;
+  background: linear-gradient(180deg, #f35b65 0%, #cc2633 58%, #a81220 100%);
+  border: 2px solid #25282c;
+  border-bottom-width: 4px;
+  border-radius: 50%;
+  outline: none;
   cursor: pointer;
   touch-action: manipulation;
-  transition: transform 120ms ease, filter 120ms ease, box-shadow 120ms ease;
+  box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.55), inset 0 -2px 0 rgba(0, 0, 0, 0.16), 0 2px 0 #111, 0 4px 5px rgba(0, 0, 0, 0.3);
+  font-size: 12px;
+  line-height: 1;
 }
 
 #today #data-table-today tbody.today-deck > tr > td.today-status-cell .today-cancel-button:hover {
-  filter: brightness(0.97);
-  transform: translateY(-1px);
+  color: #fff;
+  background: linear-gradient(180deg, #e84b55 0%, #ba1e2a 58%, #920e19 100%);
 }
 
 #today #data-table-today tbody.today-deck > tr > td.today-status-cell .today-cancel-button:active {
-  box-shadow: inset 0 2px 3px rgba(0, 0, 0, 0.2), 0 1px 0 rgba(0, 0, 0, 0.16);
+  box-shadow: inset 0 2px 3px rgba(0, 0, 0, 0.28), 0 1px 0 #111;
   transform: translateY(2px);
 }
 
@@ -6957,10 +7010,18 @@ body.dark-mode #parts #data-table tbody.parts-deck > tr > td:nth-child(2) img {
   }
 
   #today #data-table-today tbody.today-deck > tr > td.today-status-cell .today-cancel-button {
-    flex: 0 1 72px;
-    max-width: calc((100% - 8px) / 2);
-    min-width: 0;
-    margin-left: auto;
+    flex: 0 0 25px;
+    width: 25px;
+    height: 25px;
+    min-width: 25px;
+    max-width: 25px;
+    min-height: 25px;
+    max-height: 25px;
+    aspect-ratio: 1 / 1;
+    padding: 0 !important;
+    margin-left: 8px;
+    border-radius: 50% !important;
+    outline: none;
   }
 
   #today #data-table-today tbody.today-deck > tr > td.today-status-cell .today-status-badge {
@@ -6969,6 +7030,32 @@ body.dark-mode #parts #data-table tbody.parts-deck > tr > td:nth-child(2) img {
     min-width: 0;
     padding: 4px 7px;
     font-size: 10px;
+  }
+
+  #today #data-table-today tbody.today-deck > tr > td.today-status-cell .today-cancel-button.today-status-badge {
+    flex: 0 0 25px;
+    width: 25px;
+    height: 25px;
+    min-width: 25px;
+    max-width: 25px;
+    min-height: 25px;
+    max-height: 25px;
+    padding: 0;
+    aspect-ratio: 1 / 1;
+    border-radius: 50%;
+  }
+
+  #today #data-table-today tbody.today-deck > tr > td.today-stock-balance .today-stock-balance-badge {
+    flex: 0 0 32px;
+    width: 32px;
+    height: 32px;
+    min-width: 32px;
+    max-width: 32px;
+    min-height: 32px;
+    max-height: 32px;
+    padding: 0;
+    border-radius: 50%;
+    font-size: 9px;
   }
 
   #today #data-table-today tbody.today-deck > tr > td.today-status-cell {
