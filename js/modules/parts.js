@@ -542,6 +542,120 @@ export async function showRequisitionDialog(row) {
     };
 
     // Pre-Requisition Checks Logic
+    // 0. ตรวจสอบอันดับแรก: ตรวจสอบข้อมูลในแท็บเบิกวันนี้ Status=รอเบิก ที่หน่วยงาน และ Material ตรงกัน
+    let userTeam = (localStorage.getItem('userTeam') || '').trim();
+    if (!userTeam && savedUsername) {
+        try {
+            const employees = await loadEmployeeData();
+            const emp = employees.find(e => String(e.IDRec || '').trim() === String(savedUsername).trim());
+            if (emp && emp.หน่วยงาน) {
+                userTeam = String(emp.หน่วยงาน).trim();
+                localStorage.setItem('userTeam', userTeam);
+            }
+        } catch (e) {
+            console.warn('Error loading employee team for requisition check:', e);
+        }
+    }
+
+    if (!state.todayDataLoaded || !Array.isArray(state.todayData)) {
+        try {
+            const { loadTodayData } = await import('./today.js');
+            await loadTodayData({ silent: true });
+        } catch (err) {
+            console.warn('Could not load todayData for duplicate requisition check:', err);
+        }
+    }
+
+    const targetMaterial = String(row.Material || row.material || '').trim().toLowerCase();
+    const userTeamNorm = String(userTeam || '').trim().toLowerCase();
+
+    if (userTeamNorm && targetMaterial && Array.isArray(state.todayData)) {
+        const matchingRequests = state.todayData.filter(item => {
+            const itemStatus = String(item.status || item.Status || '').trim();
+            if (itemStatus !== 'รอเบิก') return false;
+
+            const itemTeam = String(item.team || item.Team || item['หน่วยงาน'] || '').trim().toLowerCase();
+            const itemMaterial = String(item.material || item.Material || '').trim().toLowerCase();
+
+            return itemTeam === userTeamNorm && itemMaterial === targetMaterial;
+        });
+
+        if (matchingRequests.length > 0) {
+            const totalPendingQty = matchingRequests.reduce((sum, item) => {
+                const q = parseSafeFloat(item.quantity !== undefined ? item.quantity : (item.Quantity !== undefined ? item.Quantity : item['จำนวนสั่ง']));
+                return sum + (q > 0 ? q : 0);
+            }, 0);
+
+            const techList = [...new Set(matchingRequests.map(item => {
+                return String(item.employeeName || item.EmployeeName || item['ชื่อช่าง'] || '').trim();
+            }).filter(Boolean))];
+            const technicianDisplay = techList.length > 0 ? techList.join(', ') : 'ช่างในหน่วยงาน';
+
+            const isDark = document.body.classList.contains('dark-mode');
+            const duplicateWarningResult = await Swal.fire({
+                title: '<strong style="font-size:24px; color:#e67e22;">คำเตือน!</strong>',
+                iconColor: '#f39c12',
+                width: window.innerWidth <= 480 ? '90%' : '560px',
+                padding: '30px 20px',
+                background: isDark ? '#2d2d2d' : '#ffffff',
+                backdrop: 'rgba(0,0,0,0.85)',
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                showCancelButton: true,
+                confirmButtonText: '<i class="fas fa-check"></i> ยืนยัน',
+                cancelButtonText: '<i class="fas fa-times"></i> ยกเลิก',
+                reverseButtons: true,
+                buttonsStyling: false,
+                html: `
+            <div style="text-align:center; margin:20px 0;">
+              <i class="fas fa-exclamation-triangle" style="font-size:60px; color:#f39c12; margin-bottom:15px; opacity:0.9;"></i>
+              <div style="font-size:18px; font-weight:700; color:#e67e22;">
+                ${row.Material || ''}
+              </div>
+              <div style="font-size:16px; font-weight:600; color:${isDark ? '#e0e0e0' : '#444'}; margin-top:8px;">
+                ${row.Description || ''}
+              </div>
+              <div style="
+                margin-top:18px; 
+                padding:16px 20px; 
+                background:${isDark ? '#3d3120' : '#fff8e1'}; 
+                border:2px solid #f39c12; 
+                border-radius:14px; 
+                font-size:16px; 
+                text-align:left;
+                box-shadow:0 3px 10px rgba(243,156,18,0.15);
+              ">
+                <div style="font-size:15px; color:${isDark ? '#f39c12' : '#d35400'}; font-weight:bold; margin-bottom:8px; display:flex; align-items:center; gap:8px;">
+                  <i class="fas fa-users" style="font-size:18px;"></i>
+                  <span>หน่วยงาน: ${userTeam}</span>
+                </div>
+                <div style="font-size:16px; color:${isDark ? '#ecf0f1' : '#2c3e50'}; line-height:1.6;">
+                  <strong>${row.Description || row.Material || ''}</strong> อะไหล่ตัวนี้ มีช่างในทีมเดียวกัน ได้ทำการเบิกแล้ว จำนวน <span style="font-size:22px; font-weight:800; color:#e74c3c;">${totalPendingQty.toLocaleString()}</span> ตรวจสอบที่เมนู <strong>เบิกวันนี้</strong>
+                </div>
+                <div style="font-size:15px; color:${isDark ? '#bdc3c7' : '#7f8c8d'}; margin-top:8px;">
+                  <i class="fas fa-user-clock" style="margin-right:6px;"></i>ช่างที่เบิก: <strong style="color:${isDark ? '#fff' : '#333'};">${technicianDisplay}</strong>
+                </div>
+              </div>
+              <div style="font-size:16px; color:#e74c3c; font-weight:bold; margin-top:18px;">
+                กรุณาตรวจสอบ และถ้ายังจำเป็นให้กดยืนยัน
+              </div>
+            </div>
+          `,
+                didOpen: () => {
+                    const confirmBtn = document.querySelector('.swal2-confirm');
+                    const cancelBtn = document.querySelector('.swal2-cancel');
+                    if (confirmBtn) confirmBtn.style.cssText = `background: linear-gradient(135deg, #e67e22, #d35400) !important; color: white !important; padding: 14px 36px !important; border-radius: 30px !important; font-size: 17px !important; font-weight: bold !important; box-shadow: 0 6px 20px rgba(230,126,34,0.5) !important;`;
+                    if (cancelBtn) cancelBtn.style.cssText = `background: linear-gradient(135deg, #95a5a6, #7f8c8d) !important; color: white !important; padding: 14px 36px !important; border-radius: 30px !important; font-size: 17px !important; font-weight: bold !important; box-shadow: 0 6px 20px rgba(127,140,141,0.5) !important;`;
+                }
+            });
+
+            if (duplicateWarningResult.isDismissed) {
+                document.body.style.overflow = 'auto';
+                return;
+            }
+        }
+    }
+
     const vibhavadiValue = parseSafeFloat(row["วิภาวดี"]);
     const unrestrictedValue = parseSafeFloat(row["Unrestricted"] !== undefined ? row["Unrestricted"] : row["นวนคร"]);
     const remark = (row["หมายเหตุ"] || '').toString().trim();

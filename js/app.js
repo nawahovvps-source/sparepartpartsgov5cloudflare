@@ -26,7 +26,7 @@ import {
 import { handleClearCacheAndReload, ensureCacheFreshForVersion } from './cache.js';
 import { debounce } from './utils.js';
 import { loadTheme } from './theme.js?v=3';
-import { loadData, applyFilters, showRequisitionDialog } from './modules/parts.js?v=48';
+import { loadData, applyFilters, showRequisitionDialog } from './modules/parts.js?v=50';
 import { applyFiltersImages } from './modules/images.js?v=39';
 import { loadTodayData, updateTableToday, exportTodayData, saveTodayDataSnapshot, initTodayListeners } from './modules/today.js?v=59';
 import { loadPendingCallsData, initPendingListeners } from './modules/pending.js?v=52';
@@ -443,6 +443,7 @@ window.addEventListener('auth-changed', (e) => {
             state.pendingDataLoaded = false;
         }
         window.showTab('parts');
+        loadTodayData({ silent: true }).catch(() => {});
     } else {
         stopAnnouncementBackgroundCheck();
         resetAnnouncementState();
