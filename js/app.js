@@ -5,7 +5,7 @@ import {
     handleLogout,
     checkLoginStatus,
     checkAuthForRequisition
-} from './auth.js?v=3';
+} from './auth.js';
 import {
     hideLoading,
     showDetailModal,
@@ -22,15 +22,15 @@ import {
     resetAnnouncementState,
     startAnnouncementBackgroundCheck,
     stopAnnouncementBackgroundCheck
-} from './ui.js?v=28';
+} from './ui.js';
 import { handleClearCacheAndReload, ensureCacheFreshForVersion } from './cache.js';
 import { debounce } from './utils.js';
-import { loadTheme } from './theme.js?v=3';
-import { loadData, applyFilters, showRequisitionDialog } from './modules/parts.js?v=50';
-import { applyFiltersImages } from './modules/images.js?v=39';
-import { loadTodayData, updateTableToday, exportTodayData, saveTodayDataSnapshot, initTodayListeners } from './modules/today.js?v=59';
-import { loadPendingCallsData, initPendingListeners } from './modules/pending.js?v=52';
-import { loadAllData } from './modules/all.js?v=39';
+import { loadTheme } from './theme.js';
+import { loadData, loadImageDatabase, applyFilters, showRequisitionDialog } from './modules/parts.js';
+import { applyFiltersImages } from './modules/images.js';
+import { loadTodayData, updateTableToday, exportTodayData, saveTodayDataSnapshot, initTodayListeners } from './modules/today.js';
+import { loadPendingCallsData, initPendingListeners } from './modules/pending.js';
+import { loadAllData } from './modules/all.js';
 
 const passwordToggleButton = document.getElementById('togglePassword');
 if (passwordToggleButton) {
@@ -224,7 +224,7 @@ window.showTab = function (tabId) {
     switch (tabId) {
         case "parts":
             const pParts = !state.partsDataLoaded ? loadData() : Promise.resolve();
-            const pImgParts = !state.imageDbLoaded ? import('./modules/parts.js').then(m => m.loadImageDatabase()) : Promise.resolve();
+            const pImgParts = !state.imageDbLoaded ? loadImageDatabase() : Promise.resolve();
             Promise.all([pParts, pImgParts]).then(() => {
                 applyFilters(); // Apply filters (which may have been synced)
                 hideLoading();
@@ -232,7 +232,7 @@ window.showTab = function (tabId) {
             break;
         case "images":
             const dp = !state.partsDataLoaded ? loadData() : Promise.resolve();
-            const dip = !state.imageDbLoaded ? import('./modules/parts.js').then(m => m.loadImageDatabase()) : Promise.resolve();
+            const dip = !state.imageDbLoaded ? loadImageDatabase() : Promise.resolve();
 
             Promise.all([dp, dip]).then(() => {
                 applyFiltersImages();
@@ -249,7 +249,7 @@ window.showTab = function (tabId) {
 
             // Image DB loading (concurrent)
             if (!state.imageDbLoaded) {
-                import('./modules/parts.js').then(m => m.loadImageDatabase());
+                loadImageDatabase();
             }
             break;
         case "pending-calls":

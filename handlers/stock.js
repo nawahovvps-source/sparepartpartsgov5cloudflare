@@ -47,7 +47,8 @@ module.exports = async (req, res) => {
   let location = req.query.location;
   if (location === 'vibhavadi') {
     try {
-      const plant = await getUserPlant(req);
+      const tokenPlant = normalizePlant(req.user && req.user.plant);
+      const plant = tokenPlant || await getUserPlant(req);
       location = ['0304', '0326', '0330'].includes(plant) ? plant : '0326';
     } catch (error) {
       console.error('Failed to determine stock sheet for user:', error);

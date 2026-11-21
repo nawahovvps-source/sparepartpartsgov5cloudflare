@@ -2,7 +2,7 @@ import { state } from './state.js';
 import { checkAuthForRequisition, loadEmployeeData } from './auth.js';
 import { getStorageBinValue, extractIdFromUrlWeb, parseSafeFloat } from './utils.js';
 import { apiFetch } from './api.js';
-import { getBorrowTotal, loadBorrowData, showBorrowPopup } from './loans.js?v=3';
+import { getBorrowTotal, loadBorrowData, showBorrowPopup } from './loans.js';
 
 export function hideLoading() {
     const loading = document.getElementById("loading");

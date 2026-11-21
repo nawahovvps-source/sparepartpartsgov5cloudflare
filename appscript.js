@@ -108,7 +108,7 @@ function handle(e) {
           obj.row_id = idx + 2;
           obj.id = obj.row_id;
           return obj;
-        }).filter(r => r.material && r.material.trim() !== '');
+        }).filter(r => String(r.material ?? '').trim() !== '');
         response = { status: 'success', data: requests };
         break;
       }

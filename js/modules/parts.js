@@ -12,6 +12,85 @@ import { getBorrowTotal, loadBorrowData, showBorrowPopup } from '../loans.js';
 // Backward compatibility for cached files that might still request loadPartsData
 export { loadData as loadPartsData };
 
+let stockRefreshPromise = null;
+
+export async function refreshStocksOnly() {
+    if (!state.partsDataLoaded || !Array.isArray(state.allData) || state.allData.length === 0) {
+        await loadData({ render: false });
+        return true;
+    }
+
+    if (stockRefreshPromise) return stockRefreshPromise;
+
+    stockRefreshPromise = (async () => {
+        try {
+            const cacheBuster = `_t=${Date.now()}`;
+            const [vibhaRes, nawaRes] = await Promise.all([
+                apiFetch(`${CONFIG.ENDPOINTS.STOCK}?location=vibhavadi&${cacheBuster}`, { cache: 'no-store' }),
+                apiFetch(`${CONFIG.ENDPOINTS.STOCK}?location=nawanakorn&${cacheBuster}`, { cache: 'no-store' })
+            ]);
+
+            const vibhaData = vibhaRes.ok ? await vibhaRes.json() : null;
+            const nawaData = nawaRes.ok ? await nawaRes.json() : null;
+            if (!Array.isArray(vibhaData) && !Array.isArray(nawaData)) return false;
+
+            const vibhaMap = new Map();
+            if (Array.isArray(vibhaData)) {
+                vibhaData.forEach(item => {
+                    const mat = (item.Material || "").toString().trim();
+                    if (mat) {
+                        vibhaMap.set(mat, {
+                            stock: item.Unrestricted || item["คงเหลือ"] || item["วิภาวดี"] || "0",
+                            storageBin: item["Storage bin"] || item["Storage Bin"] || item["storage bin"] || ""
+                        });
+                    }
+                });
+            }
+
+            const nawaMap = new Map();
+            if (Array.isArray(nawaData)) {
+                nawaData.forEach(item => {
+                    const mat = (item.Material || "").toString().trim();
+                    if (mat) nawaMap.set(mat, item.Unrestricted || "0");
+                });
+            }
+
+            state.allData.forEach(row => {
+                const mat = (row.Material || "").toString().trim();
+                if (Array.isArray(vibhaData)) {
+                    if (vibhaMap.has(mat)) {
+                        const vibhaStock = vibhaMap.get(mat);
+                        row['วิภาวดี'] = vibhaStock.stock;
+                        row['Storage bin'] = vibhaStock.storageBin;
+                    } else {
+                        row['วิภาวดี'] = "0";
+                        row['Storage bin'] = "";
+                    }
+                }
+                if (Array.isArray(nawaData)) {
+                    if (nawaMap.has(mat)) {
+                        row['Unrestricted'] = nawaMap.get(mat);
+                        row['นวนคร'] = nawaMap.get(mat);
+                    } else {
+                        row['Unrestricted'] = "0";
+                        row['นวนคร'] = "0";
+                    }
+                }
+            });
+
+            state.stockDataVersion += 1;
+            return true;
+        } catch (error) {
+            console.warn('Background stock refresh failed:', error);
+            return false;
+        } finally {
+            stockRefreshPromise = null;
+        }
+    })();
+
+    return stockRefreshPromise;
+}
+
 export async function loadData(options = {}) {
     // Default options
     const { render = true } = options;
@@ -105,6 +184,7 @@ export async function loadData(options = {}) {
             if (render) {
                 processAndRenderData(mergedData);
                 state.partsDataLoaded = true;
+                state.stockDataVersion += 1;
             } else {
                 // Determine search string but don't render UI
                 state.allData = mergedData.map(row => {
@@ -113,6 +193,7 @@ export async function loadData(options = {}) {
                 });
                 state.tempFilteredData = state.allData;
                 state.partsDataLoaded = true;
+                state.stockDataVersion += 1;
             }
 
             return mergedData;

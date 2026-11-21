@@ -3,7 +3,7 @@ import { state } from '../state.js';
 import { CONFIG } from '../config.js';
 import { renderPagination } from '../ui.js';
 import { parseSafeFloat } from '../utils.js';
-import { loadData } from './parts.js?v=40';
+import { loadData } from './parts.js';
 import { getBorrowTotal, loadBorrowData, showBorrowPopup } from '../loans.js';
 
 let pendingAvailabilityFilter = 'available';

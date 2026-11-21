@@ -3,7 +3,7 @@ import { state } from '../state.js';
 import { CONFIG } from '../config.js';
 import { hideLoading, showDetailModal, renderPagination } from '../ui.js';
 import { sortByColumn, parseSafeFloat, getStorageBinValue } from '../utils.js';
-import { loadImageDatabase, loadData } from './parts.js?v=40';
+import { loadImageDatabase, loadData, refreshStocksOnly } from './parts.js';
 
 let todayFetchController = null;
 
@@ -26,9 +26,10 @@ export async function loadTodayData(options = {}) {
         return;
     }
 
+    const loadingToday = document.getElementById("loadingToday");
     if (!silent) {
-        document.getElementById("loading").style.display = "flex";
-        const loadingToday = document.getElementById("loadingToday");
+        const loadingEl = document.getElementById("loading");
+        if (loadingEl) loadingEl.style.display = "flex";
         if (loadingToday) loadingToday.style.display = "block";
     } else {
         // Show non-intrusive icon
@@ -48,9 +49,20 @@ export async function loadTodayData(options = {}) {
             cache: 'no-store'
         });
 
-        // Load image DB and Parts Data (for stock) in parallel or sequence
-        loadImageDatabase().catch(err => console.warn("Background Image DB load failed", err));
-        loadData({ render: false }).catch(err => console.warn("Background Parts DB load failed", err));
+        // Load image DB only if not loaded, and refresh stock numbers (Vibhavadi + Nawanakorn) in parallel
+        if (!state.imageDbLoaded) {
+            loadImageDatabase().catch(err => console.warn("Background Image DB load failed", err));
+        }
+        const stockRefreshTask = state.partsDataLoaded
+            ? refreshStocksOnly()
+            : loadData({ render: false }).then(() => true);
+        stockRefreshTask
+            .then(updated => {
+                if (updated && state.todayDataLoaded) {
+                    updateTableToday();
+                }
+            })
+            .catch(err => console.warn("Background stock refresh failed", err));
 
         clearTimeout(timeoutId);
 
@@ -127,8 +139,16 @@ export async function loadTodayData(options = {}) {
     } catch (error) {
         if (error.name === 'AbortError') return;
         console.error("Load today failed", error);
+        if (errorContainer) {
+            errorContainer.style.display = "block";
+            const errorMsg = document.getElementById("error-message-today");
+            if (errorMsg) {
+                errorMsg.textContent = `โหลดข้อมูลเบิกวันนี้ไม่สำเร็จ (${error.message || 'กรุณาลองใหม่'})`;
+            }
+        }
     } finally {
         if (timeoutId) clearTimeout(timeoutId);
+        if (todayFetchController === controller) todayFetchController = null;
         if (loadingToday) loadingToday.style.display = "none";
         if (!silent) hideLoading();
 
@@ -142,11 +162,17 @@ export async function loadTodayData(options = {}) {
 
 // Helper to get stock maps from state.allData
 let cachedStockMaps = null;
-let lastAllDataLength = 0;
+let lastAllDataRef = null;
+let lastStockDataVersion = -1;
 
 function getStockMaps() {
-    // Return cached if valid
-    if (cachedStockMaps && state.allData && state.allData.length === lastAllDataLength) {
+    // Return cached if data reference and stock version haven't changed
+    if (
+        cachedStockMaps &&
+        state.allData &&
+        state.allData === lastAllDataRef &&
+        state.stockDataVersion === lastStockDataVersion
+    ) {
         return cachedStockMaps;
     }
 
@@ -163,7 +189,8 @@ function getStockMaps() {
                 binMap[mat] = getStorageBinValue(row) || "-";
             }
         });
-        lastAllDataLength = state.allData.length;
+        lastAllDataRef = state.allData;
+        lastStockDataVersion = state.stockDataVersion;
         cachedStockMaps = { vMap, nMap, binMap };
     } else {
         return { vMap: {}, nMap: {}, binMap: {} };

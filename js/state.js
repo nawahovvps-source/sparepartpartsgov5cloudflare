@@ -9,6 +9,7 @@ export const state = {
 
     // Parts Tab State
     allData: [],
+    stockDataVersion: 0,
     search1: '',
     search2: '',
     currentFilteredData: [],
